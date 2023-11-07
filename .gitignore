@@ -1,0 +1,15 @@
+# Visual Studio
+/.vs/
+
+# Rider
+riderModule.iml
+/_ReSharper.Caches/
+/.idea/
+
+# User-specific
+/NekoDev.sln.DotSettings.user
+
+# Output files
+/build/
+bin/
+obj/
