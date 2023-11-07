@@ -1,0 +1,6 @@
+C:\Users\spger\OneDrive\Документы\uca\Paganism\Paganism\bin\Debug\Paganism.dll
+C:\Users\spger\OneDrive\Документы\uca\Paganism\Paganism\bin\Debug\Paganism.pdb
+C:\Users\spger\OneDrive\Документы\uca\Paganism\Paganism\obj\Debug\Paganism.csproj.AssemblyReference.cache
+C:\Users\spger\OneDrive\Документы\uca\Paganism\Paganism\obj\Debug\Paganism.csproj.CoreCompileInputs.cache
+C:\Users\spger\OneDrive\Документы\uca\Paganism\Paganism\obj\Debug\Paganism.dll
+C:\Users\spger\OneDrive\Документы\uca\Paganism\Paganism\obj\Debug\Paganism.pdb

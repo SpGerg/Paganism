@@ -1,0 +1,10 @@
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\bin\Debug\PaganismCustomConsole.exe.config
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\bin\Debug\PaganismCustomConsole.exe
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\bin\Debug\PaganismCustomConsole.pdb
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\bin\Debug\Paganism.dll
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\obj\Debug\PaganismCustomConsole.csproj.AssemblyReference.cache
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\obj\Debug\PaganismCustomConsole.csproj.SuggestedBindingRedirects.cache
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\obj\Debug\PaganismCustomConsole.csproj.CoreCompileInputs.cache
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\obj\Debug\PaganismCustomConsole.csproj.CopyComplete
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\obj\Debug\PaganismCustomConsole.exe
+C:\Users\spger\OneDrive\Документы\uca\Paganism\PaganismCustomConsole\obj\Debug\PaganismCustomConsole.pdb
