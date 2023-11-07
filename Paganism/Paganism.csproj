@@ -35,6 +35,7 @@
     <Compile Include="Lexer\Enums\TokenType.cs" />
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Token.cs" />
+    <Compile Include="Lexer\Tokenizers\NumberTokenizer.cs" />
     <Compile Include="Lexer\Tokenizers\StringTokenizer.cs" />
     <Compile Include="Lexer\Tokenizers\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

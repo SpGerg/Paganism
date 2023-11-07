@@ -41,9 +41,20 @@ namespace Paganism.Lexer
                         tokens.Add(token);
                     }
 
+                    if (char.IsDigit(Current))
+                    {
+                        var tokenizer = new NumberTokenizer(Text, Position, Line);
+                        var token = tokenizer.Tokenize();
+                        Position = tokenizer.Position;
+                        Line = tokenizer.Line;
+
+                        tokens.Add(token);
+                    }
+
                     Position++;
                 }
 
+                Position = 0;
                 Line++;
             }
 

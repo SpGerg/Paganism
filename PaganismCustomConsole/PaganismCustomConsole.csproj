@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ChangeDirectoryCommand.cs" />
     <Compile Include="Commands\CompileCommand.cs" />
     <Compile Include="API\Features\CustomConsole.cs" />
     <Compile Include="API\Features\Commands\CommandBase.cs" />

@@ -16,18 +16,25 @@ namespace PaganismCustomConsole.API.Features.Commands
 
         public virtual CommandParameter[] Parameters { get; } = new CommandParameter[0];
 
+        public CustomConsole CustomConsole { get; }
+
+        protected CommandBase(CustomConsole customConsole)
+        {
+            CustomConsole = customConsole;
+        }
+
         public abstract bool Execute(Dictionary<string, string> arguments, out string response);
 
         public bool Execute(ArraySegment<string> arguments, out string response)
         {
-            if (arguments.Count < Parameters.Length)
+            if (arguments.Count - 1 < Parameters.Length)
             {
                 var stringBuilder = new StringBuilder();
                 stringBuilder.AppendLine("Command paramaters: ");
 
                 foreach (var parameter in Parameters)
                 {
-                    stringBuilder.AppendLine($"{parameter.Name}: {parameter.Description} " + parameter.Type == null ? string.Empty : parameter.Type.Name);
+                    stringBuilder.AppendLine($"{parameter.Name}: {parameter.Description} " + (parameter.Type is null ? string.Empty : parameter.Type.Name));
                 }
 
                 response = stringBuilder.ToString();

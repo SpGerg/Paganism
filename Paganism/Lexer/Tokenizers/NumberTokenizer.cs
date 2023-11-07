@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.Lexer.Tokenizers
 {
-    public class StringTokenizer : Tokenizer
+    public class NumberTokenizer : Tokenizer
     {
-        public StringTokenizer(string[] text, int position, int line)
+        public NumberTokenizer(string[] text, int position, int line)
         {
             Text = text;
             Position = position;
@@ -37,10 +37,15 @@ namespace Paganism.Lexer.Tokenizers
             {
                 while (Position < Text[Line].Length)
                 {
-                    if (Current == '\"')
+                    if (!char.IsDigit(Current) && Current != '.')
                     {
+                        if (Current == '.' && line.Contains('.'))
+                        {
+                            throw new Exception($"Two points in number. Line: {Line}, position: {Position}");
+                        }
+
                         Position++; //Skip " again
-                        return new Token(line, startPosition, startLine, TokenType.String);
+                        return new Token(line, startPosition, startLine, TokenType.Number);
                     }
 
                     line += Current;
@@ -51,7 +56,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new Exception($"String is not ended. Line: {startLine}, position: {startPosition}");
+            throw new Exception($"Number is infinity. Line: {startLine}, position: {startPosition}");
         }
     }
 }

@@ -14,12 +14,20 @@ namespace PaganismCustomConsole.API.Features
 
         public bool IsOpen { get; set; }
 
-        public CustomConsole()
+        public string CurrentDirectory { get; set; }
+
+        public bool IsDebug { get; }
+
+        public CustomConsole(bool isDebug)
         {
             Commands = new CommandBase[]
             {
-                new CompileCommand()
+                new CompileCommand(this),
+                new ChangeDirectoryCommand(this)
             };
+
+            IsDebug = isDebug;
+            CurrentDirectory = Environment.CurrentDirectory;
         }
 
         public void Run()
@@ -28,12 +36,12 @@ namespace PaganismCustomConsole.API.Features
 
             while (IsOpen)
             {
-                Console.Write(">>> ");
+                Console.Write($"{CurrentDirectory}> ");
                 string line = Console.ReadLine();
 
                 var arguments = line.Split(' ');
 
-                var executeCommand = Commands.FirstOrDefault(command => command.Command == arguments[0]);
+                var executeCommand = Commands.FirstOrDefault(command => command.Command == arguments[0] || command.Aliases.Contains(arguments[0]));
 
                 if (executeCommand == default)
                 {
