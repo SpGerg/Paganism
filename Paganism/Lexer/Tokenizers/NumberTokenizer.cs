@@ -26,12 +26,10 @@ namespace Paganism.Lexer.Tokenizers
 
         public override Token Tokenize()
         {
-            Position++; //Skip "
-
             int startPosition = Position;
             int startLine = Line;
 
-            string line = string.Empty;
+            string savedLine = string.Empty;
 
             while (Line < Text.Length)
             {
@@ -39,17 +37,16 @@ namespace Paganism.Lexer.Tokenizers
                 {
                     if (!char.IsDigit(Current) && Current != '.')
                     {
-                        if (Current == '.' && line.Contains('.'))
+                        if (Current == '.' && savedLine.Contains('.'))
                         {
                             throw new Exception($"Two points in number. Line: {Line}, position: {Position}");
                         }
 
-                        Position++; //Skip " again
-                        return new Token(line, startPosition, startLine, TokenType.Number);
+                        Position--; //Cuz in next iterate in main lexer loop, lexer skip this non number token
+                        return new Token(savedLine, startPosition, startLine, TokenType.Number);
                     }
 
-                    line += Current;
-
+                    savedLine += Current;
                     Position++;
                 }
 

@@ -31,7 +31,7 @@ namespace Paganism.Lexer.Tokenizers
             int startPosition = Position;
             int startLine = Line;
 
-            string line = string.Empty;
+            string savedLine = string.Empty;
 
             while (Line < Text.Length)
             {
@@ -39,11 +39,10 @@ namespace Paganism.Lexer.Tokenizers
                 {
                     if (Current == '\"')
                     {
-                        Position++; //Skip " again
-                        return new Token(line, startPosition, startLine, TokenType.String);
+                        return new Token(savedLine, startPosition, startLine, TokenType.String);
                     }
 
-                    line += Current;
+                    savedLine += Current;
 
                     Position++;
                 }

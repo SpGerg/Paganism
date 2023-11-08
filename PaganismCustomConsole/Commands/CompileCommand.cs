@@ -33,7 +33,7 @@ namespace PaganismCustomConsole.Commands
 
             if (CustomConsole.IsDebug)
             {
-                lexer = new Lexer(new string[] { "print(\"Hello, world\")", "print(12345689.25)" });
+                lexer = new Lexer(new string[] { "print(\"Hello, world\")", "print(12345689.25 + 2.5)", "print(\"Hello, world\")" });
             }
             else
             {

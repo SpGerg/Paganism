@@ -36,8 +36,10 @@
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Token.cs" />
     <Compile Include="Lexer\Tokenizers\NumberTokenizer.cs" />
+    <Compile Include="Lexer\Tokenizers\OperatorTokenizer.cs" />
     <Compile Include="Lexer\Tokenizers\StringTokenizer.cs" />
     <Compile Include="Lexer\Tokenizers\Tokenizer.cs" />
+    <Compile Include="Lexer\Tokens.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

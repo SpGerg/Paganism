@@ -27,10 +27,14 @@ namespace Paganism.Lexer
         {
             List<Token> tokens = new List<Token>();
 
+            var savedLine = string.Empty;
+
             while (Line < Text.Length)
             {
                 while (Position < Text[Line].Length)
                 {
+                    savedLine += Current;
+
                     if (Current == '\"')
                     {
                         var tokenizer = new StringTokenizer(Text, Position, Line);
@@ -38,22 +42,32 @@ namespace Paganism.Lexer
                         Position = tokenizer.Position;
                         Line = tokenizer.Line;
 
+                        savedLine = string.Empty;
                         tokens.Add(token);
                     }
-
-                    if (char.IsDigit(Current))
+                    else if (char.IsDigit(Current))
                     {
                         var tokenizer = new NumberTokenizer(Text, Position, Line);
                         var token = tokenizer.Tokenize();
                         Position = tokenizer.Position;
                         Line = tokenizer.Line;
 
+                        savedLine = string.Empty;
+                        tokens.Add(token);
+                    }
+                    else if (Tokens.OperatorsType.ContainsKey(Current.ToString()))
+                    {
+                        var tokenizer = new OperatorTokenizer(Current.ToString(), tokens, savedLine.Remove(savedLine.Length - 1), Position, Line);
+                        var token = tokenizer.Tokenize();
+
+                        savedLine = string.Empty;
                         tokens.Add(token);
                     }
 
                     Position++;
                 }
 
+                savedLine = string.Empty;
                 Position = 0;
                 Line++;
             }

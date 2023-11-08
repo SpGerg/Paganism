@@ -14,6 +14,12 @@ namespace Paganism.Lexer.Enums
         Boolean = 3,
         Colon = 4,
         Semicolon = 5,
-        Word = 6
+        Word = 6,
+        Plus = 7,
+        Minus = 8,
+        Slash = 9,
+        Star = 10,
+        LeftPar = 11,
+        RightPar = 12
     }
 }
