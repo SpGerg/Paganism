@@ -1,6 +1,7 @@
 ﻿using Paganism.Lexer;
 using Paganism.PParser;
 using Paganism.PParser.AST;
+using Paganism.PParser.AST.Interfaces;
 using PaganismCustomConsole.API.Features;
 using PaganismCustomConsole.API.Features.Commands;
 using System;
@@ -59,7 +60,7 @@ namespace PaganismCustomConsole.Commands
             }
             
             Token[] tokens;
-            Expression[] expressions;
+            IStatement expressions;
 
             try
             {
@@ -76,7 +77,7 @@ namespace PaganismCustomConsole.Commands
                 Console.WriteLine($"{token.Type}: {token.Value}");
             }
 
-            /*
+            
             parser = new Parser(tokens);
 
             try
@@ -87,8 +88,7 @@ namespace PaganismCustomConsole.Commands
             {
                 response = "Error: " + ex;
                 return true;
-            }
-            */
+            }    
 
             response = "Script has been compilated";
             return true;

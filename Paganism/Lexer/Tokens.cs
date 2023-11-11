@@ -12,7 +12,10 @@ namespace Paganism.Lexer
         public static IReadOnlyDictionary<string, TokenType> KeywordsType { get; } = new Dictionary<string, TokenType>()
         {
             { "function", TokenType.Function },
-            { "end", TokenType.End }
+            { "end", TokenType.End },
+            { "string", TokenType.StringType },
+            { "number", TokenType.NumberType },
+            { "and", TokenType.And },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()

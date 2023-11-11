@@ -25,29 +25,108 @@ namespace Paganism.PParser
 
         public Token Current => Tokens[Position];
 
-        public Expression[] Run()
+        public IStatement Run()
         {
-            var expressions = new List<Expression>();
+            var expressions = new List<IStatement>();
 
             while (Position < Tokens.Length)
             {
-                expressions.Add(ParseExpression());
+                expressions.Add(ParseStatement());
                 Position++;
             }
 
-            return expressions.ToArray();
+            return new BlockStatementExpression(expressions.ToArray());
         }
 
-        private Expression ParseExpression()
+        private IStatement ParseStatement()
         {
-            return ParseAdditive();
+            Console.WriteLine(Current.Type);
+            Console.WriteLine(Current.Value);
+
+            if (Current.Type == TokenType.Function)
+            {
+                return ParseDeclarateFunction();
+            }
+
+            if (Current.Type == TokenType.Word) {
+                return ParseFunctionCall();
+            }
+ 
+            return null;
+        }
+
+        private FunctionCallExpression ParseFunctionCall()
+        {
+            var name = Current.Value;
+
+            Position++;
+
+            var arguments = new List<Argument>();
+
+            if (Match(TokenType.LeftPar))
+            {
+                while (!Match(TokenType.RightPar))
+                {
+                    arguments.Add(new Argument("test", TokenType.NumberType, true));
+
+                    Position++;
+                }
+            }
+
+            return new FunctionCallExpression(name, arguments.ToArray());
+        }
+
+        private FunctionDeclarateExpression ParseDeclarateFunction()
+        {
+            Position++; //Skip function
+
+            var name = string.Empty;
+            var arguments = new List<Argument>();
+
+            var current = Current;
+
+            if (Match(TokenType.Word))
+            {
+                name = current.Value;
+            }
+
+            if (Match(TokenType.LeftPar))
+            {
+                var lastType = TokenType.AnyType;
+
+                while (!Match(TokenType.RightPar))
+                {
+                    var previousCurrent = Current;
+
+                    if (Match(TokenType.Comma))
+                    {
+                        continue;
+                    }
+
+                    if (Match(TokenType.StringType, TokenType.NumberType)) 
+                    {
+                        lastType = previousCurrent.Type;
+                    }
+
+                    previousCurrent = Current;
+
+                    if (Match(TokenType.Word))
+                    {
+                        arguments.Add(new Argument(previousCurrent.Value, lastType, true));
+
+                        lastType = TokenType.AnyType;
+                    }
+                }
+            }
+
+            return new FunctionDeclarateExpression(name, ParseStatement(), arguments.ToArray());
         }
 
         private Expression ParseAdditive()
         {
             var result = ParseMultiplicative();
 
-            while (true)
+            while (Position < Tokens.Length)
             {
                 if (Match(TokenType.Plus))
                 {
@@ -71,7 +150,7 @@ namespace Paganism.PParser
         {
             var result = ParseUnary();
 
-            while (true)
+            while (Position < Tokens.Length)
             {
                 if (Match(TokenType.Star))
                 {
@@ -113,12 +192,14 @@ namespace Paganism.PParser
                 return new NumberExpression(double.Parse(current.Value.Replace(".", ",")));
             }
 
+            /*
             if (Match(TokenType.LeftPar))
             {
                 var result = ParseExpression();
                 Match(TokenType.RightPar);
                 return result;
             }
+            */
 
             return null;
         }
@@ -133,6 +214,13 @@ namespace Paganism.PParser
             }
 
             return false;
+        }
+
+        private bool Get(int relativePosition, params TokenType[] type)
+        {
+            var position = Position + relativePosition;
+
+            return type.Contains(Tokens[position].Type);
         }
     }
 }

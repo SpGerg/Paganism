@@ -24,6 +24,10 @@ namespace Paganism.Lexer.Enums
         RightPar = 13,
         Function = 14,
         End = 15,
-        Comma = 16
+        Comma = 16,
+        NumberType = 17,
+        StringType = 18,
+        And = 19,
+        AnyType = 20
     }
 }

@@ -33,8 +33,6 @@ namespace Paganism.Lexer
             {
                 while (Position < Text[Line].Length)
                 {
-                    Console.WriteLine(Current);
-
                     if (Current == ' ')
                     {
                         Position++;
@@ -63,6 +61,9 @@ namespace Paganism.Lexer
 
                         savedLine = string.Empty;
                         tokens.Add(token);
+
+                        Position++;
+                        continue;
                     }
                     else if (Tokens.OperatorsType.ContainsKey(Current.ToString()))
                     {
@@ -73,6 +74,7 @@ namespace Paganism.Lexer
 
                         savedLine = string.Empty;
                         tokens.Add(token);
+
                         Position++;
                         continue;
                     }
