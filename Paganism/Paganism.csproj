@@ -32,6 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Lexer\Tokenizers\KeywordTokenizer.cs" />
+    <Compile Include="PParser\AST\BinaryOperatorExpression.cs" />
+    <Compile Include="PParser\AST\BooleanExpression.cs" />
+    <Compile Include="PParser\AST\Enums\StandartValueType.cs" />
+    <Compile Include="PParser\AST\ExpressionNode.cs" />
     <Compile Include="Lexer\Enums\TokenType.cs" />
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Token.cs" />
@@ -40,8 +45,17 @@
     <Compile Include="Lexer\Tokenizers\StringTokenizer.cs" />
     <Compile Include="Lexer\Tokenizers\Tokenizer.cs" />
     <Compile Include="Lexer\Tokens.cs" />
+    <Compile Include="PParser\AST\Interfaces\IEvaluable.cs" />
+    <Compile Include="PParser\AST\NumberExpression.cs" />
+    <Compile Include="PParser\AST\Enums\BinaryOperatorType.cs" />
+    <Compile Include="PParser\AST\UnaryExpression.cs" />
+    <Compile Include="PParser\Parser.cs" />
+    <Compile Include="PParser\Values\Value.cs" />
+    <Compile Include="PParser\Values\NumberValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -11,7 +11,7 @@ namespace PaganismCustomConsole
     {
         static void Main(string[] args)
         {
-            var customConsole = new CustomConsole(true);
+            var customConsole = new CustomConsole(false);
 
             customConsole.Run();
         }

@@ -19,7 +19,11 @@ namespace Paganism.Lexer.Enums
         Minus = 8,
         Slash = 9,
         Star = 10,
-        LeftPar = 11,
-        RightPar = 12
+        Assign = 11,
+        LeftPar = 12,
+        RightPar = 13,
+        Function = 14,
+        End = 15,
+        Comma = 16
     }
 }

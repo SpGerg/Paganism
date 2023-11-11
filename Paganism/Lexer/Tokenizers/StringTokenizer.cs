@@ -43,7 +43,6 @@ namespace Paganism.Lexer.Tokenizers
                     }
 
                     savedLine += Current;
-
                     Position++;
                 }
 

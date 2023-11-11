@@ -1,4 +1,6 @@
 ﻿using Paganism.Lexer;
+using Paganism.PParser;
+using Paganism.PParser.AST;
 using PaganismCustomConsole.API.Features;
 using PaganismCustomConsole.API.Features.Commands;
 using System;
@@ -30,10 +32,11 @@ namespace PaganismCustomConsole.Commands
         public override bool Execute(Dictionary<string, string> arguments, out string response)
         {
             Lexer lexer;
+            Parser parser;
 
             if (CustomConsole.IsDebug)
             {
-                lexer = new Lexer(new string[] { "print(\"Hello, world\")", "print(12345689.25 + 2.5)", "print(\"Hello, world\")" });
+                lexer = new Lexer(new string[] { });
             }
             else
             {
@@ -45,10 +48,18 @@ namespace PaganismCustomConsole.Commands
                     return false;
                 }
 
-                lexer = new Lexer(File.ReadAllLines(path));
+                var result = File.ReadAllLines(path);
+
+                for (int i = 0;i < result.Length;i++)
+                {
+                    result[i] += '\n';
+                }
+
+                lexer = new Lexer(result);
             }
             
             Token[] tokens;
+            Expression[] expressions;
 
             try
             {
@@ -56,7 +67,7 @@ namespace PaganismCustomConsole.Commands
             }
             catch (Exception ex)
             {
-                response = "Error: " + ex.Message;
+                response = "Error: " + ex;
                 return true;
             }
 
@@ -64,6 +75,20 @@ namespace PaganismCustomConsole.Commands
             {
                 Console.WriteLine($"{token.Type}: {token.Value}");
             }
+
+            /*
+            parser = new Parser(tokens);
+
+            try
+            {
+                expressions = parser.Run();
+            }
+            catch (Exception ex)
+            {
+                response = "Error: " + ex;
+                return true;
+            }
+            */
 
             response = "Script has been compilated";
             return true;

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Paganism.Lexer.Tokenizers
@@ -24,15 +25,15 @@ namespace Paganism.Lexer.Tokenizers
 
         public string SavedLine { get; }
 
-        public int Position { get; }
+        public int Position { get; private set; }
 
-        public int Line { get; }
+        public int Line { get; private set; }
 
         public override Token Tokenize()
         {
-            if (Operator != ")" && !string.IsNullOrWhiteSpace(SavedLine))
+            if (!string.IsNullOrWhiteSpace(SavedLine))
             {
-                Tokens.Add(new Token(SavedLine, Position - (SavedLine.Length - 1), Line, TokenType.Word));
+                Tokens.Add(new Token(Regex.Replace(SavedLine, @"\s+", ""), Position - (SavedLine.Length - 1), Line, TokenType.Word));
             }
 
             return new Token(Operator, Position, Line, Paganism.Lexer.Tokens.OperatorsType[Operator]);

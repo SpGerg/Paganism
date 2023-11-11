@@ -33,7 +33,13 @@ namespace Paganism.Lexer
             {
                 while (Position < Text[Line].Length)
                 {
-                    savedLine += Current;
+                    Console.WriteLine(Current);
+
+                    if (Current == ' ')
+                    {
+                        Position++;
+                        continue;
+                    }
 
                     if (Current == '\"')
                     {
@@ -44,6 +50,9 @@ namespace Paganism.Lexer
 
                         savedLine = string.Empty;
                         tokens.Add(token);
+
+                        Position++;
+                        continue;
                     }
                     else if (char.IsDigit(Current))
                     {
@@ -57,13 +66,24 @@ namespace Paganism.Lexer
                     }
                     else if (Tokens.OperatorsType.ContainsKey(Current.ToString()))
                     {
-                        var tokenizer = new OperatorTokenizer(Current.ToString(), tokens, savedLine.Remove(savedLine.Length - 1), Position, Line);
+                        var tokenizer = new OperatorTokenizer(Current.ToString(), tokens, savedLine, Position, Line);
                         var token = tokenizer.Tokenize();
+                        Position = tokenizer.Position;
+                        Line = tokenizer.Line;
 
                         savedLine = string.Empty;
                         tokens.Add(token);
+                        Position++;
+                        continue;
+                    }
+                    else if (Tokens.KeywordsType.TryGetValue(savedLine, out TokenType tokenType))
+                    {
+                        tokens.Add(new Token(savedLine, Position, Line, tokenType));
+
+                        savedLine = string.Empty;
                     }
 
+                    savedLine += Current;
                     Position++;
                 }
 
@@ -73,6 +93,11 @@ namespace Paganism.Lexer
             }
 
             return tokens.ToArray();
+        }
+
+        private bool Require(params char[] tokens)
+        {
+            return Text[Line].FirstOrDefault(token => tokens.Contains(token)) != default; 
         }
     }
 }
