@@ -1,5 +1,4 @@
 ﻿using Paganism.PParser.AST.Interfaces;
-using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class StatementExpression : Expression, IStatement, IExecutable
+    public class ReturnExpression : Expression, IStatement
     {
-        public StatementExpression(Expression[] expressions)
+        public ReturnExpression(Expression[] values)
         {
-            Expressions = expressions;
+            Values = values;
         }
 
-        public Expression[] Expressions { get; }
+        public Expression[] Values { get; }
 
         public void Execute(params Argument[] arguments)
         {

@@ -24,5 +24,10 @@ namespace Paganism.PParser.Values
         {
             return Value;
         }
+
+        public override string AsString()
+        {
+            return Value.ToString();
+        }
     }
 }

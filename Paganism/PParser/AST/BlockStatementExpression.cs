@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class BlockStatementExpression : Expression, IStatement
+    public class BlockStatementExpression : Expression, IStatement, IExecutable
     {
         public BlockStatementExpression(IStatement[] statements)
         {
@@ -17,11 +17,14 @@ namespace Paganism.PParser.AST
 
         public IStatement[] Statements { get; }
 
-        public void Execute(params Value[] arguments)
+        public void Execute(params Argument[] arguments)
         {
             foreach (var statement in Statements)
             {
-                statement.Execute();
+                if (statement is IExecutable executable)
+                {
+                    executable.Execute();
+                }   
             }
         }
     }

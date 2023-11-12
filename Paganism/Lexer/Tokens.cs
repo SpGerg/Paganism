@@ -16,6 +16,8 @@ namespace Paganism.Lexer
             { "string", TokenType.StringType },
             { "number", TokenType.NumberType },
             { "and", TokenType.And },
+            { "return", TokenType.Return },
+            { "none", TokenType.NoneType },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
@@ -28,6 +30,8 @@ namespace Paganism.Lexer
             { ":", TokenType.Colon },
             { "(", TokenType.LeftPar },
             { ")", TokenType.RightPar },
+            { "[", TokenType.LeftBracket },
+            { "]", TokenType.RightBracket },
             { ",", TokenType.Comma },
         };
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class FunctionCallExpression : Expression, IStatement
+    public class FunctionCallExpression : Expression, IStatement, IExecutable
     {
         public FunctionCallExpression(string functionName, Argument[] arguments)
         {
@@ -20,7 +20,7 @@ namespace Paganism.PParser.AST
 
         public Argument[] Arguments { get; }
 
-        public void Execute(params Value[] arguments)
+        public void Execute(params Argument[] arguments)
         {
             Functions.Get(FunctionName).Execute(arguments);
         }

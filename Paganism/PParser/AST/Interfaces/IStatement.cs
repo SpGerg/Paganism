@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST.Interfaces
 {
-    public interface IStatement : IExecutable
+    public interface IStatement
     {
     }
 }

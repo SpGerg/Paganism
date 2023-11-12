@@ -8,24 +8,31 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class FunctionDeclarateExpression : Expression, IStatement
+    public class FunctionDeclarateExpression : Expression, IStatement, IExecutable
     {
-        public FunctionDeclarateExpression(string name, IStatement statement, Argument[] arguments)
+        public FunctionDeclarateExpression(string name, IStatement statement, Argument[] requiredArguments)
         {
             Name = name;
             Statement = statement;
-            Arguments = arguments;
+            RequiredArguments = requiredArguments;
+
+            Functions.Add(this);
         }
 
         public string Name { get; }
 
         public IStatement Statement { get; }
 
-        public Argument[] Arguments { get; }
+        public Argument[] RequiredArguments { get; }
 
-        public void Execute(params Value[] arguments)
+        public void Execute(params Argument[] arguments)
         {
-            Statement.Execute(arguments);
+            if (Statement == null) return;
+
+            if (Statement is IExecutable executable)
+            {
+                executable.Execute();
+            }
         }
     }
 }

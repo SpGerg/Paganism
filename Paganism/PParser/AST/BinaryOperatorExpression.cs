@@ -38,6 +38,29 @@ namespace Paganism.PParser.AST
             {
                 case BinaryOperatorType.Plus:
                     return Addition(left, right);
+                case BinaryOperatorType.Minus:
+                    return Multiplicative(left, right);
+                case BinaryOperatorType.Multiplicative:
+                    return Addition(left, right);
+                case BinaryOperatorType.Division:
+                    return Addition(left, right);
+            }
+
+            return null;
+        }
+
+        public Value Minus(Value left, Value right)
+        {
+            switch (left.Type)
+            {
+                case StandartValueType.Number:
+                    return new NumberValue(left.AsNumber() - right.AsNumber());
+                    /*
+                case StandartValueType.String:
+                    return new StringValue(left.AsString() + right.AsString());
+                case StandartValueType.Boolean:
+                    return new NumberValue(left.AsNumber() + right.AsNumber());
+                    */
             }
 
             return null;
@@ -49,6 +72,40 @@ namespace Paganism.PParser.AST
             {
                 case StandartValueType.Number:
                     return new NumberValue(left.AsNumber() + right.AsNumber());
+                    /*
+                case StandartValueType.String:
+                    return new StringValue(left.AsString() + right.AsString());
+                case StandartValueType.Boolean:
+                    return new NumberValue(left.AsNumber() + right.AsNumber());
+                    */
+            }
+
+            return null;
+        }
+
+        public Value Multiplicative(Value left, Value right)
+        {
+            switch (left.Type)
+            {
+                case StandartValueType.Number:
+                    return new NumberValue(left.AsNumber() * right.AsNumber());
+                    /*
+                case StandartValueType.String:
+                    return new StringValue(left.AsString() + right.AsString());
+                case StandartValueType.Boolean:
+                    return new NumberValue(left.AsNumber() + right.AsNumber());
+                    */
+            }
+
+            return null;
+        }
+
+        public Value Division(Value left, Value right)
+        {
+            switch (left.Type)
+            {
+                case StandartValueType.Number:
+                    return new NumberValue(left.AsNumber() / right.AsNumber());
                     /*
                 case StandartValueType.String:
                     return new StringValue(left.AsString() + right.AsString());

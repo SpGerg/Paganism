@@ -28,6 +28,11 @@ namespace Paganism.Lexer.Enums
         NumberType = 17,
         StringType = 18,
         And = 19,
-        AnyType = 20
+        AnyType = 20,
+        Return = 21,
+        LeftBracket = 22,
+        RightBracket = 23,
+        NoneType = 24,
+        EOF = 25,
     }
 }

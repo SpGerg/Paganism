@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Paganism.Lexer
@@ -33,13 +34,33 @@ namespace Paganism.Lexer
             {
                 while (Position < Text[Line].Length)
                 {
-                    if (Current == ' ')
+                    if (Current == '\t')
                     {
                         Position++;
                         continue;
                     }
 
-                    if (Current == '\"')
+                    if (Tokens.KeywordsType.TryGetValue(savedLine, out TokenType tokenType))
+                    {
+                        tokens.Add(new Token(savedLine, Position, Line, tokenType));
+
+                        savedLine = string.Empty;
+                        continue;
+                    }
+                    else if (Tokens.OperatorsType.ContainsKey(Current.ToString()))
+                    {
+                        var tokenizer = new OperatorTokenizer(Current.ToString(), tokens, savedLine, Position, Line);
+                        var token = tokenizer.Tokenize();
+                        Position = tokenizer.Position;
+                        Line = tokenizer.Line;
+
+                        savedLine = string.Empty;
+                        tokens.Add(token);
+
+                        Position++;
+                        continue;
+                    }
+                    else if (Current == '\"')
                     {
                         var tokenizer = new StringTokenizer(Text, Position, Line);
                         var token = tokenizer.Tokenize();
@@ -65,27 +86,12 @@ namespace Paganism.Lexer
                         Position++;
                         continue;
                     }
-                    else if (Tokens.OperatorsType.ContainsKey(Current.ToString()))
+
+                    if (Current != ' ')
                     {
-                        var tokenizer = new OperatorTokenizer(Current.ToString(), tokens, savedLine, Position, Line);
-                        var token = tokenizer.Tokenize();
-                        Position = tokenizer.Position;
-                        Line = tokenizer.Line;
-
-                        savedLine = string.Empty;
-                        tokens.Add(token);
-
-                        Position++;
-                        continue;
-                    }
-                    else if (Tokens.KeywordsType.TryGetValue(savedLine, out TokenType tokenType))
-                    {
-                        tokens.Add(new Token(savedLine, Position, Line, tokenType));
-
-                        savedLine = string.Empty;
+                        savedLine += Current;
                     }
 
-                    savedLine += Current;
                     Position++;
                 }
 

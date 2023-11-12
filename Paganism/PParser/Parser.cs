@@ -25,7 +25,7 @@ namespace Paganism.PParser
 
         public Token Current => Tokens[Position];
 
-        public IStatement Run()
+        public BlockStatementExpression Run()
         {
             var expressions = new List<IStatement>();
 
@@ -40,15 +40,12 @@ namespace Paganism.PParser
 
         private IStatement ParseStatement()
         {
-            Console.WriteLine(Current.Type);
-            Console.WriteLine(Current.Value);
-
-            if (Current.Type == TokenType.Function)
+            if (Match(TokenType.Function))
             {
                 return ParseDeclarateFunction();
             }
 
-            if (Current.Type == TokenType.Word) {
+            if (Current.Type == TokenType.Word && Get(1, TokenType.LeftPar)) {
                 return ParseFunctionCall();
             }
  
@@ -63,23 +60,76 @@ namespace Paganism.PParser
 
             var arguments = new List<Argument>();
 
+            var function = Functions.Get(name);
+
             if (Match(TokenType.LeftPar))
             {
-                while (!Match(TokenType.RightPar))
+                foreach (var argument in function.RequiredArguments)
                 {
-                    arguments.Add(new Argument("test", TokenType.NumberType, true));
+                    while (!Match(TokenType.RightPar))
+                    {
+                        if (Match(TokenType.Comma))
+                        {
+                            break;
+                        }
 
-                    Position++;
+                        if (Current.Type == TokenType.Number)
+                        {
+                            var parsed = ParseAdditive() as BinaryOperatorExpression;
+
+                            Position--;
+
+                            arguments.Add(argument.Create(parsed.Eval()));
+                        }
+                        else
+                        {
+                            arguments.Add(argument.Create(new StringValue(Current.Value)));
+                        }
+
+                        Position++;
+                    }
                 }
             }
 
             return new FunctionCallExpression(name, arguments.ToArray());
         }
 
+        private ReturnExpression ParseReturn()
+        {
+            List<Expression> expressions = new List<Expression>();
+
+            while (true)
+            {
+                if (Match(TokenType.Comma))
+                {
+                    continue;
+                }
+
+                if (Current.Type == TokenType.Number)
+                {
+                    expressions.Add(ParseAdditive());
+
+                    Position++;
+                    continue;
+                }
+                else if (Current.Type == TokenType.String)
+                {
+                    expressions.Add(new StringExpression(Current.Value));
+
+                    Position++;
+                    continue;
+                }
+
+                break;
+            }
+
+            Position--;
+
+            return new ReturnExpression(expressions.ToArray());
+        }
+
         private FunctionDeclarateExpression ParseDeclarateFunction()
         {
-            Position++; //Skip function
-
             var name = string.Empty;
             var arguments = new List<Argument>();
 
@@ -96,14 +146,19 @@ namespace Paganism.PParser
 
                 while (!Match(TokenType.RightPar))
                 {
-                    var previousCurrent = Current;
+                    if (Match(TokenType.NoneType))
+                    {
+                        continue;
+                    }
 
+                    var previousCurrent = Current;
+                    
                     if (Match(TokenType.Comma))
                     {
                         continue;
                     }
 
-                    if (Match(TokenType.StringType, TokenType.NumberType)) 
+                    if (Match(TokenType.StringType, TokenType.NumberType))
                     {
                         lastType = previousCurrent.Type;
                     }
@@ -119,7 +174,22 @@ namespace Paganism.PParser
                 }
             }
 
-            return new FunctionDeclarateExpression(name, ParseStatement(), arguments.ToArray());
+            List<IStatement> statements = new List<IStatement>();
+
+            while (!Match(TokenType.End))
+            {
+                if (Match(TokenType.Return))
+                {
+                    statements.Add(ParseReturn());
+                    continue;
+                }
+
+                statements.Add(ParseStatement());
+                Position++;
+            }
+
+            Position--;
+            return new FunctionDeclarateExpression(name, new BlockStatementExpression(statements.ToArray()), arguments.ToArray());
         }
 
         private Expression ParseAdditive()
@@ -180,6 +250,7 @@ namespace Paganism.PParser
             {
                 return new UnaryExpression((IEvaluable)ParsePrimary(), BinaryOperatorType.Minus);
             }
+
             return ParsePrimary();
         }
 
@@ -192,14 +263,12 @@ namespace Paganism.PParser
                 return new NumberExpression(double.Parse(current.Value.Replace(".", ",")));
             }
 
-            /*
             if (Match(TokenType.LeftPar))
             {
-                var result = ParseExpression();
+                var result = ParseAdditive();
                 Match(TokenType.RightPar);
                 return result;
             }
-            */
 
             return null;
         }

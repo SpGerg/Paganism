@@ -1,4 +1,5 @@
-﻿using Paganism.Lexer;
+﻿using Paganism.Compiler;
+using Paganism.Lexer;
 using Paganism.PParser;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Interfaces;
@@ -60,7 +61,7 @@ namespace PaganismCustomConsole.Commands
             }
             
             Token[] tokens;
-            IStatement expressions;
+            BlockStatementExpression expressions;
 
             try
             {
@@ -72,11 +73,12 @@ namespace PaganismCustomConsole.Commands
                 return true;
             }
 
+            /*
             foreach (var token in tokens)
             {
                 Console.WriteLine($"{token.Type}: {token.Value}");
             }
-
+            */
             
             parser = new Parser(tokens);
 
@@ -88,7 +90,10 @@ namespace PaganismCustomConsole.Commands
             {
                 response = "Error: " + ex;
                 return true;
-            }    
+            }
+
+            var compiler = new Compiler(expressions);
+            compiler.Run();
 
             response = "Script has been compilated";
             return true;
