@@ -43,7 +43,9 @@ namespace Paganism.PParser.AST
                 case BinaryOperatorType.Multiplicative:
                     return Addition(left, right);
                 case BinaryOperatorType.Division:
-                    return Addition(left, right);
+                    return Division(left, right);
+                case BinaryOperatorType.Assign:
+                    return Assign(left, right);
             }
 
             return null;
@@ -105,6 +107,29 @@ namespace Paganism.PParser.AST
             switch (left.Type)
             {
                 case StandartValueType.Number:
+                    return new NumberValue(left.AsNumber() / right.AsNumber());
+                    /*
+                case StandartValueType.String:
+                    return new StringValue(left.AsString() + right.AsString());
+                case StandartValueType.Boolean:
+                    return new NumberValue(left.AsNumber() + right.AsNumber());
+                    */
+            }
+
+            return null;
+        }
+
+        public Value Assign(Value left, Value right)
+        {
+            if (Left is VariableExpression variableExpression)
+            {
+                Variables.Set(variableExpression.Name, right);
+                return null;
+            }
+
+            switch (left.Type)
+            {
+                case StandartValueType.Any:
                     return new NumberValue(left.AsNumber() / right.AsNumber());
                     /*
                 case StandartValueType.String:

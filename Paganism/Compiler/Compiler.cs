@@ -18,15 +18,7 @@ namespace Paganism.Compiler
 
         public void Run()
         {
-            foreach (var statement in BlockStatement.Statements)
-            {
-                if (statement == null) continue;
-
-                if (statement is FunctionCallExpression callExpression)
-                {
-                    callExpression.Execute(callExpression.Arguments);
-                }
-            }
+            BlockStatement.Execute();
         }
     }
 }

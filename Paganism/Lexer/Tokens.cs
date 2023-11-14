@@ -1,4 +1,5 @@
 ﻿using Paganism.Lexer.Enums;
+using Paganism.PParser.AST.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Paganism.Lexer
             { "end", TokenType.End },
             { "string", TokenType.StringType },
             { "number", TokenType.NumberType },
+            { "any", TokenType.AnyType },
             { "and", TokenType.And },
             { "return", TokenType.Return },
             { "none", TokenType.NoneType },
@@ -33,6 +35,14 @@ namespace Paganism.Lexer
             { "[", TokenType.LeftBracket },
             { "]", TokenType.RightBracket },
             { ",", TokenType.Comma },
+            { "=", TokenType.Assign }
+        };
+
+        public static IReadOnlyDictionary<StandartValueType, TokenType> ValueTypeToTokenType { get; } = new Dictionary<StandartValueType, TokenType>()
+        {
+            { StandartValueType.String, TokenType.StringType },
+            { StandartValueType.Number, TokenType.NumberType },
+            { StandartValueType.Any, TokenType.AnyType }
         };
 
         public static IReadOnlyDictionary<string, TokenType> BinaryOperatorsType { get; } = new Dictionary<string, TokenType>()

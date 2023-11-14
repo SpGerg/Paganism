@@ -10,11 +10,12 @@ namespace Paganism.PParser
 {
     public class Argument
     {
-        public Argument(string name, TokenType requiredValue, bool isRequired)
+        public Argument(string name, TokenType requiredValue, bool isRequired, Value value = null)
         {
             Name = name;
             RequiredType = requiredValue;
             IsRequired = isRequired;
+            Value = value;
         }
 
         public string Name { get; set; }

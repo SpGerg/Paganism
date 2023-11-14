@@ -19,12 +19,45 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
+            if (Statements == null) return;
+
+            var createdVariables = new HashSet<VariableExpression>();
+
             foreach (var statement in Statements)
             {
-                if (statement is IExecutable executable)
+                if (statement is BinaryOperatorExpression assign)
                 {
-                    executable.Execute();
-                }   
+                    if (assign.Left is VariableExpression variableExpression)
+                    {
+                        if (Variables.Get(variableExpression.Name) != null)
+                        {
+                            Variables.Set(variableExpression.Name, assign.Right.Eval());
+                            continue;
+                        }
+
+                        createdVariables.Add(variableExpression);
+                        Variables.Add(variableExpression.Name, assign.Right.Eval());
+                    }
+
+                    continue;
+                }
+
+                if (statement is FunctionDeclarateExpression functionDeclarate)
+                {
+                    functionDeclarate.Create();
+                    continue;
+                }
+
+                if (statement is FunctionCallExpression callExpression)
+                {
+                    callExpression.Execute(callExpression.Arguments);
+                    continue;
+                }
+            }
+
+            foreach (var variable in createdVariables)
+            {
+                Variables.Remove(variable.Name);
             }
         }
     }

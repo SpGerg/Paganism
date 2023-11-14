@@ -35,9 +35,11 @@
     <Compile Include="Compiler\Compiler.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="PParser\Argument.cs" />
+    <Compile Include="PParser\AST\AssignExpression.cs" />
     <Compile Include="PParser\AST\BinaryOperatorExpression.cs" />
     <Compile Include="PParser\AST\BlockStatementExpression.cs" />
     <Compile Include="PParser\AST\BooleanExpression.cs" />
+    <Compile Include="PParser\AST\VariableExpression.cs" />
     <Compile Include="PParser\AST\FunctionDeclarateExpression.cs" />
     <Compile Include="PParser\AST\Enums\StandartValueType.cs" />
     <Compile Include="PParser\AST\ExpressionNode.cs" />
@@ -56,7 +58,6 @@
     <Compile Include="PParser\AST\NumberExpression.cs" />
     <Compile Include="PParser\AST\Enums\BinaryOperatorType.cs" />
     <Compile Include="PParser\AST\ReturnExpression.cs" />
-    <Compile Include="PParser\AST\StatementExpression.cs" />
     <Compile Include="PParser\AST\StringExpression.cs" />
     <Compile Include="PParser\AST\UnaryExpression.cs" />
     <Compile Include="PParser\Parser.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="PParser\Values\Value.cs" />
     <Compile Include="PParser\Values\NumberValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Variables.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

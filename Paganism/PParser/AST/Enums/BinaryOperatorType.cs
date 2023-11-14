@@ -13,6 +13,7 @@ namespace Paganism.PParser.AST.Enums
         Minus = 2,
         Division = 3,
         Multiplicative = 4,
-        Remainder = 5
+        Remainder = 5,
+        Assign = 6
     }
 }
