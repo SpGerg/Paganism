@@ -10,7 +10,7 @@ namespace Paganism
 {
     public class Variables
     {
-        private static Dictionary<string, Value> CreatedVariables { get; } = new Dictionary<string, Value>();
+        public static Dictionary<string, Value> CreatedVariables { get; } = new Dictionary<string, Value>();
 
         public static void Add(string name, Value value)
         {

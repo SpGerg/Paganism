@@ -93,7 +93,16 @@ namespace PaganismCustomConsole.Commands
             }
 
             var compiler = new Compiler(expressions);
-            compiler.Run();
+
+            try
+            {
+                compiler.Run();
+            }
+            catch (Exception ex)
+            {
+                response = "Error: " + ex;
+                return true;
+            }
 
             response = "Script has been compilated";
             return true;

@@ -16,10 +16,13 @@ namespace Paganism.Lexer
             { "end", TokenType.End },
             { "string", TokenType.StringType },
             { "number", TokenType.NumberType },
+            { "boolean", TokenType.BooleanType },
             { "any", TokenType.AnyType },
             { "and", TokenType.And },
             { "return", TokenType.Return },
             { "none", TokenType.NoneType },
+            { "true", TokenType.True },
+            { "false", TokenType.False },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
@@ -42,7 +45,16 @@ namespace Paganism.Lexer
         {
             { StandartValueType.String, TokenType.StringType },
             { StandartValueType.Number, TokenType.NumberType },
+            { StandartValueType.Boolean, TokenType.BooleanType },
             { StandartValueType.Any, TokenType.AnyType }
+        };
+
+        public static IReadOnlyDictionary<TokenType, TokenType> TypeToVariableType { get; } = new Dictionary<TokenType, TokenType>()
+        {
+            { TokenType.String, TokenType.StringType },
+            { TokenType.Number, TokenType.NumberType },
+            { TokenType.True, TokenType.BooleanType },
+            { TokenType.False, TokenType.BooleanType },
         };
 
         public static IReadOnlyDictionary<string, TokenType> BinaryOperatorsType { get; } = new Dictionary<string, TokenType>()

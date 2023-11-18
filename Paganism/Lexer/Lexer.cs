@@ -95,6 +95,11 @@ namespace Paganism.Lexer
                     Position++;
                 }
 
+                if (!string.IsNullOrEmpty(savedLine) && !string.IsNullOrWhiteSpace(savedLine))
+                {
+                    tokens.Add(new Token(savedLine.Replace("\n", string.Empty), Position, Line, TokenType.Word));
+                }
+
                 savedLine = string.Empty;
                 Position = 0;
                 Line++;

@@ -29,6 +29,16 @@ namespace Paganism.PParser.AST
             var left = Left.Eval();
             var right = Right.Eval();
 
+            if (left == null)
+            {
+                throw new Exception("Left expression is null");
+            }
+
+            if (right == null)
+            {
+                throw new Exception("Right expression is null");
+            }
+
             if (left.Type != right.Type)
             {
                 throw new InvalidOperationException($"Invalid calculate {left.Type} and {right.Type}");
@@ -65,81 +75,77 @@ namespace Paganism.PParser.AST
                     */
             }
 
-            return null;
+            throw new Exception($"You cant substraction type {left.Type} and {right.Type}");
         }
 
         public Value Addition(Value left, Value right)
         {
             switch (left.Type)
             {
+                case StandartValueType.Any:
+                    return new NumberValue(left.AsNumber() + right.AsNumber());
                 case StandartValueType.Number:
                     return new NumberValue(left.AsNumber() + right.AsNumber());
-                    /*
                 case StandartValueType.String:
                     return new StringValue(left.AsString() + right.AsString());
-                case StandartValueType.Boolean:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                    */
             }
 
-            return null;
+            throw new Exception($"You cant addition type {left.Type} and {right.Type}");
         }
 
         public Value Multiplicative(Value left, Value right)
         {
             switch (left.Type)
             {
+                case StandartValueType.Any:
+                    return new NumberValue(left.AsNumber() * right.AsNumber());
                 case StandartValueType.Number:
                     return new NumberValue(left.AsNumber() * right.AsNumber());
-                    /*
-                case StandartValueType.String:
-                    return new StringValue(left.AsString() + right.AsString());
-                case StandartValueType.Boolean:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                    */
             }
 
-            return null;
+            throw new Exception($"You cant multiplicative type {left.Type} and {right.Type}");
         }
 
         public Value Division(Value left, Value right)
         {
             switch (left.Type)
             {
+                case StandartValueType.Any:
+                    return new NumberValue(left.AsNumber() / right.AsNumber());
                 case StandartValueType.Number:
                     return new NumberValue(left.AsNumber() / right.AsNumber());
-                    /*
-                case StandartValueType.String:
-                    return new StringValue(left.AsString() + right.AsString());
                 case StandartValueType.Boolean:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                    */
+                    return new NumberValue(left.AsNumber() / right.AsNumber());
             }
 
-            return null;
+            throw new Exception($"You cant division type {left.Type} and {right.Type}");
         }
 
         public Value Assign(Value left, Value right)
         {
-            if (Left is VariableExpression variableExpression)
+            if (Left is not VariableExpression variableExpression)
             {
-                Variables.Set(variableExpression.Name, right);
-                return null;
+                throw new Exception("Except variable");
             }
 
-            switch (left.Type)
+            if (Right is FunctionCallExpression functionCall)
             {
-                case StandartValueType.Any:
-                    return new NumberValue(left.AsNumber() / right.AsNumber());
-                    /*
-                case StandartValueType.String:
-                    return new StringValue(left.AsString() + right.AsString());
-                case StandartValueType.Boolean:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                    */
+                var function = Functions.Get(functionCall.FunctionName);
+
+                if (function == null)
+                {
+                    throw new Exception($"Function with {functionCall.FunctionName} name not found");
+                }
+
+                if (function.ReturnTypes.Length <= 0)
+                {
+                    throw new Exception("Function return void");
+                }
+
+                return functionCall.Eval();
             }
 
-            return null;
+            throw new Exception("Except variable or function call");
         }
     }
 }

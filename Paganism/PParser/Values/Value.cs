@@ -1,4 +1,5 @@
-﻿using Paganism.PParser.AST.Enums;
+﻿using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,20 @@ namespace Paganism.PParser.Values
         public abstract string Name { get; }
 
         public abstract StandartValueType Type { get; }
+
+        public static Value Create(Expression expression)
+        {
+            if (expression is StringExpression stringExpression)
+            {
+                return new StringValue(stringExpression.Value);
+            }
+            else if (expression is NumberExpression numberExpression)
+            {
+                return new NumberValue(numberExpression.Value);
+            }
+
+            return null;
+        }
 
         public virtual double AsNumber()
         {

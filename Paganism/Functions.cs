@@ -16,7 +16,7 @@ namespace Paganism
             DeclaratedFunctions.Add("call_lang", new FunctionDeclarateExpression("call_lang", new BlockStatementExpression(null), new PParser.Argument[] {
             new PParser.Argument("class_namespace", Lexer.Enums.TokenType.String, true),
             new PParser.Argument("method_name", Lexer.Enums.TokenType.String, true),
-            new PParser.Argument("args", Lexer.Enums.TokenType.AnyType, true) }));
+            new PParser.Argument("arguments", Lexer.Enums.TokenType.AnyType, true) }));
         }
 
         public static void Add(FunctionDeclarateExpression functionDeclarate)

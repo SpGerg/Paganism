@@ -11,7 +11,6 @@ namespace Paganism.Lexer.Enums
         None = 0,
         String = 1,
         Number = 2,
-        Boolean = 3,
         Colon = 4,
         Semicolon = 5,
         Word = 6,
@@ -34,5 +33,8 @@ namespace Paganism.Lexer.Enums
         RightBracket = 23,
         NoneType = 24,
         EOF = 25,
+        BooleanType = 26,
+        True = 27,
+        False = 28,
     }
 }

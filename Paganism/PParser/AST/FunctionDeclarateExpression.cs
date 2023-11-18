@@ -1,4 +1,5 @@
-﻿using Paganism.PParser.AST.Interfaces;
+﻿using Paganism.Lexer.Enums;
+using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
@@ -11,18 +12,21 @@ namespace Paganism.PParser.AST
 {
     public class FunctionDeclarateExpression : Expression, IStatement, IExecutable
     {
-        public FunctionDeclarateExpression(string name, IStatement statement, Argument[] requiredArguments)
+        public FunctionDeclarateExpression(string name, BlockStatementExpression statement, Argument[] requiredArguments, params TokenType[] returnTypes)
         {
             Name = name;
             Statement = statement;
             RequiredArguments = requiredArguments;
+            ReturnTypes = returnTypes;
         }
 
         public string Name { get; }
 
-        public IStatement Statement { get; }
+        public BlockStatementExpression Statement { get; }
 
         public Argument[] RequiredArguments { get; }
+
+        public TokenType[] ReturnTypes { get; }
 
         public void Create()
         {
@@ -34,23 +38,25 @@ namespace Paganism.PParser.AST
             Functions.Remove(this);
         }
 
-        public void Execute(params Argument[] arguments)
+        public Expression[] ExecuteAndReturn(params Argument[] arguments)
         {
             if (Name == "call_lang")
             {
-                var findedClass = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == arguments[0].Value.AsString());
-                var method = findedClass.GetMethod(arguments[1].Value.AsString(), new Type[] { typeof(string) });
-                method.Invoke(null, new object[] { arguments[2].Value.AsString() });
+                var findedClass = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == arguments[0].Value.Eval().AsString());
+                var method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(string) });
+                method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() });
 
-                return;
+                return new Expression[0];
             }
 
-            if (Statement == null) return;
+            if (Statement == null) return new Expression[0];
 
-            if (Statement is IExecutable executable)
-            {
-                executable.Execute();
-            }
+            return Statement.ExecuteAndReturn(arguments);
+        }
+
+        public void Execute(params Argument[] arguments)
+        {
+            ExecuteAndReturn(arguments);
         }
     }
 }

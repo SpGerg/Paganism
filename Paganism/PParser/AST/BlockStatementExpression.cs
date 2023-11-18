@@ -18,13 +18,24 @@ namespace Paganism.PParser.AST
         public IStatement[] Statements { get; }
 
         public void Execute(params Argument[] arguments)
+        { 
+            ExecuteAndReturn(arguments);
+        }
+
+        public Expression[] ExecuteAndReturn(params Argument[] arguments)
         {
-            if (Statements == null) return;
+            if (Statements == null) return null;
 
             var createdVariables = new HashSet<VariableExpression>();
+            Expression[] result = new Expression[0];
 
             foreach (var statement in Statements)
             {
+                if (statement is ReturnExpression returnExpression)
+                {
+                    result = returnExpression.Values;
+                }
+
                 if (statement is BinaryOperatorExpression assign)
                 {
                     if (assign.Left is VariableExpression variableExpression)
@@ -59,6 +70,8 @@ namespace Paganism.PParser.AST
             {
                 Variables.Remove(variable.Name);
             }
+
+            return result;
         }
     }
 }
