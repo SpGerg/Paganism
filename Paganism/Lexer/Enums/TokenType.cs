@@ -36,5 +36,11 @@ namespace Paganism.Lexer.Enums
         BooleanType = 26,
         True = 27,
         False = 28,
+        If = 29,
+        Elif = 30,
+        Else = 31,
+        Is = 32,
+        Or = 33,
+        Then = 34
     }
 }

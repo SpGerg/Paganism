@@ -39,6 +39,11 @@ namespace Paganism.PParser
 
         private IStatement ParseStatement()
         {
+            if (Match(TokenType.If))
+            {
+                return ParseIf();
+            }
+
             if (Match(TokenType.Function))
             {
                 return ParseDeclarateFunction();
@@ -67,6 +72,29 @@ namespace Paganism.PParser
             }
  
             return null;
+        }
+
+        private IStatement ParseIf()
+        {
+            if (!Match(TokenType.LeftPar))
+            {
+                throw new Exception("Except (");
+            }
+
+            var expression = ParseBinary() as IEvaluable;
+
+            if (!Match(TokenType.RightPar)) throw new Exception("Except ')'");
+
+            if (!Match(TokenType.Then)) throw new Exception("Except 'then'");
+
+            List<IStatement> statements = new List<IStatement>();
+
+            while (!Match(TokenType.End))
+            {
+                statements.Add(ParseStatement());
+            }
+
+            return new IfExpression(expression, new BlockStatementExpression(statements.ToArray()), new BlockStatementExpression(null));
         }
 
         private IStatement ParseDeclarateFunctionOrVariable()
@@ -103,7 +131,7 @@ namespace Paganism.PParser
 
             Match(TokenType.Assign);
 
-            var right = ParseAdditive() as IEvaluable;
+            var right = ParseBinary() as IEvaluable;
 
             var valueType = type;
 
@@ -132,7 +160,7 @@ namespace Paganism.PParser
                         continue;
                     }
 
-                    arguments.Add(new Argument(string.Empty, Current.Type, true, ParseAdditive() as IEvaluable));
+                    arguments.Add(new Argument(string.Empty, Current.Type, true, ParseBinary() as IEvaluable));
                 }
             }
 
@@ -152,7 +180,7 @@ namespace Paganism.PParser
 
                 if (Current.Type == TokenType.Number)
                 {
-                    expressions.Add(ParseAdditive());
+                    expressions.Add(ParseBinary());
 
                     continue;
                 }
@@ -226,7 +254,7 @@ namespace Paganism.PParser
             return new FunctionDeclarateExpression(name, new BlockStatementExpression(statements.ToArray()), arguments.ToArray(), returnTypes);
         }
 
-        private Expression ParseAdditive()
+        private Expression ParseBinary()
         {
             var result = ParseMultiplicative();
 
@@ -241,6 +269,12 @@ namespace Paganism.PParser
                 if (Match(TokenType.Minus))
                 {
                     result = new BinaryOperatorExpression(BinaryOperatorType.Minus, result as IEvaluable, ParseMultiplicative() as IEvaluable);
+                    continue;
+                }
+
+                if (Match(TokenType.Is))
+                {
+                    result = new BinaryOperatorExpression(BinaryOperatorType.Is, result as IEvaluable, ParseMultiplicative() as IEvaluable);
                     continue;
                 }
 
@@ -315,7 +349,7 @@ namespace Paganism.PParser
 
             if (Match(TokenType.LeftPar))
             {
-                var result = ParseAdditive();
+                var result = ParseBinary();
                 Match(TokenType.RightPar);
                 return result;
             }

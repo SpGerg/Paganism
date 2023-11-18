@@ -49,22 +49,43 @@ namespace Paganism.PParser.AST
                 case BinaryOperatorType.Plus:
                     return Addition(left, right);
                 case BinaryOperatorType.Minus:
-                    return Multiplicative(left, right);
+                    return Minus(left, right);
                 case BinaryOperatorType.Multiplicative:
                     return Addition(left, right);
                 case BinaryOperatorType.Division:
                     return Division(left, right);
                 case BinaryOperatorType.Assign:
                     return Assign(left, right);
+                case BinaryOperatorType.Is:
+                    return Is(left, right);
             }
 
             return null;
+        }
+
+        private Value Is(Value left, Value right)
+        {
+            switch (left.Type)
+            {
+                case StandartValueType.Any:
+                    return new BooleanValue(left.AsNumber() == right.AsNumber());
+                case StandartValueType.Number:
+                    return new BooleanValue(left.AsNumber() == right.AsNumber());
+                case StandartValueType.String:
+                    return new BooleanValue(left.AsString() == right.AsString());
+                case StandartValueType.Boolean:
+                    return new BooleanValue(left.AsBoolean() == right.AsBoolean());
+            }
+
+            throw new Exception($"You cant substraction type {left.Type} and {right.Type}");
         }
 
         public Value Minus(Value left, Value right)
         {
             switch (left.Type)
             {
+                case StandartValueType.Any:
+                    return new NumberValue(left.AsNumber() - right.AsNumber());
                 case StandartValueType.Number:
                     return new NumberValue(left.AsNumber() - right.AsNumber());
                     /*

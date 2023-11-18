@@ -39,6 +39,7 @@
     <Compile Include="PParser\AST\BinaryOperatorExpression.cs" />
     <Compile Include="PParser\AST\BlockStatementExpression.cs" />
     <Compile Include="PParser\AST\BooleanExpression.cs" />
+    <Compile Include="PParser\AST\IfExpression.cs" />
     <Compile Include="PParser\AST\VariableExpression.cs" />
     <Compile Include="PParser\AST\FunctionDeclarateExpression.cs" />
     <Compile Include="PParser\AST\Enums\StandartValueType.cs" />

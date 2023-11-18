@@ -27,6 +27,7 @@ namespace Paganism.PParser.AST
             if (Statements == null) return null;
 
             var createdVariables = new HashSet<VariableExpression>();
+            var createdFunctions = new HashSet<FunctionDeclarateExpression>();
             Expression[] result = new Expression[0];
 
             foreach (var statement in Statements)
@@ -35,8 +36,7 @@ namespace Paganism.PParser.AST
                 {
                     result = returnExpression.Values;
                 }
-
-                if (statement is BinaryOperatorExpression assign)
+                else if (statement is BinaryOperatorExpression assign)
                 {
                     if (assign.Left is VariableExpression variableExpression)
                     {
@@ -49,26 +49,30 @@ namespace Paganism.PParser.AST
                         createdVariables.Add(variableExpression);
                         Variables.Add(variableExpression.Name, assign.Right.Eval());
                     }
-
-                    continue;
                 }
-
-                if (statement is FunctionDeclarateExpression functionDeclarate)
+                else if(statement is FunctionDeclarateExpression functionDeclarate)
                 {
+                    createdFunctions.Add(functionDeclarate);
                     functionDeclarate.Create();
-                    continue;
                 }
-
-                if (statement is FunctionCallExpression callExpression)
+                else if (statement is FunctionCallExpression callExpression)
                 {
                     callExpression.Execute(callExpression.Arguments);
-                    continue;
+                }
+                else if (statement is IfExpression ifExpression)
+                {
+                    ifExpression.Execute();
                 }
             }
 
             foreach (var variable in createdVariables)
             {
                 Variables.Remove(variable.Name);
+            }
+
+            foreach (var function in createdFunctions)
+            {
+                Functions.Remove(function.Name);
             }
 
             return result;

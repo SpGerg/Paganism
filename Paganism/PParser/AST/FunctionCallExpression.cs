@@ -53,6 +53,11 @@ namespace Paganism.PParser.AST
             {
                 var result = function.ExecuteAndReturn(totalArguments);
 
+                foreach (var argument in totalArguments)
+                {
+                    Variables.Remove(argument.Name);
+                }
+
                 return Value.Create(result[0]);
             }
 

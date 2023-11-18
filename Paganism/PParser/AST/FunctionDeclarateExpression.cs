@@ -18,6 +18,18 @@ namespace Paganism.PParser.AST
             Statement = statement;
             RequiredArguments = requiredArguments;
             ReturnTypes = returnTypes;
+
+            if (Statement == null || Statement.Statements == null) return;
+
+            if (ReturnTypes.Length > 0 && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
+            {
+                throw new Exception($"Function with {Name} name must return value");
+            }
+
+            if (ReturnTypes.Length == 0 && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
+            {
+                throw new Exception($"Except return value type in function with {Name} name");
+            }
         }
 
         public string Name { get; }
@@ -35,7 +47,7 @@ namespace Paganism.PParser.AST
 
         public void Remove()
         {
-            Functions.Remove(this);
+            Functions.Remove(Name);
         }
 
         public Expression[] ExecuteAndReturn(params Argument[] arguments)

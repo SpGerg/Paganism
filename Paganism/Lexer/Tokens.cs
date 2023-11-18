@@ -18,11 +18,17 @@ namespace Paganism.Lexer
             { "number", TokenType.NumberType },
             { "boolean", TokenType.BooleanType },
             { "any", TokenType.AnyType },
-            { "and", TokenType.And },
             { "return", TokenType.Return },
             { "none", TokenType.NoneType },
             { "true", TokenType.True },
             { "false", TokenType.False },
+            { "if", TokenType.If },
+            { "elif", TokenType.Elif },
+            { "else", TokenType.Else },
+            { "is", TokenType.Is },
+            { "and", TokenType.And },
+            { "or", TokenType.Or },
+            { "then", TokenType.Then },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()

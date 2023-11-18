@@ -24,9 +24,9 @@ namespace Paganism
             DeclaratedFunctions.Add(functionDeclarate.Name, functionDeclarate);
         }
 
-        public static void Remove(FunctionDeclarateExpression functionDeclarate)
+        public static void Remove(string name)
         {
-            DeclaratedFunctions.Remove(functionDeclarate.Name);
+            DeclaratedFunctions.Remove(name);
         }
 
         public static FunctionDeclarateExpression Get(string name)

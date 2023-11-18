@@ -86,18 +86,34 @@ namespace Paganism.Lexer
                         Position++;
                         continue;
                     }
-
-                    if (Current != ' ')
+                    else if (Current == ' ')
                     {
-                        savedLine += Current;
+                        if (string.IsNullOrEmpty(savedLine) || string.IsNullOrWhiteSpace(savedLine))
+                        {
+                            Position++;
+
+                            continue;
+                        }
+
+                        var replacedLine = savedLine.Replace(" ", string.Empty);
+
+                        if (Tokens.KeywordsType.ContainsKey(replacedLine))
+                        {
+                            savedLine = replacedLine;
+                            continue;
+                        }
+
+                        tokens.Add(new Token(replacedLine, Position, Line, TokenType.Word));
+                        savedLine = string.Empty;
                     }
 
+                    savedLine += Current;
                     Position++;
                 }
-
+                
                 if (!string.IsNullOrEmpty(savedLine) && !string.IsNullOrWhiteSpace(savedLine))
                 {
-                    tokens.Add(new Token(savedLine.Replace("\n", string.Empty), Position, Line, TokenType.Word));
+                    tokens.Add(new Token(savedLine.Replace("\n", string.Empty).Replace(" ", string.Empty), Position, Line, TokenType.Word));
                 }
 
                 savedLine = string.Empty;

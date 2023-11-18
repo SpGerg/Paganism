@@ -33,7 +33,16 @@ namespace Paganism.Lexer.Tokenizers
         {
             if (!string.IsNullOrWhiteSpace(SavedLine))
             {
-                Tokens.Add(new Token(Regex.Replace(SavedLine, @"\s+", ""), Position - (SavedLine.Length - 1), Line, TokenType.Word));
+                var line = Regex.Replace(SavedLine, @"\s+", "");
+
+                if (Paganism.Lexer.Tokens.KeywordsType.TryGetValue(line, out TokenType result))
+                {
+                    Tokens.Add(new Token(line, Position - (SavedLine.Length - 1), Line, result));
+                }
+                else
+                {
+                    Tokens.Add(new Token(line, Position - (SavedLine.Length - 1), Line, TokenType.Word));
+                }              
             }
 
             return new Token(Operator, Position, Line, Paganism.Lexer.Tokens.OperatorsType[Operator]);

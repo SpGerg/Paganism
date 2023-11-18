@@ -1,4 +1,5 @@
-﻿using Paganism.Compiler;
+﻿using Paganism;
+using Paganism.Compiler;
 using Paganism.Lexer;
 using Paganism.PParser;
 using Paganism.PParser.AST;
