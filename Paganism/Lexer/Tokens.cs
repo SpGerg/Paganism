@@ -29,8 +29,15 @@ namespace Paganism.Lexer
             { "and", TokenType.And },
             { "or", TokenType.Or },
             { "then", TokenType.Then },
+            { "for", TokenType.For },
+            { "not", TokenType.Not },
+            { "break", TokenType.Break },
+            { "structure", TokenType.Structure },
+            { "show", TokenType.Show },
+            { "hide", TokenType.Hide },
+            { "castable", TokenType.Castable },
         };
-
+         
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
         {
             { "+", TokenType.Plus },
@@ -44,7 +51,9 @@ namespace Paganism.Lexer
             { "[", TokenType.LeftBracket },
             { "]", TokenType.RightBracket },
             { ",", TokenType.Comma },
-            { "=", TokenType.Assign }
+            { "=", TokenType.Assign },
+            { "<", TokenType.Less },
+            { ">", TokenType.More },
         };
 
         public static IReadOnlyDictionary<StandartValueType, TokenType> ValueTypeToTokenType { get; } = new Dictionary<StandartValueType, TokenType>()
@@ -53,6 +62,14 @@ namespace Paganism.Lexer
             { StandartValueType.Number, TokenType.NumberType },
             { StandartValueType.Boolean, TokenType.BooleanType },
             { StandartValueType.Any, TokenType.AnyType }
+        };
+
+        public static IReadOnlyDictionary<TokenType, StandartValueType> TokenTypeToValueType { get; } = new Dictionary<TokenType, StandartValueType>()
+        {
+            { TokenType.StringType, StandartValueType.String },
+            { TokenType.NumberType, StandartValueType.Number },
+            { TokenType.BooleanType, StandartValueType.Boolean },
+            { TokenType.AnyType, StandartValueType.Any }
         };
 
         public static IReadOnlyDictionary<TokenType, TokenType> TypeToVariableType { get; } = new Dictionary<TokenType, TokenType>()

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PaganismCustomConsole.Commands
@@ -58,6 +59,8 @@ namespace PaganismCustomConsole.Commands
                     result[i] += '\n';
                 }
 
+                result[result.Length - 1] += "\n";
+
                 lexer = new Lexer(result);
             }
             
@@ -70,7 +73,7 @@ namespace PaganismCustomConsole.Commands
             }
             catch (Exception ex)
             {
-                response = "Error: " + ex;
+                response = "Error: " + ex.Message;
                 return true;
             }
 
@@ -89,7 +92,7 @@ namespace PaganismCustomConsole.Commands
             }
             catch (Exception ex)
             {
-                response = "Error: " + ex;
+                response = "Error: " + ex.Message;
                 return true;
             }
 
@@ -101,7 +104,11 @@ namespace PaganismCustomConsole.Commands
             }
             catch (Exception ex)
             {
-                response = "Error: " + ex;
+                Variables.Clear();
+                Functions.Clear();
+                Structures.Clear();
+
+                response = "Error: " + ex.Message;
                 return true;
             }
 

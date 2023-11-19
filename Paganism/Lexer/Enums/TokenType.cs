@@ -41,6 +41,15 @@ namespace Paganism.Lexer.Enums
         Else = 31,
         Is = 32,
         Or = 33,
-        Then = 34
+        Then = 34,
+        Less = 35,
+        More = 36,
+        For = 37,
+        Not = 38,
+        Break = 39,
+        Structure = 40,
+        Show = 41,
+        Hide = 42,
+        Castable = 43
     }
 }

@@ -73,7 +73,7 @@ namespace Paganism.Lexer
                         Position++;
                         continue;
                     }
-                    else if (char.IsDigit(Current))
+                    else if (char.IsDigit(Current) && (string.IsNullOrEmpty(savedLine) || string.IsNullOrWhiteSpace(savedLine)))
                     {
                         var tokenizer = new NumberTokenizer(Text, Position, Line);
                         var token = tokenizer.Tokenize();
@@ -122,11 +122,6 @@ namespace Paganism.Lexer
             }
 
             return tokens.ToArray();
-        }
-
-        private bool Require(params char[] tokens)
-        {
-            return Text[Line].FirstOrDefault(token => tokens.Contains(token)) != default; 
         }
     }
 }

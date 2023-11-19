@@ -15,6 +15,7 @@ namespace Paganism.PParser.AST.Enums
         Function = 4,
         Any = 5,
         Void = 6,
-        Variable = 7
+        Array = 7,
+        Structure = 8
     }
 }

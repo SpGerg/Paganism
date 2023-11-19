@@ -10,36 +10,41 @@ namespace Paganism
 {
     public class Variables
     {
-        public static Dictionary<string, Value> CreatedVariables { get; } = new Dictionary<string, Value>();
+        private static Dictionary<string, Value> DeclaratedVariables { get; } = new Dictionary<string, Value>();
 
         public static void Add(string name, Value value)
         {
-            CreatedVariables.Add(name, value);
+            DeclaratedVariables.Add(name, value);
         }
 
         public static void Remove(string name)
         {
-            CreatedVariables.Remove(name);
+            DeclaratedVariables.Remove(name);
+        }
+
+        public static void Clear()
+        {
+            DeclaratedVariables.Clear();
         }
 
         public static Value Get(string name)
         {
-            if (!CreatedVariables.TryGetValue(name, out Value value))
+            if (!DeclaratedVariables.TryGetValue(name, out Value value))
             {
                 return null;
             }
 
-            return value;
+            return Value.Create(value);
         }
 
         public static void Set(string name, Value value)
         {
-            if (!CreatedVariables.ContainsKey(name))
+            if (!DeclaratedVariables.ContainsKey(name))
             {
                 return;
             }
 
-            CreatedVariables[name] = value;
+            DeclaratedVariables[name] = value;
         }
     }
 }

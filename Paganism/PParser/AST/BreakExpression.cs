@@ -7,13 +7,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class ReturnExpression : Expression, IStatement
+    public class BreakExpression : Expression, IStatement
     {
-        public ReturnExpression(Expression[] values)
-        {
-            Values = values;
-        }
-
-        public Expression[] Values { get; }
     }
 }

@@ -28,6 +28,27 @@ namespace Paganism.PParser.Values
             return null;
         }
 
+        public static Value Create(Value copy)
+        {
+            switch (copy.Type)
+            {
+                case StandartValueType.String:
+                    return new StringValue((copy as StringValue).Value);
+                case StandartValueType.Number:
+                    return new NumberValue((copy as NumberValue).Value);
+                case StandartValueType.Boolean:
+                    return new BooleanValue((copy as BooleanValue).Value);
+                case StandartValueType.Array:
+                    var array = copy as ArrayValue;
+                    return new ArrayValue(array.Elements, array.ElementsType);
+                case StandartValueType.Structure:
+                    var structure = copy as StructureValue;
+                    return new StructureValue(structure.StructureDeclarate);
+            }
+
+            return null;
+        }
+
         public virtual double AsNumber()
         {
             throw new Exception($"You cant cast {Name} to Number");

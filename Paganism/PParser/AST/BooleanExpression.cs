@@ -13,13 +13,13 @@ namespace Paganism.PParser.AST
         public BooleanExpression(bool value)
         {
             Value = value;
+            _value = new BooleanValue(value);
         }
 
         public bool Value { get; set; }
 
-        public Value Eval()
-        {
-            return new BooleanValue(Value);
-        }
+        private readonly BooleanValue _value;
+
+        public Value Eval() => _value;
     }
 }

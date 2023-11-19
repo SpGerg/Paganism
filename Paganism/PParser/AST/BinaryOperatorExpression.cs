@@ -11,11 +11,12 @@ namespace Paganism.PParser.AST
 {
     public class BinaryOperatorExpression : Expression, IEvaluable
     {
-        public BinaryOperatorExpression(BinaryOperatorType type, IEvaluable left, IEvaluable right)
+        public BinaryOperatorExpression(BinaryOperatorType type, IEvaluable left, IEvaluable right, bool isNot = false)
         {
             Type = type;
             Left = left;
             Right = right;
+            IsNot = isNot;
         }
 
         public BinaryOperatorType Type { get; }
@@ -23,6 +24,8 @@ namespace Paganism.PParser.AST
         public IEvaluable Left { get; }
 
         public IEvaluable Right { get; }
+
+        public bool IsNot { get; }
 
         public Value Eval()
         {
@@ -39,11 +42,6 @@ namespace Paganism.PParser.AST
                 throw new Exception("Right expression is null");
             }
 
-            if (left.Type != right.Type)
-            {
-                throw new InvalidOperationException($"Invalid calculate {left.Type} and {right.Type}");
-            }
-
             switch (Type)
             {
                 case BinaryOperatorType.Plus:
@@ -58,9 +56,37 @@ namespace Paganism.PParser.AST
                     return Assign(left, right);
                 case BinaryOperatorType.Is:
                     return Is(left, right);
+                case BinaryOperatorType.And:
+                    return And(left, right);
+                case BinaryOperatorType.Or:
+                    return Or(left, right);
+                case BinaryOperatorType.Less:
+                    return Less(left, right);
+                case BinaryOperatorType.More:
+                    return More(left, right);
             }
 
             return null;
+        }
+
+        private Value More(Value left, Value right)
+        {
+            return new BooleanValue(left.AsNumber() > right.AsNumber());
+        }
+
+        private Value Less(Value left, Value right)
+        {
+            return new BooleanValue(left.AsNumber() < right.AsNumber());
+        }
+
+        private Value Or(Value left, Value right)
+        {
+            return new BooleanValue(left.AsBoolean() || right.AsBoolean());
+        }
+
+        private Value And(Value left, Value right)
+        {
+            return new BooleanValue(left.AsBoolean() && right.AsBoolean());
         }
 
         private Value Is(Value left, Value right)

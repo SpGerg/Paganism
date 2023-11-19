@@ -13,13 +13,13 @@ namespace Paganism.PParser.AST
         public NumberExpression(double value)
         {
             Value = value;
+            _value = new NumberValue(value);
         }
 
         public double Value { get; set; }
 
-        public Value Eval()
-        {
-            return new NumberValue(Value);
-        }
+        private readonly NumberValue _value;
+
+        public Value Eval() => _value;
     }
 }

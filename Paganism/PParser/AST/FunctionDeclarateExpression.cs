@@ -40,6 +40,8 @@ namespace Paganism.PParser.AST
 
         public TokenType[] ReturnTypes { get; }
 
+        private static Type Console => AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.Name == "Console");
+
         public void Create()
         {
             Functions.Add(this);
@@ -54,11 +56,21 @@ namespace Paganism.PParser.AST
         {
             if (Name == "call_lang")
             {
-                var findedClass = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == arguments[0].Value.Eval().AsString());
+                Type findedClass = null;
+
+                if (arguments[0].Value.Eval().AsString() == Console.FullName)
+                {
+                    findedClass = Console;
+                }
+
                 var method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(string) });
                 method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() });
 
                 return new Expression[0];
+            }
+            else if (Name == "create")
+            {
+                return new Expression[] { new StructureExpression(arguments[0].Value.Eval().AsString()) };
             }
 
             if (Statement == null) return new Expression[0];

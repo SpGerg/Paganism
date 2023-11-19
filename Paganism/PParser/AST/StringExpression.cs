@@ -13,13 +13,13 @@ namespace Paganism.PParser.AST
         public StringExpression(string value)
         {
             Value = value;
+            _value = new StringValue(Value);
         }
 
         public string Value { get; }
 
-        public Value Eval()
-        {
-            return new StringValue(Value);
-        }
+        private readonly StringValue _value;
+
+        public Value Eval() => _value;
     }
 }
