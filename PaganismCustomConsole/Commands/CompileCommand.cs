@@ -1,5 +1,7 @@
 ﻿using Paganism;
-using Paganism.Compiler;
+using Paganism.Exceptions;
+using Paganism.Interpreter;
+using Paganism.Interpreter.Data;
 using Paganism.Lexer;
 using Paganism.PParser;
 using Paganism.PParser.AST;
@@ -38,32 +40,15 @@ namespace PaganismCustomConsole.Commands
             Lexer lexer;
             Parser parser;
 
-            if (CustomConsole.IsDebug)
+            var path = Path.Combine(CustomConsole.CurrentDirectory, arguments["filename"]);
+
+            if (!File.Exists(path))
             {
-                lexer = new Lexer(new string[] { });
+                response = "File is not exists";
+                return false;
             }
-            else
-            {
-                var path = Path.Combine(CustomConsole.CurrentDirectory, arguments["filename"]);
 
-                if (!File.Exists(path))
-                {
-                    response = "File is not exists";
-                    return false;
-                }
-
-                var result = File.ReadAllLines(path);
-
-                for (int i = 0;i < result.Length;i++)
-                {
-                    result[i] += '\n';
-                }
-
-                result[result.Length - 1] += "\n";
-
-                lexer = new Lexer(result);
-            }
-            
+            lexer = new Lexer(File.ReadAllLines(path));
             Token[] tokens;
             BlockStatementExpression expressions;
 
@@ -73,7 +58,13 @@ namespace PaganismCustomConsole.Commands
             }
             catch (Exception ex)
             {
-                response = "Error: " + ex.Message;
+                if (ex is not LexerException)
+                {
+                    response = "Lexer error";
+                    return true;
+                }
+
+                response = "Lexer error: " + ex.Message;
                 return true;
             }
 
@@ -84,7 +75,7 @@ namespace PaganismCustomConsole.Commands
             }
             */
             
-            parser = new Parser(tokens);
+            parser = new Parser(tokens, path);
 
             try
             {
@@ -92,11 +83,17 @@ namespace PaganismCustomConsole.Commands
             }
             catch (Exception ex)
             {
-                response = "Error: " + ex.Message;
+                if (ex is not ParserException)
+                {
+                    response = "Parser error";
+                    return true;
+                }
+
+                response = "Parser error: " + ex.Message;
                 return true;
             }
 
-            var compiler = new Compiler(expressions);
+            var compiler = new Interpreter(expressions);
 
             try
             {
@@ -108,9 +105,19 @@ namespace PaganismCustomConsole.Commands
                 Functions.Clear();
                 Structures.Clear();
 
-                response = "Error: " + ex.Message;
+                if (ex is not InterpreterException)
+                {
+                    response = "Interpreter error";
+                    return true;
+                }
+
+                response = "Interpreter error: " + ex.Message;
                 return true;
             }
+
+            Variables.Clear();
+            Functions.Clear();
+            Structures.Clear();
 
             response = "Script has been compilated";
             return true;

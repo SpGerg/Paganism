@@ -1,5 +1,8 @@
-﻿using Paganism.Lexer;
+﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data;
+using Paganism.Lexer;
 using Paganism.Lexer.Enums;
+using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System;
@@ -26,24 +29,47 @@ namespace Paganism.PParser.AST
         {
             var function = Functions.Get(FunctionName);
 
-            Argument[] totalArguments = new Argument[function.RequiredArguments.Length];
+            Argument[] totalArguments = new Argument[function.Arguments.Length];
 
-            for (int i = 0; i < function.RequiredArguments.Length; i++)
+            for (int i = 0; i < function.Arguments.Length; i++)
             {
+                var functionArgument = function.Arguments[i];
+
                 if (i > Arguments.Length - 1)
                 {
-                    totalArguments[i] = null;
+                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, functionArgument.IsRequired, new NoneExpression());
+
+                    totalArguments[i] = noneArgument;
+                    Variables.Add(functionArgument.Name, noneArgument.Value.Eval());
                     continue;
                 }
 
-                var argument = function.RequiredArguments[i];
+                var argument = Arguments[i];
 
-                if (argument.Type != TokenType.AnyType && (argument.Type != Arguments[i].Type && argument.Type != Tokens.TypeToVariableType[Arguments[i].Type]))
+                if (functionArgument.Type == TypesType.Structure)
                 {
-                    throw new Exception($"Except {argument.Type}");
+                    var variable = Variables.Get(argument.Name);
+
+                    if (variable is not NoneValue)
+                    {
+                        if (variable is not StructureValue structure)
+                        {
+                            throw new InterpreterException($"Except variable with structure {functionArgument.Name} type");
+                        }
+
+                        if (functionArgument.StructureName != structure.Structure.Name)
+                        {
+                            throw new InterpreterException($"Except structure {functionArgument.Name} type");
+                        }
+                    }            
                 }
 
-                var initArgument = new Argument(argument.Name, argument.Type, argument.IsRequired, Arguments[i].Value);
+                if ((functionArgument.Type != TypesType.Any && argument.Type != TypesType.Any) && functionArgument.Type != argument.Type)
+                {
+                    throw new InterpreterException($"Except {functionArgument.Type}");
+                }
+
+                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, functionArgument.IsRequired, argument.Value);
 
                 totalArguments[i] = initArgument;
                 Variables.Add(initArgument.Name, initArgument.Value.Eval());
@@ -58,10 +84,10 @@ namespace Paganism.PParser.AST
                     Variables.Remove(argument.Name);
                 }
 
-                return Value.Create(result[0]);
+                return result;
             }
 
-            function.Execute(totalArguments);
+            function.ExecuteAndReturn(totalArguments);
 
             foreach (var argument in totalArguments)
             {

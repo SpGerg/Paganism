@@ -1,4 +1,5 @@
-﻿using Paganism.PParser.AST;
+﻿using Paganism.Lexer;
+using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using System;
@@ -11,36 +12,43 @@ namespace Paganism.PParser.Values
 {
     public class ArrayValue : Value
     {
-        public override string Name => "Array";
-
-        public override StandartValueType Type => StandartValueType.Array;
-
-        public StandartValueType ElementsType { get; }
-
-        public Value[] Elements { get; }
-
-        public ArrayValue(Value[] elements, StandartValueType elementsType)
+        public ArrayValue(Value[] elements)
         {
             Elements = elements;
-            ElementsType = elementsType;
         }
 
-        public ArrayValue(Expression[] elements, StandartValueType elementsType)
+        public ArrayValue(Expression[] elements)
         {
             Value[] expressions = new Value[elements.Length];
 
-            for (int i = 0;i < expressions.Length;i++)
+            for (int i = 0; i < expressions.Length; i++)
             {
                 expressions[i] = (elements[i] as IEvaluable).Eval();
             }
 
             Elements = expressions;
-            ElementsType = elementsType;
+        }
+
+        public override string Name => "Array";
+
+        public override TypesType Type => TypesType.Array;
+
+        public Value[] Elements { get; set; }
+
+        public void Set(int index, object value)
+        {
+            if (value is Value objectValue)
+            {
+                Elements[index] = objectValue;
+                return;
+            }
+
+            Elements[index] = value as Value;
         }
 
         public override string AsString()
         {
-            var result = string.Empty;
+            var result = $"{Name}: ";
             result += "[";
 
             foreach (var item in Elements)

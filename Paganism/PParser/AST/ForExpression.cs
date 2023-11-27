@@ -27,7 +27,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            while (Expression.Eval().AsBoolean())
+            while (Expression == null ? true : Expression.Eval().AsBoolean())
             {
                 Statement.Execute();
 

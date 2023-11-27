@@ -1,6 +1,4 @@
-﻿using Paganism.PParser.AST.Interfaces;
-using Paganism.PParser.Values;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,18 +6,13 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class StructureExpression : Expression, IEvaluable
+    public class StructureExpression : Expression
     {
-        public StructureExpression(string name)
+        public StructureExpression(string value)
         {
-            Name = name;
+            Value = value;
         }
 
-        public string Name { get; }
-
-        public Value Eval()
-        {
-            return new StructureValue(Structures.Get(Name));
-        }
+        public string Value { get; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Paganism.PParser.AST.Interfaces;
+﻿using Paganism.Interpreter.Data;
+using Paganism.PParser.AST.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -8,7 +8,6 @@ namespace Paganism.Lexer.Enums
 {
     public enum TokenType
     {
-        None = 0,
         String = 1,
         Number = 2,
         Colon = 4,
@@ -50,6 +49,10 @@ namespace Paganism.Lexer.Enums
         Structure = 40,
         Show = 41,
         Hide = 42,
-        Castable = 43
+        Castable = 43,
+        Point = 44,
+        ArrayType = 45,
+        ObjectType = 46,
+        Char = 47
     }
 }

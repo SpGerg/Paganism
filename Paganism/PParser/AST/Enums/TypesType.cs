@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST.Enums
 {
-    public enum StandartValueType
+    public enum TypesType
     {
         None = 0,
         String = 1,
@@ -16,6 +16,8 @@ namespace Paganism.PParser.AST.Enums
         Any = 5,
         Void = 6,
         Array = 7,
-        Structure = 8
+        Structure = 8,
+        Char = 9,
+        Type = 10
     }
 }

@@ -10,7 +10,7 @@ namespace Paganism.PParser.AST
 {
     public class AssignExpression : BinaryOperatorExpression, IStatement
     {
-        public AssignExpression(BinaryOperatorType type, IEvaluable left, IEvaluable right) : base(type, left, right)
+        public AssignExpression(IEvaluable left, IEvaluable right) : base(BinaryOperatorType.Assign, left, right)
         {
         }
     }

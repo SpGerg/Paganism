@@ -13,22 +13,19 @@ namespace Paganism.PParser.AST
 {
     public class ArrayExpression : Expression, IEvaluable
     {
-        public ArrayExpression(Expression[] elements, int length, StandartValueType elementsType = StandartValueType.Any)
+        public ArrayExpression(Expression[] elements, int length)
         {
             Elements = elements;
-            Length = length;        }
+            Length = length;
+        }
 
         public Expression[] Elements { get; }
-
-        public StandartValueType ElementsType { get; }
-
-        public bool IsArray => true;
 
         public int Length { get; }
 
         public Value Eval()
         {
-            return new ArrayValue(Elements, ElementsType);
+            return new ArrayValue(Elements);
         }
     }
 }

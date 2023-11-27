@@ -1,4 +1,5 @@
 ﻿using Paganism.Lexer.Enums;
+using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -10,15 +11,18 @@ namespace Paganism.PParser.AST
 {
     public class StructureMemberExpression : Expression, IStatement
     {
-        public StructureMemberExpression(TokenType type, string name, bool isShow = false, bool isCastable = false)
+        public StructureMemberExpression(string structure, TypesType type, string name, bool isShow = false, bool isCastable = false)
         {
+            Structure = structure;
             Type = type;
             Name = name;
             IsShow = isShow;
             IsCastable = isCastable;
         }
 
-        public TokenType Type { get; }
+        public string Structure { get; }
+
+        public TypesType Type { get; }
 
         public string Name { get; }
 

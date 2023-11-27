@@ -1,4 +1,5 @@
-﻿using Paganism.Lexer.Enums;
+﻿using Paganism.Exceptions;
+using Paganism.Lexer.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,8 @@ namespace Paganism.Lexer.Tokenizers
                 {
                     if (Current == '\"')
                     {
-                        return new Token(savedLine, startPosition, startLine, TokenType.String);
+                        Position++;
+                        return new Token(Utilities.ReplaceEscapeCodes(savedLine), startPosition, startLine, TokenType.String);
                     }
 
                     savedLine += Current;
@@ -49,7 +51,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new Exception($"String is not ended. Line: {startLine}, position: {startPosition}");
+            throw new LexerException($"String is not ended", startLine, startPosition);
         }
     }
 }

@@ -16,9 +16,20 @@ namespace Paganism.PParser.Values
 
         public override string Name => "Boolean";
 
-        public override StandartValueType Type => StandartValueType.Boolean;
+        public override TypesType Type => TypesType.Boolean;
 
         public bool Value { get; set; }
+
+        public override void Set(object value)
+        {
+            if (value is Value objectValue)
+            {
+                Value = objectValue.AsBoolean();
+                return;
+            }
+
+            Value = (bool)value;
+        }
 
         public override double AsNumber()
         {

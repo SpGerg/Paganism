@@ -5,19 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Paganism.Compiler
+namespace Paganism.Interpreter
 {
-    public class Compiler
+    public class Interpreter
     {
-        public Compiler(BlockStatementExpression blockStatement)
+        public Interpreter(BlockStatementExpression blockStatement)
         {
             BlockStatement = blockStatement;
         }
 
         public BlockStatementExpression BlockStatement { get; }
 
-        public void Run()
+        public void Run(bool isClearing = true)
         {
+            BlockStatement.IsClearing = isClearing;
             BlockStatement.Execute();
         }
     }

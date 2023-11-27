@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Paganism
+namespace Paganism.Interpreter.Data
 {
     public class Variables
     {
-        private static Dictionary<string, Value> DeclaratedVariables { get; } = new Dictionary<string, Value>();
+        public static Dictionary<string, Value> DeclaratedVariables { get; } = new Dictionary<string, Value>();
 
         public static void Add(string name, Value value)
         {
@@ -31,10 +31,10 @@ namespace Paganism
         {
             if (!DeclaratedVariables.TryGetValue(name, out Value value))
             {
-                return null;
+                return new NoneValue();
             }
 
-            return Value.Create(value);
+            return value;
         }
 
         public static void Set(string name, Value value)

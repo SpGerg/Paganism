@@ -1,4 +1,5 @@
-﻿using Paganism.Lexer.Enums;
+﻿using Paganism.Exceptions;
+using Paganism.Lexer.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,7 @@ namespace Paganism.Lexer.Tokenizers
                     {
                         if (Current == '.' && savedLine.Contains('.'))
                         {
-                            throw new Exception($"Two points in number. Line: {Line}, position: {Position}");
+                            throw new LexerException($"Two points in number", startLine, startPosition);
                         }
 
                         Position--; //Cuz in next iterate in main lexer loop, lexer skip this non number token
@@ -53,7 +54,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new Exception($"Number is infinity. Line: {startLine}, position: {startPosition}");
+            throw new LexerException($"Number is infinity", startLine, startPosition);
         }
     }
 }

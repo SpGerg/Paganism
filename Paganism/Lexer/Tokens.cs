@@ -36,6 +36,7 @@ namespace Paganism.Lexer
             { "show", TokenType.Show },
             { "hide", TokenType.Hide },
             { "castable", TokenType.Castable },
+            { "object", TokenType.ObjectType },
         };
          
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
@@ -54,38 +55,30 @@ namespace Paganism.Lexer
             { "=", TokenType.Assign },
             { "<", TokenType.Less },
             { ">", TokenType.More },
+            { ".", TokenType.Point },
         };
 
-        public static IReadOnlyDictionary<StandartValueType, TokenType> ValueTypeToTokenType { get; } = new Dictionary<StandartValueType, TokenType>()
+        public static IReadOnlyDictionary<TypesType, TokenType> ValueTypeToTokenType { get; } = new Dictionary<TypesType, TokenType>()
         {
-            { StandartValueType.String, TokenType.StringType },
-            { StandartValueType.Number, TokenType.NumberType },
-            { StandartValueType.Boolean, TokenType.BooleanType },
-            { StandartValueType.Any, TokenType.AnyType }
+            { TypesType.String, TokenType.StringType },
+            { TypesType.Number, TokenType.NumberType },
+            { TypesType.Boolean, TokenType.BooleanType },
+            { TypesType.Any, TokenType.AnyType }
         };
 
-        public static IReadOnlyDictionary<TokenType, StandartValueType> TokenTypeToValueType { get; } = new Dictionary<TokenType, StandartValueType>()
+        public static IReadOnlyDictionary<TokenType, TypesType> TokenTypeToValueType { get; } = new Dictionary<TokenType, TypesType>()
         {
-            { TokenType.StringType, StandartValueType.String },
-            { TokenType.NumberType, StandartValueType.Number },
-            { TokenType.BooleanType, StandartValueType.Boolean },
-            { TokenType.AnyType, StandartValueType.Any }
-        };
-
-        public static IReadOnlyDictionary<TokenType, TokenType> TypeToVariableType { get; } = new Dictionary<TokenType, TokenType>()
-        {
-            { TokenType.String, TokenType.StringType },
-            { TokenType.Number, TokenType.NumberType },
-            { TokenType.True, TokenType.BooleanType },
-            { TokenType.False, TokenType.BooleanType },
-        };
-
-        public static IReadOnlyDictionary<string, TokenType> BinaryOperatorsType { get; } = new Dictionary<string, TokenType>()
-        {
-            { "+", TokenType.Plus },
-            { "-", TokenType.Minus },
-            { "*", TokenType.Star },
-            { "/", TokenType.Slash },
+            { TokenType.NoneType, TypesType.None },
+            { TokenType.StringType, TypesType.String },
+            { TokenType.NumberType, TypesType.Number },
+            { TokenType.BooleanType, TypesType.Boolean },
+            { TokenType.AnyType, TypesType.Any },
+            { TokenType.String, TypesType.String },
+            { TokenType.Number, TypesType.Number },
+            { TokenType.True, TypesType.Boolean },
+            { TokenType.False, TypesType.Boolean },
+            { TokenType.Structure, TypesType.Structure },
+            { TokenType.Word, TypesType.Structure },
         };
     }
 }

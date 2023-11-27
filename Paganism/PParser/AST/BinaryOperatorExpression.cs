@@ -1,8 +1,11 @@
-﻿using Paganism.PParser.AST.Enums;
+﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data;
+using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,12 +14,11 @@ namespace Paganism.PParser.AST
 {
     public class BinaryOperatorExpression : Expression, IEvaluable
     {
-        public BinaryOperatorExpression(BinaryOperatorType type, IEvaluable left, IEvaluable right, bool isNot = false)
+        public BinaryOperatorExpression(BinaryOperatorType type, IEvaluable left, IEvaluable right)
         {
             Type = type;
             Left = left;
             Right = right;
-            IsNot = isNot;
         }
 
         public BinaryOperatorType Type { get; }
@@ -25,48 +27,113 @@ namespace Paganism.PParser.AST
 
         public IEvaluable Right { get; }
 
-        public bool IsNot { get; }
+        public static KeyValuePair<string, Value> GetStructure(Expression left, Expression right, StructureValue parent)
+        {
+            if (right is BinaryOperatorExpression binary)
+            {
+                var structure = parent.Values[(binary.Left as VariableExpression).Name] as StructureValue;
+
+                return GetStructure(binary.Left as Expression, binary.Right as Expression, structure);
+            }
+
+            var name = (left as VariableExpression).Name;
+
+            return new KeyValuePair<string, Value>(name, parent);
+        }
 
         public Value Eval()
         {
+            if (Type == BinaryOperatorType.Point) return Point();
+
             var left = Left.Eval();
             var right = Right.Eval();
 
-            if (left == null)
+            return Type switch
             {
-                throw new Exception("Left expression is null");
+                BinaryOperatorType.Plus => Addition(left, right),
+                BinaryOperatorType.Minus => Minus(left, right),
+                BinaryOperatorType.Multiplicative => Addition(left, right),
+                BinaryOperatorType.Division => Division(left, right),
+                BinaryOperatorType.Assign => Assign(left, right),
+                BinaryOperatorType.Is => Is(left, right),
+                BinaryOperatorType.And => And(left, right),
+                BinaryOperatorType.Or => Or(left, right),
+                BinaryOperatorType.Less => Less(left, right),
+                BinaryOperatorType.More => More(left, right),
+                _ => null,
+            };
+        }
+
+        private Value Point()
+        {
+            if (Left is BinaryOperatorExpression binaryOperator)
+            {
+                return GetMember((Left as VariableExpression).Eval() as StructureValue, binaryOperator).Value;
             }
 
-            if (right == null)
+            return GetMember((Left as VariableExpression).Eval() as StructureValue, Right as Expression).Value;
+        }
+
+        public KeyValuePair<string, Value> PointKeyValuePair()
+        {
+            if (Left is BinaryOperatorExpression binaryOperator)
             {
-                throw new Exception("Right expression is null");
+                var leftKey = (binaryOperator.Left as VariableExpression).Name;
+
+                return GetMember(Variables.Get(leftKey) as StructureValue, binaryOperator);
             }
 
-            switch (Type)
+            var key = (Left as VariableExpression).Name;
+            var member = GetMember((Variables.Get(key) as StructureValue), Right as Expression);
+
+            return new KeyValuePair<string, Value>(member.Key, member.Value);
+        }
+
+        private KeyValuePair<string, Value> GetMember(StructureValue structure, Expression expression)
+        {
+            if (structure == null)
             {
-                case BinaryOperatorType.Plus:
-                    return Addition(left, right);
-                case BinaryOperatorType.Minus:
-                    return Minus(left, right);
-                case BinaryOperatorType.Multiplicative:
-                    return Addition(left, right);
-                case BinaryOperatorType.Division:
-                    return Division(left, right);
-                case BinaryOperatorType.Assign:
-                    return Assign(left, right);
-                case BinaryOperatorType.Is:
-                    return Is(left, right);
-                case BinaryOperatorType.And:
-                    return And(left, right);
-                case BinaryOperatorType.Or:
-                    return Or(left, right);
-                case BinaryOperatorType.Less:
-                    return Less(left, right);
-                case BinaryOperatorType.More:
-                    return More(left, right);
+                throw new InterpreterException("Structure is none");
             }
 
-            return null;
+            if (expression is not BinaryOperatorExpression binaryOperator)
+            {
+                var name = (expression as VariableExpression).Name;
+
+                if (!structure.Values.TryGetValue(name, out var value))
+                {
+                    throw new InterpreterException($"Structure member with {name} name in '{structure.Structure.Name}' structure not found");
+                }
+
+                return new KeyValuePair<string, Value>(name, value);
+            }
+
+            if (binaryOperator.Right is not BinaryOperatorExpression binaryOperatorRight)
+            {
+                var name2 = (binaryOperator.Left as VariableExpression).Name;
+                var value = structure.Values[(binaryOperator.Left as VariableExpression).Name];
+
+                if (value is StructureValue structureValue)
+                {
+                    if (!structureValue.Values.TryGetValue(name2, out var value2))
+                    {
+                        throw new InterpreterException($"Structure member with {name2} name in '{structure.Structure.Name}' structure not found");
+                    }
+
+                    return new KeyValuePair<string, Value>(name2, value2);
+                }
+
+                return new KeyValuePair<string, Value>(name2, value);
+            }
+
+            var name3 = (binaryOperator.Left as VariableExpression).Name;
+
+            if (!structure.Values.TryGetValue(name3, out var value3))
+            {
+                throw new InterpreterException($"Structure member with {name3} name in '{structure.Structure.Name}' structure not found");
+            }
+
+            return GetMember(value3 as StructureValue, binaryOperatorRight);
         }
 
         private Value More(Value left, Value right)
@@ -91,108 +158,81 @@ namespace Paganism.PParser.AST
 
         private Value Is(Value left, Value right)
         {
-            switch (left.Type)
+            if (right is TypeValue typeValue)
             {
-                case StandartValueType.Any:
-                    return new BooleanValue(left.AsNumber() == right.AsNumber());
-                case StandartValueType.Number:
-                    return new BooleanValue(left.AsNumber() == right.AsNumber());
-                case StandartValueType.String:
-                    return new BooleanValue(left.AsString() == right.AsString());
-                case StandartValueType.Boolean:
-                    return new BooleanValue(left.AsBoolean() == right.AsBoolean());
+                return new BooleanValue(typeValue.Value == left.Type);
             }
 
-            throw new Exception($"You cant substraction type {left.Type} and {right.Type}");
+            if (right is NoneValue noneValue)
+            {
+                return new BooleanValue(noneValue.Type == left.Type);
+            }
+
+            if (left.GetType() != right.GetType()) return new BooleanValue(false);
+
+            return left.Type switch
+            {
+                TypesType.Any => new BooleanValue(left.AsString() == right.AsString()),
+                TypesType.Number => new BooleanValue(left.AsNumber() == right.AsNumber()),
+                TypesType.String => new BooleanValue(left.AsString() == right.AsString()),
+                TypesType.Boolean => new BooleanValue(left.AsBoolean() == right.AsBoolean()),
+                TypesType.Char => new BooleanValue(left.AsString() == right.AsString()),
+                TypesType.None => new BooleanValue(left.Name == right.Name),
+                TypesType.Structure => new BooleanValue(left == right),
+                _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
+            };
         }
 
         public Value Minus(Value left, Value right)
         {
-            switch (left.Type)
+            return left.Type switch
             {
-                case StandartValueType.Any:
-                    return new NumberValue(left.AsNumber() - right.AsNumber());
-                case StandartValueType.Number:
-                    return new NumberValue(left.AsNumber() - right.AsNumber());
-                    /*
-                case StandartValueType.String:
-                    return new StringValue(left.AsString() + right.AsString());
-                case StandartValueType.Boolean:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                    */
-            }
-
-            throw new Exception($"You cant substraction type {left.Type} and {right.Type}");
+                TypesType.Any => new NumberValue(left.AsNumber() - right.AsNumber()),
+                TypesType.Number => new NumberValue(left.AsNumber() - right.AsNumber()),
+                _ => throw new InterpreterException($"You cant substraction type {left.Type} and {right.Type}"),
+            };
         }
 
         public Value Addition(Value left, Value right)
         {
-            switch (left.Type)
+            return left.Type switch
             {
-                case StandartValueType.Any:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                case StandartValueType.Number:
-                    return new NumberValue(left.AsNumber() + right.AsNumber());
-                case StandartValueType.String:
-                    return new StringValue(left.AsString() + right.AsString());
-            }
-
-            throw new Exception($"You cant addition type {left.Type} and {right.Type}");
+                TypesType.Any => new NumberValue(left.AsNumber() + right.AsNumber()),
+                TypesType.Number => new NumberValue(left.AsNumber() + right.AsNumber()),
+                TypesType.String => new StringValue(left.AsString() + right.AsString()),
+                _ => throw new InterpreterException($"You cant addition type {left.Type} and {right.Type}"),
+            };
         }
 
         public Value Multiplicative(Value left, Value right)
         {
-            switch (left.Type)
+            return left.Type switch
             {
-                case StandartValueType.Any:
-                    return new NumberValue(left.AsNumber() * right.AsNumber());
-                case StandartValueType.Number:
-                    return new NumberValue(left.AsNumber() * right.AsNumber());
-            }
-
-            throw new Exception($"You cant multiplicative type {left.Type} and {right.Type}");
+                TypesType.Any => new NumberValue(left.AsNumber() * right.AsNumber()),
+                TypesType.Number => new NumberValue(left.AsNumber() * right.AsNumber()),
+                _ => throw new InterpreterException($"You cant multiplicative type {left.Type} and {right.Type}"),
+            };
         }
 
         public Value Division(Value left, Value right)
         {
-            switch (left.Type)
+            return left.Type switch
             {
-                case StandartValueType.Any:
-                    return new NumberValue(left.AsNumber() / right.AsNumber());
-                case StandartValueType.Number:
-                    return new NumberValue(left.AsNumber() / right.AsNumber());
-                case StandartValueType.Boolean:
-                    return new NumberValue(left.AsNumber() / right.AsNumber());
-            }
-
-            throw new Exception($"You cant division type {left.Type} and {right.Type}");
+                TypesType.Any => new NumberValue(left.AsNumber() / right.AsNumber()),
+                TypesType.Number => new NumberValue(left.AsNumber() / right.AsNumber()),
+                TypesType.Boolean => new NumberValue(left.AsNumber() / right.AsNumber()),
+                _ => throw new InterpreterException($"You cant division type {left.Type} and {right.Type}"),
+            };
         }
 
         public Value Assign(Value left, Value right)
         {
-            if (Left is not VariableExpression variableExpression)
+            if (Left is not VariableExpression)
             {
-                throw new Exception("Except variable");
+                throw new InterpreterException("Except variable");
             }
 
-            if (Right is FunctionCallExpression functionCall)
-            {
-                var function = Functions.Get(functionCall.FunctionName);
-
-                if (function == null)
-                {
-                    throw new Exception($"Function with {functionCall.FunctionName} name not found");
-                }
-
-                if (function.ReturnTypes.Length <= 0)
-                {
-                    throw new Exception("Function return void");
-                }
-
-                return functionCall.Eval();
-            }
-
-            throw new Exception("Except variable or function call");
+            return Right.Eval();
         }
     }
 }

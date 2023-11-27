@@ -16,9 +16,20 @@ namespace Paganism.PParser.Values
 
         public override string Name => "String";
 
-        public override StandartValueType Type => StandartValueType.String;
+        public override TypesType Type => TypesType.String;
 
-        public string Value { get; }
+        public string Value { get; set; }
+
+        public override void Set(object value)
+        {
+            if (value is Value objectValue)
+            {
+                Value = objectValue.AsString();
+                return;
+            }
+
+            Value = (string) value;
+        }
 
         public override string AsString()
         {

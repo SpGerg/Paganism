@@ -20,6 +20,7 @@ namespace Paganism.PParser.AST.Enums
         Or = 9,
         Less = 10,
         More = 11,
-        Not = 12
+        Not = 12,
+        Point = 13
     }
 }
