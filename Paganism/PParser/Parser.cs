@@ -165,7 +165,7 @@ namespace Paganism.PParser
 
             var structureTypeName = string.Empty;
 
-            if (!IsType(0))
+            if (!IsType(0, true, true))
             {
                 if (Match(TokenType.StructureType))
                 {
@@ -333,7 +333,7 @@ namespace Paganism.PParser
             var type = TokenType.AnyType;
             var current = Current;
 
-            if (IsType(0, true))
+            if (IsType(0, true, true))
             {
                 Position++; //Skip type
                 type = current.Type;
@@ -795,7 +795,7 @@ namespace Paganism.PParser
             }
             else if (Match(TokenType.Async))
             {
-                return ParsePrimary();
+                return ParseFunction(true);
             }
 
             if (isWithException)

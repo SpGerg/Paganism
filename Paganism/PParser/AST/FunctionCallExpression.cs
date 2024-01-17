@@ -52,13 +52,22 @@ namespace Paganism.PParser.AST
 
                 var argument = Arguments[i];
 
-                if (functionArgument.Type == TypesType.Structure)
+                if (functionArgument.Type is TypesType.Structure)
                 {
-                    var variable = Variables.Instance.Value.Get(function.Statements, argument.Name);
+                    Value value = null;
 
-                    if (variable is not NoneValue)
+                    try
                     {
-                        if (variable is not StructureValue structure)
+                        value = Variables.Instance.Value.Get(function.Statements, argument.Name);
+                    }
+                    catch
+                    {
+                        value = argument.Value.Eval();
+                    }
+
+                    if (value is not NoneValue)
+                    {
+                        if (value is not StructureValue structure)
                         {
                             throw new InterpreterException($"Except variable with structure {functionArgument.Name} type");
                         }
