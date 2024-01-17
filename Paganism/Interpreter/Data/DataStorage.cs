@@ -99,11 +99,16 @@ namespace Paganism.Interpreter.Data
 
         public T Get(BlockStatementExpression expression, string name)
         {
+            if (Language.ContainsKey(name))
+            {
+                return Language[name];
+            }
+
             if (expression is null)
             {
-                if (Language.ContainsKey(name))
+                if (!GlobalDeclarated.ContainsKey(name))
                 {
-                    return Language[name];
+                    throw new InterpreterException($"Unknown {Name} with '{name}' name");
                 }
 
                 return GlobalDeclarated[name];
@@ -123,10 +128,17 @@ namespace Paganism.Interpreter.Data
                     return value;
                 }
 
-                throw new InterpreterException($"{Name} with '{name}' name not found");
+                throw new InterpreterException($"Unknown {Name} with '{name}' name");
             }
 
-            return Declarated[expression].TryGetValue(name, out result1) ? result1 : result;
+            var result2 = Declarated[expression].TryGetValue(name, out result1);
+
+            if (result is null && !result2)
+            {
+                throw new InterpreterException($"Unknown {Name} with '{name}' name");
+            }
+
+            return result2 ? result1 : result;
         }
     }
 }

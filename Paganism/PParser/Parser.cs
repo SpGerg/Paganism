@@ -469,7 +469,7 @@ namespace Paganism.PParser
             var arguments = ParseFunctionArguments();
 
             var statement = new BlockStatementExpression(_parent, Current.Line, Current.Position, Filepath, new IStatement[0], InLoop);
-            var statements = ParseExpressions(statement);
+            ParseExpressions(statement);
 
             return new FunctionDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, name, statement, arguments, isAsync, returnTypes);
         }
@@ -487,12 +487,7 @@ namespace Paganism.PParser
                         continue;
                     }
 
-                    var isRequired = false;
-
-                    if (Match(TokenType.Required))
-                    {
-                        isRequired = true;
-                    }
+                    var isRequired = Match(TokenType.Required);
 
                     Token type = Current;
                     var structureName = string.Empty;

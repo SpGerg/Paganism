@@ -69,7 +69,7 @@ namespace Paganism.PParser.Values
         {
             if (!Values.ContainsKey(key))
             {
-                throw new InterpreterException($"Didnt found member with '{key}' name.");
+                throw new InterpreterException($"Unknown member with '{key}' name.");
             }
 
             var member = Structure.Members[key];
