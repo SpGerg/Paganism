@@ -17,12 +17,15 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            return Operator switch
+            switch (Operator)
             {
-                BinaryOperatorType.Plus => Expression.Eval(),
-                BinaryOperatorType.Minus => new NumberValue(-Expression.Eval().AsNumber()),
-                _ => Expression.Eval(),
-            };
+                case BinaryOperatorType.Plus:
+                    return Expression.Eval();
+                case BinaryOperatorType.Minus:
+                    return new NumberValue(-Expression.Eval().AsNumber());
+            }
+
+            return Expression.Eval();
         }
     }
 }

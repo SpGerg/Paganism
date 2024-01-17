@@ -16,16 +16,16 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            FunctionCallExpression function = Expression as FunctionCallExpression;
+            var function = Expression as FunctionCallExpression;
 
             if (!function.IsAwait)
             {
                 throw new InterpreterException("You need async function to use await.", function.Line, function.Position);
             }
 
-            int id = (int)((NumberValue)(function.Eval() as StructureValue).Values["id"]).Value;
+            var id = (int)((NumberValue)(function.Eval() as StructureValue).Values["id"]).Value;
 
-            System.Threading.Tasks.Task task = Tasks.Get(id);
+            var task = Tasks.Get(id);
 
             task.Wait();
         }

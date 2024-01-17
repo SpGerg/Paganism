@@ -14,7 +14,7 @@ namespace Paganism.Interpreter.Data
 
         public static void Remove(Task task)
         {
-            _ = CurrentTasks.Remove(task);
+            CurrentTasks.Remove(task);
         }
 
         public static Task Get(int id)
@@ -29,7 +29,7 @@ namespace Paganism.Interpreter.Data
 
         public static void Clear()
         {
-            foreach (Task task in CurrentTasks)
+            foreach (var task in CurrentTasks)
             {
                 if (task.Status is TaskStatus.Running)
                 {

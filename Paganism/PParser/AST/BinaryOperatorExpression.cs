@@ -32,8 +32,8 @@ namespace Paganism.PParser.AST
                 return Assign();
             }
 
-            Value left = Left.Eval();
-            Value right = Right.Eval();
+            var left = Left.Eval();
+            var right = Right.Eval();
 
             return Type switch
             {
@@ -53,19 +53,22 @@ namespace Paganism.PParser.AST
 
         private Value As(Value left, Value right)
         {
-            return right is not TypeValue typeValue
-                ? throw new InterpreterException("Right expression must be a type", Line, Position)
-                : typeValue.Value switch
-                {
-                    TypesType.Any => new StringValue(left.AsString()),
-                    TypesType.Number => new NumberValue(left.AsNumber()),
-                    TypesType.String => new StringValue(left.AsString()),
-                    TypesType.Boolean => new BooleanValue(left.AsBoolean()),
-                    TypesType.Char => AsChar(left, right),
-                    TypesType.None => new NoneValue(),
-                    TypesType.Structure => AsStructure(left, typeValue),
-                    _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
-                };
+            if (right is not TypeValue typeValue)
+            {
+                throw new InterpreterException("Right expression must be a type", Line, Position);
+            }
+
+            return typeValue.Value switch
+            {
+                TypesType.Any => new StringValue(left.AsString()),
+                TypesType.Number => new NumberValue(left.AsNumber()),
+                TypesType.String => new StringValue(left.AsString()),
+                TypesType.Boolean => new BooleanValue(left.AsBoolean()),
+                TypesType.Char => AsChar(left, right),
+                TypesType.None => new NoneValue(),
+                TypesType.Structure => AsStructure(left, typeValue),
+                _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
+            };
         }
 
         private Value AsStructure(Value left, TypeValue right)
@@ -75,14 +78,14 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException($"Cannot cast {left.Type} to Structure", Line, Position);
             }
 
-            foreach (KeyValuePair<string, StructureMemberExpression> member in structureValue.Structure.Members)
+            foreach (var member in structureValue.Structure.Members)
             {
                 if (!member.Value.IsCastable)
                 {
                     continue;
                 }
 
-                Value value = structureValue.Values[member.Key];
+                var value = structureValue.Values[member.Key];
 
                 if (value is not StructureValue structureValue1)
                 {
@@ -109,20 +112,23 @@ namespace Paganism.PParser.AST
         {
             if (binaryOperatorExpression.Left is VariableExpression variableExpression)
             {
-                StructureValue left = Variables.Instance.Value.Get(binaryOperatorExpression.Parent, variableExpression.Name) as StructureValue;
+                var left = Variables.Instance.Value.Get(binaryOperatorExpression.Parent, variableExpression.Name) as StructureValue;
 
                 return left;
             }
 
             if (binaryOperatorExpression.Left is BinaryOperatorExpression binary)
             {
-                StructureValue structure = GetStructure(binary);
-                string name = (binary.Right as VariableExpression).Name.Replace("()", string.Empty);
-                StructureValue member = structure.Values[name] as StructureValue;
+                var structure = GetStructure(binary);
+                var name = (binary.Right as VariableExpression).Name.Replace("()", string.Empty);
+                var member = structure.Values[name] as StructureValue;
 
-                return !structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath
-                    ? throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position)
-                    : member;
+                if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath)
+                {
+                    throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position);
+                }
+
+                return member;
             }
 
             return null;
@@ -130,15 +136,21 @@ namespace Paganism.PParser.AST
 
         public static KeyValuePair<string, Value> GetMemberWithKeyOfStructure(BinaryOperatorExpression binaryOperatorExpression)
         {
-            StructureValue structure = GetStructure(binaryOperatorExpression);
-            string name = (binaryOperatorExpression.Right as VariableExpression).Name.Replace("()", string.Empty);
-            Value member = structure.Values[name];
+            var structure = GetStructure(binaryOperatorExpression);
+            var name = (binaryOperatorExpression.Right as VariableExpression).Name.Replace("()", string.Empty);
+            var member = structure.Values[name];
 
-            return !structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath
-                ? throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position)
-                : structure is null
-                ? throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position)
-                : new KeyValuePair<string, Value>(name, member);
+            if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
+            {
+                throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+            }
+
+            if (structure is null)
+            {
+                throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+            }
+
+            return new KeyValuePair<string, Value>(name, member);
         }
 
         public static Value GetMemberOfStructure(BinaryOperatorExpression binaryOperatorExpression)
@@ -148,7 +160,7 @@ namespace Paganism.PParser.AST
 
         private Value Point()
         {
-            Value member = GetMemberOfStructure(this);
+            var member = GetMemberOfStructure(this);
             return member;
         }
 
@@ -174,25 +186,34 @@ namespace Paganism.PParser.AST
 
         private Value Is(Value left, Value right)
         {
-            return right is TypeValue typeValue
-                ? left is StructureValue structureValue
-                    ? new BooleanValue(typeValue.StructureName == structureValue.Structure.Name)
-                    : (Value)new BooleanValue(typeValue.Value == left.Type)
-                : right is NoneValue noneValue
-                ? new BooleanValue(noneValue.Type == left.Type)
-                : left.GetType() != right.GetType()
-                ? new BooleanValue(false)
-                : (Value)(left.Type switch
+            if (right is TypeValue typeValue)
+            {
+                if (left is StructureValue structureValue)
                 {
-                    TypesType.Any => new BooleanValue(left.AsString() == right.AsString()),
-                    TypesType.Number => new BooleanValue(left.AsNumber() == right.AsNumber()),
-                    TypesType.String => new BooleanValue(left.AsString() == right.AsString()),
-                    TypesType.Boolean => new BooleanValue(left.AsBoolean() == right.AsBoolean()),
-                    TypesType.Char => new BooleanValue(left.AsString() == right.AsString()),
-                    TypesType.None => new BooleanValue(left.Name == right.Name),
-                    TypesType.Structure => new BooleanValue(left == right),
-                    _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
-                });
+                    return new BooleanValue(typeValue.StructureName == structureValue.Structure.Name);
+                }
+
+                return new BooleanValue(typeValue.Value == left.Type);
+            }
+
+            if (right is NoneValue noneValue)
+            {
+                return new BooleanValue(noneValue.Type == left.Type);
+            }
+
+            if (left.GetType() != right.GetType()) return new BooleanValue(false);
+
+            return left.Type switch
+            {
+                TypesType.Any => new BooleanValue(left.AsString() == right.AsString()),
+                TypesType.Number => new BooleanValue(left.AsNumber() == right.AsNumber()),
+                TypesType.String => new BooleanValue(left.AsString() == right.AsString()),
+                TypesType.Boolean => new BooleanValue(left.AsBoolean() == right.AsBoolean()),
+                TypesType.Char => new BooleanValue(left.AsString() == right.AsString()),
+                TypesType.None => new BooleanValue(left.Name == right.Name),
+                TypesType.Structure => new BooleanValue(left == right),
+                _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
+            };
         }
 
         public Value Minus(Value left, Value right)
@@ -245,8 +266,8 @@ namespace Paganism.PParser.AST
             }
             else if (Left is BinaryOperatorExpression binary)
             {
-                StructureValue structure = GetStructure(binary);
-                KeyValuePair<string, Value> member = GetMemberWithKeyOfStructure(binary);
+                var structure = GetStructure(binary);
+                var member = GetMemberWithKeyOfStructure(binary);
 
                 structure.Set(member.Key, Right.Eval());
             }

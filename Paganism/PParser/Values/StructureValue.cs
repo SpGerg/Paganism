@@ -13,9 +13,9 @@ namespace Paganism.PParser.Values
         {
             Structure = structureInstance;
             Parent = parent;
-            Dictionary<string, Value> values = new();
+            var values = new Dictionary<string, Value>();
 
-            foreach (KeyValuePair<string, StructureMemberExpression> member in structureInstance.Members)
+            foreach (var member in structureInstance.Members)
             {
                 values.Add(member.Key, new NoneValue());
             }
@@ -28,9 +28,9 @@ namespace Paganism.PParser.Values
         {
             Structure = Structures.Instance.Value.Get(expression, name);
             Parent = parent;
-            Dictionary<string, Value> values = new();
+            var values = new Dictionary<string, Value>();
 
-            foreach (KeyValuePair<string, StructureMemberExpression> member in Structure.Members)
+            foreach (var member in Structure.Members)
             {
                 values.Add(member.Key, new NoneValue());
             }
@@ -45,7 +45,7 @@ namespace Paganism.PParser.Values
             Parent = parent;
             Values = new Dictionary<string, Value>();
 
-            foreach (KeyValuePair<string, Value> member in values)
+            foreach (var member in values)
             {
                 Values.Add(member.Key, member.Value);
             }
@@ -72,7 +72,7 @@ namespace Paganism.PParser.Values
                 throw new InterpreterException($"Didnt found member with '{key}' name.");
             }
 
-            StructureMemberExpression member = Structure.Members[key];
+            var member = Structure.Members[key];
 
             if (member.Type != value.Type && value is TypeValue typeValue && typeValue.Value is TypesType.None)
             {
@@ -93,7 +93,7 @@ namespace Paganism.PParser.Values
             {
                 if (result is NoneValue)
                 {
-                    _ = Values.Remove(key);
+                    Values.Remove(key);
 
                     Values[key] = value;
                     return;
@@ -107,11 +107,11 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             result += $"{Structure.Name} ({Name}): {{ ";
 
-            foreach (KeyValuePair<string, StructureMemberExpression> item in Structure.Members)
+            foreach (var item in Structure.Members)
             {
                 try
                 {

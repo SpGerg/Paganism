@@ -30,7 +30,7 @@ namespace PaganismCustomConsole.Commands
 
         public override bool Execute(Dictionary<string, string> arguments, out string response)
         {
-            string path = Path.Combine(CustomConsole.CurrentDirectory, arguments["filename"]);
+            var path = Path.Combine(CustomConsole.CurrentDirectory, arguments["filename"]);
 
             if (!File.Exists(path))
             {
@@ -40,13 +40,13 @@ namespace PaganismCustomConsole.Commands
 
             try
             {
-                Lexer lexer = new(File.ReadAllLines(path));
-                Token[] tokens = lexer.Run();
+                var lexer = new Lexer(File.ReadAllLines(path));
+                var tokens = lexer.Run();
 
-                Parser parser = new(tokens, path);
-                Paganism.PParser.AST.BlockStatementExpression expressions = parser.Run();
+                var parser = new Parser(tokens, path);
+                var expressions = parser.Run();
 
-                Interpreter compiler = new(expressions);
+                var compiler = new Interpreter(expressions);
                 compiler.Run();
             }
             catch (Exception ex)

@@ -18,10 +18,10 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
-            string result = $"{Name}: ";
+            var result = $"{Name}: ";
             result += "[";
 
-            foreach (Argument argument in Value.Arguments)
+            foreach (var argument in Value.Arguments)
             {
                 result += $"[{argument.Name}: {argument.Type}], ";
             }

@@ -8,7 +8,7 @@ namespace Paganism.Lexer
     {
         public Lexer(string[] text)
         {
-            string[] result = new string[text.Length + 1];
+            var result = new string[text.Length + 1];
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -30,9 +30,9 @@ namespace Paganism.Lexer
 
         public Token[] Run()
         {
-            List<Token> tokens = new();
+            List<Token> tokens = new List<Token>();
 
-            string savedLine = string.Empty;
+            var savedLine = string.Empty;
 
             while (Line < Text.Length)
             {
@@ -60,8 +60,8 @@ namespace Paganism.Lexer
                     }
                     else if (Tokens.OperatorsType.ContainsKey(Current.ToString()))
                     {
-                        OperatorTokenizer tokenizer = new(Current.ToString(), tokens, savedLine, Position, Line);
-                        Token token = tokenizer.Tokenize();
+                        var tokenizer = new OperatorTokenizer(Current.ToString(), tokens, savedLine, Position, Line);
+                        var token = tokenizer.Tokenize();
                         Position = tokenizer.Position;
                         Line = tokenizer.Line;
 
@@ -73,8 +73,8 @@ namespace Paganism.Lexer
                     }
                     else if (Current == '\"')
                     {
-                        StringTokenizer tokenizer = new(Text, Position, Line);
-                        Token token = tokenizer.Tokenize();
+                        var tokenizer = new StringTokenizer(Text, Position, Line);
+                        var token = tokenizer.Tokenize();
                         Position = tokenizer.Position;
                         Line = tokenizer.Line;
 
@@ -85,8 +85,8 @@ namespace Paganism.Lexer
                     }
                     else if (Current == '\'')
                     {
-                        CharTokenizer tokenizer = new(Text, Position, Line);
-                        Token token = tokenizer.Tokenize();
+                        var tokenizer = new CharTokenizer(Text, Position, Line);
+                        var token = tokenizer.Tokenize();
                         Position = tokenizer.Position;
                         Line = tokenizer.Line;
 
@@ -98,8 +98,8 @@ namespace Paganism.Lexer
 
                     else if (char.IsDigit(Current) && (string.IsNullOrEmpty(savedLine) || string.IsNullOrWhiteSpace(savedLine)))
                     {
-                        NumberTokenizer tokenizer = new(Text, Position, Line);
-                        Token token = tokenizer.Tokenize();
+                        var tokenizer = new NumberTokenizer(Text, Position, Line);
+                        var token = tokenizer.Tokenize();
                         Position = tokenizer.Position;
                         Line = tokenizer.Line;
 
@@ -118,7 +118,7 @@ namespace Paganism.Lexer
                             continue;
                         }
 
-                        string replacedLine = savedLine.Replace(" ", string.Empty);
+                        var replacedLine = savedLine.Replace(" ", string.Empty);
 
                         if (Tokens.KeywordsType.ContainsKey(replacedLine))
                         {

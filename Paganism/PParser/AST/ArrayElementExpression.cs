@@ -27,11 +27,11 @@ namespace Paganism.PParser.AST
 
         public KeyValuePair<int, Value> EvalWithKey()
         {
-            Value variable = Variables.Instance.Value.Get(Parent, Name);
+            var variable = Variables.Instance.Value.Get(Parent, Name);
 
             if (variable is ArrayValue arrayValue)
             {
-                double value = Index.Eval().AsNumber();
+                var value = Index.Eval().AsNumber();
 
                 if (value < 0)
                 {
@@ -46,15 +46,24 @@ namespace Paganism.PParser.AST
                 //Breaking bad...
                 if (Left is not null)
                 {
-                    Value left = Left.Eval();
+                    var left = Left.Eval();
 
-                    return left is not ArrayValue arrayValue1
-                        ? left is StringValue stringValue
-                            ? (int)value > stringValue.Value.Length - 1
-                                ? throw new InterpreterException($"Index out of range, in array variable with {Name} name")
-                                : new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.Value[(int)value]))
-                            : new KeyValuePair<int, Value>((int)value, left)
-                        : new KeyValuePair<int, Value>((int)value, arrayValue1.Elements[(int)value]);
+                    if (left is not ArrayValue arrayValue1)
+                    {
+                        if (left is StringValue stringValue)
+                        {
+                            if ((int)value > stringValue.Value.Length - 1)
+                            {
+                                throw new InterpreterException($"Index out of range, in array variable with {Name} name");
+                            }
+
+                            return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.Value[(int)value]));
+                        }
+
+                        return new KeyValuePair<int, Value>((int)value, left);
+                    }
+
+                    return new KeyValuePair<int, Value>((int)value, arrayValue1.Elements[(int)value]);
                 }
 
                 return new KeyValuePair<int, Value>((int)value, arrayValue.Elements[(int)value]);

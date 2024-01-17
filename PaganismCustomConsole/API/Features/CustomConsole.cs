@@ -36,9 +36,9 @@ namespace PaganismCustomConsole.API.Features
                 Console.Write($"{CurrentDirectory}> ");
                 string line = Console.ReadLine();
 
-                string[] arguments = line.Split(' ');
+                var arguments = line.Split(' ');
 
-                CommandBase executeCommand = Commands.FirstOrDefault(command => command.Command == arguments[0] || command.Aliases.Contains(arguments[0]));
+                var executeCommand = Commands.FirstOrDefault(command => command.Command == arguments[0] || command.Aliases.Contains(arguments[0]));
 
                 if (executeCommand == default)
                 {
@@ -46,7 +46,7 @@ namespace PaganismCustomConsole.API.Features
                 }
                 else
                 {
-                    _ = executeCommand.Execute(new ArraySegment<string>(arguments), out string response);
+                    executeCommand.Execute(new ArraySegment<string>(arguments), out string response);
                     Console.WriteLine(response);
                 }
 

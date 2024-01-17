@@ -29,7 +29,7 @@ namespace Paganism.Lexer.Tokenizers
         {
             if (!string.IsNullOrWhiteSpace(SavedLine))
             {
-                string line = Regex.Replace(SavedLine, @"\s+", "");
+                var line = Regex.Replace(SavedLine, @"\s+", "");
 
                 if (Paganism.Lexer.Tokens.KeywordsType.TryGetValue(line, out TokenType result))
                 {
