@@ -14,14 +14,14 @@ namespace Paganism.PParser.AST
 {
     public class BlockStatementExpression : Expression, IStatement, IExecutable
     {
-        public BlockStatementExpression(IStatement[] statements, bool isLoop = false, bool isClearing = true)
+        public BlockStatementExpression(BlockStatementExpression parent, int line, int position, string filepath, IStatement[] statements, bool isLoop = false, bool isClearing = true) : base(parent, line, position, filepath)
         {
             Statements = statements;
             IsLoop = isLoop;
             IsClearing = isClearing;
         }
 
-        public IStatement[] Statements { get; }
+        public IStatement[] Statements { get; set; }
 
         public bool IsLoop { get; }
 
@@ -38,137 +38,56 @@ namespace Paganism.PParser.AST
         {
             if (Statements == null) return null;
 
-            var createdVariables = new HashSet<VariableExpression>();
-            var createdStructures = new HashSet<StructureDeclarateExpression>();
-            var createdFunctions = new HashSet<FunctionDeclarateExpression>();
             Value result = null;
 
             for (int i = 0;i < Statements.Length;i++)
             {
-                if (IsLoop && IsBreaked) break;
+                if (IsBreaked) break;
 
                 var statement = Statements[i];
 
                 switch (statement)
                 {
                     case ReturnExpression returnExpression:
-                        result = (returnExpression.Values[0] as IEvaluable).Eval();
+                        result = (returnExpression.Values[0] as EvaluableExpression).Eval();
+                        IsBreaked = true;
                         break;
-                    case BreakExpression:
-                        if (IsLoop)
+                    case BreakExpression breakExpression:
+                        breakExpression.IsLoop = IsLoop;
+                        breakExpression.Execute();
+
+                        if (breakExpression.IsBreaked)
                         {
                             i = Statements.Length;
-                            IsBreaked = true;
-                            break;
                         }
 
                         break;
-                    case BinaryOperatorExpression binaryOperator:
-                        if (binaryOperator.Type == BinaryOperatorType.Assign)
-                        {
-                            if (binaryOperator.Left is ArrayElementExpression arrayElement)
-                            {
-                                var variable2 = Variables.Get(arrayElement.Name);
+                    case AwaitExpression awaitExpression:
+                        awaitExpression.Execute();
 
-                                if (variable2 is not NoneValue)
-                                {
-                                    var array = (variable2 as ArrayValue);
-
-                                    var eval = arrayElement.EvalWithKey();
-
-                                    if (eval.Value is NoneValue)
-                                    {
-                                        array.Set(eval.Key, binaryOperator.Right.Eval());
-                                    }
-                                    else
-                                    {
-                                        eval.Value.Set(binaryOperator.Right.Eval());
-                                    }
-                                    
-                                    break;
-                                }
-                            }
-                            else if (binaryOperator.Left is VariableExpression variableExpression)
-                            {
-                                var variable2 = Variables.Get(variableExpression.Name);
-
-                                if (variable2 is not NoneValue)
-                                {
-                                    if (variable2.Type != binaryOperator.Right.Eval().Type)
-                                    {
-                                        throw new InterpreterException($"Except variable with {variable2.Type} type");
-                                    }
-
-                                    Variables.Set(variableExpression.Name, binaryOperator.Right.Eval());
-                                    break;
-                                }
-
-                                var left = (binaryOperator.Left as VariableExpression);
-                                var right = binaryOperator.Right.Eval();
-
-                                var rightType = right.Type;
-
-                                if ((left.Type != TypesType.Any && rightType != TypesType.None) && left.Type != right.Type)
-                                {
-                                    throw new InterpreterException($"Except variable with {left.Type} type");
-                                }
-
-                                createdVariables.Add(variableExpression);
-                                Variables.Add(variableExpression.Name, binaryOperator.Right.Eval());
-                            }
-
-                            if (binaryOperator.Left is BinaryOperatorExpression binary)
-                            {
-                                if (binary.Type != BinaryOperatorType.Point)
-                                {
-                                    throw new InterpreterException("Left expression must be structure member");
-                                }
-
-                                if (binary.Left is not BinaryOperatorExpression && binary.Right is not BinaryOperatorExpression)
-                                {
-                                    var left = Variables.Get((binary.Left as VariableExpression).Name) as StructureValue;
-                                    left.Set((binary.Right as VariableExpression).Name, binaryOperator.Right.Eval());
-                                    break;
-                                }
-
-                                var parent = Variables.Get((binary.Left as VariableExpression).Name) as StructureValue;
-                                var child = BinaryOperatorExpression.GetStructure(binary.Left as Expression, binary.Right as Expression, parent);
-                                var member = binary.PointKeyValuePair();
-
-                                Variables.DeclaratedVariables.Count();
-
-                                if (parent == child.Value)
-                                {
-                                    Variables.Set((binaryOperator.Left as VariableExpression).Name, binaryOperator.Right.Eval());
-                                    break;
-                                }
-
-                                if (member.Value is NoneValue)
-                                {
-                                    (child.Value as StructureValue).Values[member.Key] = binaryOperator.Right.Eval();
-                                    break;
-                                }
-
-                                member.Value.Set(binaryOperator.Right.Eval());
-                            }
-                        }
-
+                        break;
+                    case AssignExpression assignExpression:
+                        assignExpression.Eval();
                         break;
                     case FunctionDeclarateExpression functionDeclarate:
-                        createdFunctions.Add(functionDeclarate);
                         functionDeclarate.Create();
                         break;
                     case StructureDeclarateExpression structureDeclarate:
-                        createdStructures.Add(structureDeclarate);
                         structureDeclarate.Create();
                         break;
                     case IfExpression ifExpression:
-                        ifExpression.Execute();
+                        var value = ifExpression.Eval();
 
                         if (IsLoop && (ifExpression.BlockStatement.IsBreaked || ifExpression.ElseBlockStatement.IsBreaked))
                         {
                             IsBreaked = true;
                             break;
+                        }
+
+                        if (value != null)
+                        {
+                            IsBreaked = true;
+                            return value;
                         }
 
                         break;
@@ -180,34 +99,29 @@ namespace Paganism.PParser.AST
 
                         if (variable != null)
                         {
-                            Variables.Add((variable.Left as VariableExpression).Name, variable.Right.Eval());
+                            Variables.Instance.Value.Add(forExpression.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
                         }          
 
-                        forExpression.Execute();
+                        var result2 = forExpression.Eval();
 
-                        Variables.Remove((variable.Left as VariableExpression).Name);
+                        Variables.Instance.Value.Remove(forExpression.Parent, (variable.Left as VariableExpression).Name);
+
+                        if (result2 is not NoneValue)
+                        {
+                            IsBreaked = true;
+                            return result2;
+                        }
+
                         break;
                 }
             }
 
             if (IsClearing)
             {
-                foreach (var variable in createdVariables)
-                {
-                    Variables.Remove(variable.Name);
-                }
-
-                foreach (var function in createdFunctions)
-                {
-                    Functions.Remove(function.Name);
-                }
-
-                foreach (var structure in createdStructures)
-                {
-                    Structures.Remove(structure.Name);
-                }
+                Variables.Instance.Value.Clear(this);
+                Functions.Instance.Value.Clear(this);
+                Structures.Instance.Value.Clear(this);
             }
-            
 
             return result;
         }

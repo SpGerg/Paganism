@@ -6,15 +6,22 @@ using System.Threading.Tasks;
 
 namespace Paganism.Exceptions
 {
-    public class ParserException : Exception
+    public class ParserException : PaganismException
     {
         public ParserException()
         {
         }
 
-        public ParserException(string message, int line, int position)
-            : base(message + $" Line: {line+1}, position: {position+1}")
+        public ParserException(string message)
+            : base(message,  "Parser")
         {
         }
+
+        public ParserException(string message, int line, int position)
+            : base(message, line, position, "Parser")
+        {
+        }
+
+        public override string Name => "Parser";
     }
 }

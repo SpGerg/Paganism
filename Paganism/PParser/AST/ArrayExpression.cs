@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class ArrayExpression : Expression, IEvaluable
+    public class ArrayExpression : EvaluableExpression
     {
-        public ArrayExpression(Expression[] elements, int length)
+        public ArrayExpression(BlockStatementExpression parent, int line, int position, string filepath, Expression[] elements, int length) : base(parent, line, position, filepath)
         {
             Elements = elements;
             Length = length;
@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
 
         public int Length { get; }
 
-        public Value Eval()
+        public override Value Eval(params Argument[] arguments)
         {
             return new ArrayValue(Elements);
         }

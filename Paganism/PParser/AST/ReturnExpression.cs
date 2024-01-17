@@ -9,7 +9,7 @@ namespace Paganism.PParser.AST
 {
     public class ReturnExpression : Expression, IStatement
     {
-        public ReturnExpression(Expression[] values)
+        public ReturnExpression(BlockStatementExpression parent, int line, int position, string filepath, Expression[] values) : base(parent, line, position, filepath)
         {
             Values = values;
         }

@@ -1,5 +1,8 @@
 ﻿using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Instances;
+using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
+using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +13,7 @@ namespace Paganism.PParser.AST
 {
     public class StructureDeclarateExpression : Expression, IStatement
     {
-        public StructureDeclarateExpression(string name, StructureMemberExpression[] members)
+        public StructureDeclarateExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, StructureMemberExpression[] members) : base(parent, line, position, filepath)
         {
             Name = name;
             Members = members;
@@ -22,12 +25,12 @@ namespace Paganism.PParser.AST
 
         public void Create()
         {
-            Structures.Add(this);
+            Structures.Instance.Value.Add(Parent, Name, new StructureInstance(this));
         }
 
         public void Remove()
         {
-            Structures.Remove(Name);
+            Structures.Instance.Value.Remove(Parent, Name);
         }
     }
 }

@@ -53,6 +53,12 @@ namespace Paganism.Lexer.Enums
         Point = 44,
         ArrayType = 45,
         ObjectType = 46,
-        Char = 47
+        CharType = 47,
+        Async = 48,
+        Await = 49,
+        Char = 50,
+        Required = 51,
+        StructureType = 52,
+        As = 53
     }
 }

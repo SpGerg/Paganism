@@ -1,4 +1,5 @@
 ﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
@@ -17,19 +18,17 @@ namespace Paganism.PParser.Values
 
         public static Value Create(Expression expression)
         {
-            switch (expression)
+            return expression switch
             {
-                case StringExpression stringExpression:
-                    return new StringValue(stringExpression.Value);
-                case NumberExpression numberExpression:
-                    return new NumberValue(numberExpression.Value);
-                case BooleanExpression booleanExpression:
-                    return new BooleanValue(booleanExpression.Value);
-                case TypeExpression typeExpression:
-                    return new TypeValue(typeExpression.Value);
-            }
-
-            return new NoneValue();
+                StringExpression stringExpression => new StringValue(stringExpression.Value),
+                NumberExpression numberExpression => new NumberValue(numberExpression.Value),
+                BooleanExpression booleanExpression => new BooleanValue(booleanExpression.Value),
+                CharExpression charExpression => new CharValue(charExpression.Value),
+                VariableExpression variableExpression => Create(variableExpression),
+                StructureDeclarateExpression structureDeclarateExpression => new StructureValue(structureDeclarateExpression.Parent, structureDeclarateExpression.Name),
+                TypeExpression typeExpression => new TypeValue(typeExpression.Value, typeExpression.StructureName),
+                _ => new NoneValue(),
+            };
         }
 
         public static Value Create(object value)
@@ -80,6 +79,8 @@ namespace Paganism.PParser.Values
                     return new NumberValue((copy as NumberValue).Value);
                 case TypesType.Boolean:
                     return new BooleanValue((copy as BooleanValue).Value);
+                case TypesType.Function:
+                    return new FunctionValue((copy as FunctionValue).Value);
                 case TypesType.Array:
                     var array = copy as ArrayValue;
                     return new ArrayValue(array.Elements);
@@ -87,11 +88,11 @@ namespace Paganism.PParser.Values
                     return new NoneValue();
                 case TypesType.Structure:
                     var structure = copy as StructureValue;
-                    return new StructureValue(structure.Structure);
+                    return new StructureValue(structure.BlockStatement, structure.Structure);
                 case TypesType.Char:
                     return new CharValue((copy as CharValue).Value);
                 case TypesType.Type:
-                    return new TypeValue((copy as TypeValue).Value);
+                    return new TypeValue((copy as TypeValue).Value, (copy as TypeValue).StructureName);
             }
 
             return null;

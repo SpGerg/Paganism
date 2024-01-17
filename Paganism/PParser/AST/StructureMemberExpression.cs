@@ -11,9 +11,10 @@ namespace Paganism.PParser.AST
 {
     public class StructureMemberExpression : Expression, IStatement
     {
-        public StructureMemberExpression(string structure, TypesType type, string name, bool isShow = false, bool isCastable = false)
+        public StructureMemberExpression(BlockStatementExpression parent, int line, int position, string filepath, string structure, string structureTypeName, TypesType type, string name, bool isShow = false, bool isCastable = false) : base(parent, line, position, filepath)
         {
             Structure = structure;
+            StructureTypeName = structureTypeName;
             Type = type;
             Name = name;
             IsShow = isShow;
@@ -21,6 +22,8 @@ namespace Paganism.PParser.AST
         }
 
         public string Structure { get; }
+
+        public string StructureTypeName { get; }
 
         public TypesType Type { get; }
 

@@ -1,4 +1,6 @@
-﻿using Paganism.PParser.AST.Interfaces;
+﻿using Paganism.Interpreter.Data;
+using Paganism.PParser.AST.Interfaces;
+using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class ForExpression : Expression, IStatement, IExecutable
+    public class ForExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public ForExpression(BlockStatementExpression statement, IEvaluable expression, BlockStatementExpression action, IStatement variable)
+        public ForExpression(BlockStatementExpression parent, int line, int position, string filepath, BlockStatementExpression statement, EvaluableExpression expression, BlockStatementExpression action, IStatement variable) : base(parent, line, position, filepath)
         {
             Expression = expression;
             Action = action;
@@ -17,7 +19,7 @@ namespace Paganism.PParser.AST
             Statement = statement;
         }
 
-        public IEvaluable Expression { get; }
+        public EvaluableExpression Expression { get; }
 
         public BlockStatementExpression Action { get; }
 
@@ -25,16 +27,28 @@ namespace Paganism.PParser.AST
 
         public BlockStatementExpression Statement { get; }
 
-        public void Execute(params Argument[] arguments)
+        public override Value Eval(params Argument[] arguments)
         {
             while (Expression == null ? true : Expression.Eval().AsBoolean())
             {
-                Statement.Execute();
+                var result = Statement.ExecuteAndReturn();
+
+                if (result != null)
+                {
+                    return result;
+                }
 
                 if (Statement.IsBreaked) break;
 
                 Action.Execute();
             }
+
+            return new NoneValue();
+        }
+
+        public void Execute(params Argument[] arguments)
+        {
+            Eval();
         }
     }
 }

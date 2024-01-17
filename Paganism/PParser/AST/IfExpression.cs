@@ -1,5 +1,6 @@
 ﻿using Paganism.Interpreter.Data;
 using Paganism.PParser.AST.Interfaces;
+using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,37 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class IfExpression : Expression, IStatement, IExecutable
+    public class IfExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public IfExpression(IEvaluable expression, BlockStatementExpression blockStatement, BlockStatementExpression elseBlockStatement)
+        public IfExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression expression, BlockStatementExpression blockStatement, BlockStatementExpression elseBlockStatement) : base(parent, line, position, filepath)
         {
             Expression = expression;
             BlockStatement = blockStatement;
             ElseBlockStatement = elseBlockStatement;
         }
 
-        public IEvaluable Expression { get; }
+        public EvaluableExpression Expression { get; }
 
         public BlockStatementExpression BlockStatement { get; }
 
         public BlockStatementExpression ElseBlockStatement { get; }
+
+        public override Value Eval(params Argument[] arguments)
+        {
+            var result = Expression.Eval().AsBoolean();
+
+            if (result)
+            {
+                return BlockStatement.ExecuteAndReturn();
+            }
+            
+            if (ElseBlockStatement != null)
+            {
+                return ElseBlockStatement.ExecuteAndReturn();
+            }
+
+            return null;
+        }
 
         public void Execute(params Argument[] arguments)
         {
@@ -29,11 +47,12 @@ namespace Paganism.PParser.AST
 
             if (result)
             {
-                BlockStatement.Execute(arguments);
+                BlockStatement.Execute();
             }
-            else
+
+            if (ElseBlockStatement != null)
             {
-                ElseBlockStatement.Execute(arguments);
+                ElseBlockStatement.Execute();
             }
         }
     }

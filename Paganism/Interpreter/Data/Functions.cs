@@ -12,80 +12,58 @@ using System.Threading.Tasks;
 
 namespace Paganism.Interpreter.Data
 {
-    public static class Functions
+    public class Functions : DataStorage<FunctionInstance>
     {
-        private static Dictionary<string, FunctionInstance> DeclaratedFunctions { get; } = new Dictionary<string, FunctionInstance>();
+        public static Lazy<Functions> Instance { get; } = new();
 
-        private static Dictionary<string, FunctionInstance> LanguageFunctions { get; } = new Dictionary<string, FunctionInstance>()
+        protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
         {
             { "pgm_call", new FunctionInstance(
-                new FunctionDeclarateExpression("pgm_call", null, new Argument[]
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_call", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("namespace", TypesType.String, true),
-                    new Argument("method", TypesType.String, true),
-                    new Argument("arguments", TypesType.Any, true)
+                    new Argument("namespace", TypesType.String),
+                    new Argument("method", TypesType.String),
+                    new Argument("arguments", TypesType.Any)
                 },
-                    TokenType.AnyType)
+                    false)
                 )
             },
             { "pgm_create", new FunctionInstance(
-                new FunctionDeclarateExpression("pgm_create", null, new Argument[]
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_create", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("name", TypesType.String, true)
+                    new Argument("name", TypesType.String)
                 },
-                    TokenType.Structure)
+                    false,
+                    new Return(TypesType.Any, string.Empty))
                 )
             },
             { "pgm_import", new FunctionInstance(
-                new FunctionDeclarateExpression("pgm_import", null, new Argument[]
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_import", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("file", TypesType.String, true)
+                    new Argument("file", TypesType.String)
                 },
-                    TokenType.NoneType)
+                    false)
                 )
             },
             { "pgm_resize", new FunctionInstance(
-                new FunctionDeclarateExpression("pgm_resize", null, new Argument[]
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_resize", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("array", TypesType.Array, true),
-                    new Argument("size", TypesType.Number, true)
+                    new Argument("array", TypesType.Array),
+                    new Argument("size", TypesType.Number)
                 },
-                    TokenType.NoneType)
+                    false)
                 )
             },
             { "pgm_size", new FunctionInstance(
-                new FunctionDeclarateExpression("pgm_size", null, new Argument[]
-                {
-                    new Argument("array", TypesType.Array, true)
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_size", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                {   
+                    new Argument("array", TypesType.Array)
                 },
-                    TokenType.NoneType)
+                    false)
                 )
             },
         };
 
-        public static void Add(FunctionDeclarateExpression functionDeclarate)
-        {
-            DeclaratedFunctions.Add(functionDeclarate.Name, new FunctionInstance(functionDeclarate));
-        }
-
-        public static void Remove(string name)
-        {
-            DeclaratedFunctions.Remove(name);
-        }
-
-        public static void Clear()
-        {
-            DeclaratedFunctions.Clear();
-        }
-
-        public static FunctionInstance Get(string name)
-        {
-            if (!DeclaratedFunctions.TryGetValue(name, out FunctionInstance result) && !LanguageFunctions.TryGetValue(name, out result))
-            {
-                throw new InterpreterException($"Function with {name} name not found");
-            }
-
-            return result;
-        }
+        public override string Name => "Function";
     }
 }

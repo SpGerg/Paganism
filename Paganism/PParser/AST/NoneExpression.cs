@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class NoneExpression : Expression, IEvaluable
+    public class NoneExpression : EvaluableExpression
     {
-        public NoneExpression()
+        public NoneExpression(BlockStatementExpression parent, int line, int position, string filepath) : base(parent, line, position, filepath)
         {
             _value = new NoneValue();
         }
 
         private readonly NoneValue _value;
 
-        public Value Eval() => _value;
+        public override Value Eval(params Argument[] arguments) => _value;
     }
 }

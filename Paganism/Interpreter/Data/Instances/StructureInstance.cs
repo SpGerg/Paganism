@@ -12,11 +12,12 @@ namespace Paganism.Interpreter.Data.Instances
         public StructureInstance(StructureDeclarateExpression structureDeclarate)
         {
             Name = structureDeclarate.Name;
-            Members = new StructureMemberInstance[structureDeclarate.Members.Length];
+            StructureDeclarateExpression = structureDeclarate;
+            Members = new Dictionary<string, StructureMemberExpression>(structureDeclarate.Members.Length);
 
             for (int i = 0;i < structureDeclarate.Members.Length;i++)
             {
-                Members[i] = new StructureMemberInstance(structureDeclarate.Members[i]);
+                Members.Add(structureDeclarate.Members[i].Name, structureDeclarate.Members[i]);
             }
         }
 
@@ -24,6 +25,9 @@ namespace Paganism.Interpreter.Data.Instances
 
         public string Name { get; }
 
-        public StructureMemberInstance[] Members { get; }
+        public StructureDeclarateExpression StructureDeclarateExpression { get; }
+
+        public Dictionary<string, StructureMemberExpression> Members { get; }
+
     }
 }

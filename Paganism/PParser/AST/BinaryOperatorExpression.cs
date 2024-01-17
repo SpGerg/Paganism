@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class BinaryOperatorExpression : Expression, IEvaluable
+    public class BinaryOperatorExpression : EvaluableExpression
     {
-        public BinaryOperatorExpression(BinaryOperatorType type, IEvaluable left, IEvaluable right)
+        public BinaryOperatorExpression(BlockStatementExpression parent, int line, int position, string filepath, BinaryOperatorType type, EvaluableExpression left, EvaluableExpression right) : base(parent, line, position, filepath)
         {
             Type = type;
             Left = left;
@@ -23,27 +23,20 @@ namespace Paganism.PParser.AST
 
         public BinaryOperatorType Type { get; }
 
-        public IEvaluable Left { get; }
+        public EvaluableExpression Left { get; }
 
-        public IEvaluable Right { get; }
+        public EvaluableExpression Right { get; }
 
-        public static KeyValuePair<string, Value> GetStructure(Expression left, Expression right, StructureValue parent)
+        public override Value Eval(params Argument[] arguments)
         {
-            if (right is BinaryOperatorExpression binary)
+            if (Type == BinaryOperatorType.Point)
             {
-                var structure = parent.Values[(binary.Left as VariableExpression).Name] as StructureValue;
-
-                return GetStructure(binary.Left as Expression, binary.Right as Expression, structure);
+                return Point();
             }
-
-            var name = (left as VariableExpression).Name;
-
-            return new KeyValuePair<string, Value>(name, parent);
-        }
-
-        public Value Eval()
-        {
-            if (Type == BinaryOperatorType.Point) return Point();
+            else if (Type == BinaryOperatorType.Assign)
+            {
+                return Assign();
+            }
 
             var left = Left.Eval();
             var right = Right.Eval();
@@ -54,86 +47,127 @@ namespace Paganism.PParser.AST
                 BinaryOperatorType.Minus => Minus(left, right),
                 BinaryOperatorType.Multiplicative => Addition(left, right),
                 BinaryOperatorType.Division => Division(left, right),
-                BinaryOperatorType.Assign => Assign(left, right),
                 BinaryOperatorType.Is => Is(left, right),
                 BinaryOperatorType.And => And(left, right),
                 BinaryOperatorType.Or => Or(left, right),
                 BinaryOperatorType.Less => Less(left, right),
                 BinaryOperatorType.More => More(left, right),
+                BinaryOperatorType.As => As(left, right),
                 _ => null,
             };
         }
 
+        private Value As(Value left, Value right)
+        {
+            if (right is not TypeValue typeValue)
+            {
+                throw new InterpreterException("Right expression must be a type", Line, Position);
+            }
+
+            return typeValue.Value switch
+            {
+                TypesType.Any => new StringValue(left.AsString()),
+                TypesType.Number => new NumberValue(left.AsNumber()),
+                TypesType.String => new StringValue(left.AsString()),
+                TypesType.Boolean => new BooleanValue(left.AsBoolean()),
+                TypesType.Char => AsChar(left, right),
+                TypesType.None => new NoneValue(),
+                TypesType.Structure => AsStructure(left, typeValue),
+                _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
+            };
+        }
+
+        private Value AsStructure(Value left, TypeValue right)
+        {
+            if (left is not StructureValue structureValue || right.StructureName == string.Empty || right.StructureName is null)
+            {
+                throw new InterpreterException($"Cannot cast {left.Type} to Structure", Line, Position);
+            }
+
+            foreach (var member in structureValue.Structure.Members)
+            {
+                if (!member.Value.IsCastable)
+                {
+                    continue;
+                }
+
+                var value = structureValue.Values[member.Key];
+
+                if (value is not StructureValue structureValue1)
+                {
+                    continue;
+                }
+
+                if (structureValue1.Structure.Name != right.StructureName)
+                {
+                    continue;
+                }
+
+                return structureValue1;
+            }
+
+            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.StructureName}' type", Line, Position);
+        }
+
+        private Value AsChar(Value left, Value right)
+        {
+            return (left is StringValue stringValue && stringValue.Value.Length == 1) ? new CharValue(left.AsString()[0]) : throw new InterpreterException("Cannot cast string to char. String must be contains only one character.", Line, Position);
+        }
+
+        public static StructureValue GetStructure(BinaryOperatorExpression binaryOperatorExpression)
+        {
+            if (binaryOperatorExpression.Left is VariableExpression variableExpression)
+            {
+                var left = Variables.Instance.Value.Get(binaryOperatorExpression.Parent, variableExpression.Name) as StructureValue;
+
+                return left;
+            }
+
+            if (binaryOperatorExpression.Left is BinaryOperatorExpression binary)
+            {
+                var structure = GetStructure(binary);
+                var name = (binary.Right as VariableExpression).Name.Replace("()", string.Empty);
+                var member = structure.Values[name] as StructureValue;
+
+                if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath)
+                {
+                    throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position);
+                }
+
+                return member;
+            }
+
+            return null;
+        }
+
+        public static KeyValuePair<string, Value> GetMemberWithKeyOfStructure(BinaryOperatorExpression binaryOperatorExpression)
+        {
+            var structure = GetStructure(binaryOperatorExpression);
+            var name = (binaryOperatorExpression.Right as VariableExpression).Name.Replace("()", string.Empty);
+            var member = structure.Values[name];
+
+            if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
+            {
+                throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+            }
+
+            if (structure is null)
+            {
+                throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+            }
+
+            return new KeyValuePair<string, Value>(name, member);
+        }
+
+        public static Value GetMemberOfStructure(BinaryOperatorExpression binaryOperatorExpression)
+        {
+            return GetMemberWithKeyOfStructure(binaryOperatorExpression).Value;
+        }
+
         private Value Point()
         {
-            if (Left is BinaryOperatorExpression binaryOperator)
-            {
-                return GetMember((Left as VariableExpression).Eval() as StructureValue, binaryOperator).Value;
-            }
-
-            return GetMember((Left as VariableExpression).Eval() as StructureValue, Right as Expression).Value;
-        }
-
-        public KeyValuePair<string, Value> PointKeyValuePair()
-        {
-            if (Left is BinaryOperatorExpression binaryOperator)
-            {
-                var leftKey = (binaryOperator.Left as VariableExpression).Name;
-
-                return GetMember(Variables.Get(leftKey) as StructureValue, binaryOperator);
-            }
-
-            var key = (Left as VariableExpression).Name;
-            var member = GetMember((Variables.Get(key) as StructureValue), Right as Expression);
-
-            return new KeyValuePair<string, Value>(member.Key, member.Value);
-        }
-
-        private KeyValuePair<string, Value> GetMember(StructureValue structure, Expression expression)
-        {
-            if (structure == null)
-            {
-                throw new InterpreterException("Structure is none");
-            }
-
-            if (expression is not BinaryOperatorExpression binaryOperator)
-            {
-                var name = (expression as VariableExpression).Name;
-
-                if (!structure.Values.TryGetValue(name, out var value))
-                {
-                    throw new InterpreterException($"Structure member with {name} name in '{structure.Structure.Name}' structure not found");
-                }
-
-                return new KeyValuePair<string, Value>(name, value);
-            }
-
-            if (binaryOperator.Right is not BinaryOperatorExpression binaryOperatorRight)
-            {
-                var name2 = (binaryOperator.Left as VariableExpression).Name;
-                var value = structure.Values[(binaryOperator.Left as VariableExpression).Name];
-
-                if (value is StructureValue structureValue)
-                {
-                    if (!structureValue.Values.TryGetValue(name2, out var value2))
-                    {
-                        throw new InterpreterException($"Structure member with {name2} name in '{structure.Structure.Name}' structure not found");
-                    }
-
-                    return new KeyValuePair<string, Value>(name2, value2);
-                }
-
-                return new KeyValuePair<string, Value>(name2, value);
-            }
-
-            var name3 = (binaryOperator.Left as VariableExpression).Name;
-
-            if (!structure.Values.TryGetValue(name3, out var value3))
-            {
-                throw new InterpreterException($"Structure member with {name3} name in '{structure.Structure.Name}' structure not found");
-            }
-
-            return GetMember(value3 as StructureValue, binaryOperatorRight);
+            var member = GetMemberOfStructure(this);
+            return member;
         }
 
         private Value More(Value left, Value right)
@@ -160,6 +194,11 @@ namespace Paganism.PParser.AST
         {
             if (right is TypeValue typeValue)
             {
+                if (left is StructureValue structureValue)
+                {
+                    return new BooleanValue(typeValue.StructureName == structureValue.Structure.Name);
+                }
+
                 return new BooleanValue(typeValue.Value == left.Type);
             }
 
@@ -225,11 +264,18 @@ namespace Paganism.PParser.AST
             };
         }
 
-        public Value Assign(Value left, Value right)
+        public Value Assign()
         {
-            if (Left is not VariableExpression)
+            if (Left is VariableExpression variableExpression)
             {
-                throw new InterpreterException("Except variable");
+                Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, Right.Eval());
+            }
+            else if (Left is BinaryOperatorExpression binary)
+            {
+                var structure = GetStructure(binary);
+                var member = GetMemberWithKeyOfStructure(binary);
+
+                structure.Set(member.Key, Right.Eval());
             }
 
             return Right.Eval();

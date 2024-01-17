@@ -1,41 +1,32 @@
 ﻿using Paganism.Exceptions;
 using Paganism.Interpreter.Data.Instances;
+using Paganism.Lexer.Enums;
+using Paganism.PParser;
 using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Paganism.Interpreter.Data
 {
-    public class Structures
+    public class Structures : DataStorage<StructureInstance>
     {
-        public static Dictionary<string, StructureInstance> DeclaratedStructures { get; } = new Dictionary<string, StructureInstance>();
+        public static Lazy<Structures> Instance { get; } = new();
 
-        public static void Add(StructureDeclarateExpression structureDeclarate)
-        {
-            DeclaratedStructures.Add(structureDeclarate.Name, new StructureInstance(structureDeclarate));
-        }
+        public override string Name => "Structure";
 
-        public static void Remove(string name)
+        protected override IReadOnlyDictionary<string, StructureInstance> Language { get; } = new Dictionary<string, StructureInstance>()
         {
-            DeclaratedStructures.Remove(name);
-        }
-
-        public static void Clear()
-        {
-            DeclaratedStructures.Clear();
-        }
-
-        public static StructureInstance Get(string name)
-        {
-            if (!DeclaratedStructures.TryGetValue(name, out StructureInstance result))
-            {
-                throw new InterpreterException($"Structure with {name} name not found");
+            { "task", new StructureInstance(new StructureDeclarateExpression(null, -1, -1, string.Empty, "task", new StructureMemberExpression[]
+                {
+                    new StructureMemberExpression(null, -1, -1, string.Empty, "task", string.Empty, TypesType.Number, "id", true)
+                }
+            ))
             }
-
-            return result;
-        }
+        };
     }
 }

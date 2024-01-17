@@ -37,9 +37,6 @@ namespace PaganismCustomConsole.Commands
 
         public override bool Execute(Dictionary<string, string> arguments, out string response)
         {
-            Lexer lexer;
-            Parser parser;
-
             var path = Path.Combine(CustomConsole.CurrentDirectory, arguments["filename"]);
 
             if (!File.Exists(path))
@@ -48,78 +45,42 @@ namespace PaganismCustomConsole.Commands
                 return false;
             }
 
-            lexer = new Lexer(File.ReadAllLines(path));
-            Token[] tokens;
-            BlockStatementExpression expressions;
-
             try
             {
-                tokens = lexer.Run();
-            }
-            catch (Exception ex)
-            {
-                if (ex is not LexerException)
-                {
-                    response = "Lexer error";
-                    return true;
-                }
+                var lexer = new Lexer(File.ReadAllLines(path));
+                var tokens = lexer.Run();
 
-                response = "Lexer error: " + ex.Message;
-                return true;
-            }
+                var parser = new Parser(tokens, path);
+                var expressions = parser.Run();
 
-            /*
-            foreach (var token in tokens)
-            {
-                Console.WriteLine($"{token.Type}: {token.Value}");
-            }
-            */
-            
-            parser = new Parser(tokens, path);
-
-            try
-            {
-                expressions = parser.Run();
-            }
-            catch (Exception ex)
-            {
-                if (ex is not ParserException)
-                {
-                    response = "Parser error";
-                    return true;
-                }
-
-                response = "Parser error: " + ex.Message;
-                return true;
-            }
-
-            var compiler = new Interpreter(expressions);
-
-            try
-            {
+                var compiler = new Interpreter(expressions);
                 compiler.Run();
             }
             catch (Exception ex)
             {
-                Variables.Clear();
-                Functions.Clear();
-                Structures.Clear();
+                Tasks.Clear();
+                Variables.Instance.Value.Clear();
+                Functions.Instance.Value.Clear();
+                Structures.Instance.Value.Clear();
 
-                if (ex is not InterpreterException)
+                if (ex is not PaganismException)
                 {
-                    response = "Interpreter error";
+                    response = $"Paganism FATAL {ex.GetType().Name}, says: {ex.Message}\n{ex.StackTrace}"; ;
                     return true;
                 }
 
-                response = "Interpreter error: " + ex.Message;
+                response = ex.Message;
                 return true;
             }
 
-            Variables.Clear();
-            Functions.Clear();
-            Structures.Clear();
+            while (Tasks.Count() != 0) { }
 
-            response = "Script has been compilated";
+            Tasks.Clear();
+            Variables.Instance.Value.Clear();
+            Functions.Instance.Value.Clear();
+            Structures.Instance.Value.Clear();
+
+            response = "Script has been executed.";
             return true;
         }
     }

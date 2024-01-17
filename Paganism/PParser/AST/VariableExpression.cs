@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class VariableExpression : Expression, IStatement, IEvaluable
+    public class VariableExpression : EvaluableExpression, IStatement
     {
-        public VariableExpression(string name, TypesType type)
+        public VariableExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, TypesType type) : base(parent, line, position, filepath)
         {
             Name = name;
             Type = type;
@@ -24,9 +24,9 @@ namespace Paganism.PParser.AST
 
         public TypesType Type { get; }
 
-        public Value Eval()
+        public override Value Eval(params Argument[] arguments)
         {
-            var variable = Variables.Get(Name);
+            var variable = Variables.Instance.Value.Get(Parent, Name);
 
             if (variable is NoneValue)
             {

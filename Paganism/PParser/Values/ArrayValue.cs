@@ -23,7 +23,7 @@ namespace Paganism.PParser.Values
 
             for (int i = 0; i < expressions.Length; i++)
             {
-                expressions[i] = (elements[i] as IEvaluable).Eval();
+                expressions[i] = (elements[i] as EvaluableExpression).Eval();
             }
 
             Elements = expressions;

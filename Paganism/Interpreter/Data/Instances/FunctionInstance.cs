@@ -20,19 +20,13 @@ namespace Paganism.Interpreter.Data.Instances
             Name = functionDeclarate.Name;
             Statements = functionDeclarate.Statement;
             Arguments = functionDeclarate.RequiredArguments;
-            ReturnTypes = new TypesType[functionDeclarate.ReturnTypes.Length];
+            ReturnTypes = functionDeclarate.ReturnTypes;
+            IsAsync = functionDeclarate.IsAsync;
             FunctionDeclarateExpression = functionDeclarate;
-            DeclarateFilePath = functionDeclarate.DeclarateFilePath;
-            
-            for (int i = 0;i < ReturnTypes.Length;i++)
-            {
-                var type = functionDeclarate.ReturnTypes[i];
-
-                ReturnTypes[i] = Tokens.TokenTypeToValueType[type];
-            }
+            Filepath = functionDeclarate.Filepath;
         }
 
-        public override string InstanceName => "Variable";
+        public override string InstanceName => "Function";
 
         public string Name { get; }
 
@@ -40,15 +34,17 @@ namespace Paganism.Interpreter.Data.Instances
 
         public Argument[] Arguments { get; }
 
-        public TypesType[] ReturnTypes { get; }
+        public Return[] ReturnTypes { get; }
 
-        public string DeclarateFilePath { get; }
+        public bool IsAsync { get; }
 
-        private FunctionDeclarateExpression FunctionDeclarateExpression { get; }
+        public string Filepath { get; }
+
+        public FunctionDeclarateExpression FunctionDeclarateExpression { get; }
 
         public Value ExecuteAndReturn(params Argument[] arguments)
         {
-            return FunctionDeclarateExpression.ExecuteAndReturn(arguments);
+            return FunctionDeclarateExpression.Eval(arguments);
         }
     }
 }

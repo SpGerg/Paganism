@@ -8,7 +8,7 @@ namespace Paganism.PParser.AST
 {
     public class StructureExpression : Expression
     {
-        public StructureExpression(string value)
+        public StructureExpression(BlockStatementExpression parent, int line, int position, string filepath, string value) : base(parent, line, position, filepath)
         {
             Value = value;
         }

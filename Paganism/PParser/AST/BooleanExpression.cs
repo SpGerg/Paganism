@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class BooleanExpression : Expression, IEvaluable
+    public class BooleanExpression : EvaluableExpression
     {
-        public BooleanExpression(bool value)
+        public BooleanExpression(BlockStatementExpression parent, int line, int position, string filepath, bool value) : base(parent, line, position, filepath)
         {
             Value = value;
             _value = new BooleanValue(value);
@@ -20,6 +20,6 @@ namespace Paganism.PParser.AST
 
         private readonly BooleanValue _value;
 
-        public Value Eval() => _value;
+        public override Value Eval(params Argument[] arguments) => _value;
     }
 }

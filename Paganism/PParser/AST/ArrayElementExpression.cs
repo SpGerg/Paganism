@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class ArrayElementExpression : Expression, IEvaluable
+    public class ArrayElementExpression : EvaluableExpression
     {
-        public ArrayElementExpression(string name, IEvaluable index, ArrayElementExpression left = null)
+        public ArrayElementExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, EvaluableExpression index, ArrayElementExpression left = null) : base(parent, line, position, filepath)
         {
             Name = name;
             Index = index;
@@ -24,16 +24,16 @@ namespace Paganism.PParser.AST
 
         public ArrayElementExpression Left { get; }
 
-        public IEvaluable Index { get; }
+        public EvaluableExpression Index { get; }
 
-        public Value Eval()
+        public override Value Eval(params Argument[] arguments)
         {
             return EvalWithKey().Value;
         }
 
         public KeyValuePair<int, Value> EvalWithKey()
         {
-            var variable = Variables.Get(Name);
+            var variable = Variables.Instance.Value.Get(Parent, Name);
 
             if (variable is ArrayValue arrayValue)
             {
@@ -44,13 +44,13 @@ namespace Paganism.PParser.AST
                     throw new InterpreterException($"Index must be a non-negative, in array variable with {Name} name");
                 }
 
-                if (arrayValue.Elements.Length < value)
+                if (arrayValue.Elements.Length - 1 < value && Left.Eval() is ArrayValue)
                 {
                     throw new InterpreterException($"Index out of range, in array variable with {Name} name");
                 }
 
                 //Breaking bad...
-                if (Left != null)
+                if (Left is not null)
                 {
                     var left = Left.Eval();
 

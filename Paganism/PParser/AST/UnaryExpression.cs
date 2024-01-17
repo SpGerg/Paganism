@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class UnaryExpression : Expression, IEvaluable
+    public class UnaryExpression : EvaluableExpression
     {
-        public UnaryExpression(IEvaluable expression, BinaryOperatorType @operator)
+        public UnaryExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression expression, BinaryOperatorType @operator) : base(parent, line, position, filepath)
         {
             Expression = expression;
             Operator = @operator;
         }
 
-        public IEvaluable Expression { get; }
+        public EvaluableExpression Expression { get; }
 
         public BinaryOperatorType Operator { get; }
 
-        public Value Eval()
+        public override Value Eval(params Argument[] arguments)
         {
             switch (Operator)
             {

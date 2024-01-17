@@ -13,21 +13,29 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class FunctionCallExpression : Expression, IStatement, IExecutable, IEvaluable
+    public class FunctionCallExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public FunctionCallExpression(string functionName, Argument[] arguments)
+        public FunctionCallExpression(BlockStatementExpression parent, int line, int position, string filepath, string functionName, bool isAwait, Argument[] arguments) : base(parent, line, position, filepath)
         {
             FunctionName = functionName;
+            IsAwait = isAwait;
             Arguments = arguments;
         }
 
         public string FunctionName { get; }
 
+        public bool IsAwait { get; set; }
+
         public Argument[] Arguments { get; }
 
-        public Value Eval()
+        public override Value Eval(params Argument[] arguments)
         {
-            var function = Functions.Get(FunctionName);
+            var function = Functions.Instance.Value.Get(Parent, FunctionName);
+
+            if (!function.IsAsync && IsAwait)
+            {
+                throw new InterpreterException("You cant use await for not async functions");
+            }
 
             Argument[] totalArguments = new Argument[function.Arguments.Length];
 
@@ -37,10 +45,15 @@ namespace Paganism.PParser.AST
 
                 if (i > Arguments.Length - 1)
                 {
-                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, functionArgument.IsRequired, new NoneExpression());
+                    if (functionArgument.IsRequired)
+                    {
+                        throw new InterpreterException($"Argument in {function.Name} function is required.", Line, Position);
+                    }
+
+                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneExpression(Parent, Line, Position, Filepath));
 
                     totalArguments[i] = noneArgument;
-                    Variables.Add(functionArgument.Name, noneArgument.Value.Eval());
+                    Variables.Instance.Value.Add(function.Statements, functionArgument.Name, noneArgument.Value.Eval());
                     continue;
                 }
 
@@ -48,7 +61,7 @@ namespace Paganism.PParser.AST
 
                 if (functionArgument.Type == TypesType.Structure)
                 {
-                    var variable = Variables.Get(argument.Name);
+                    var variable = Variables.Instance.Value.Get(function.Statements, argument.Name);
 
                     if (variable is not NoneValue)
                     {
@@ -59,20 +72,26 @@ namespace Paganism.PParser.AST
 
                         if (functionArgument.StructureName != structure.Structure.Name)
                         {
-                            throw new InterpreterException($"Except structure {functionArgument.Name} type");
+                            throw new InterpreterException($"Except structure {functionArgument.StructureName} type");
                         }
-                    }            
+                    }
                 }
 
-                if ((functionArgument.Type != TypesType.Any && argument.Type != TypesType.Any) && functionArgument.Type != argument.Type)
+                if (functionArgument.Type != TypesType.Any && argument.Type != TypesType.Any && functionArgument.Type != argument.Type)
                 {
-                    throw new InterpreterException($"Except {functionArgument.Type}");
+                    throw new InterpreterException($"Except {functionArgument.Type}", Line, Position);
                 }
 
-                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, functionArgument.IsRequired, argument.Value);
+                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.StructureName);
 
                 totalArguments[i] = initArgument;
-                Variables.Add(initArgument.Name, initArgument.Value.Eval());
+
+                Variables.Instance.Value.Add(function.Statements, initArgument.Name, initArgument.Value.Eval());
+            }
+
+            if (IsAwait && function.IsAsync)
+            {
+                return function.ExecuteAndReturn(totalArguments);
             }
 
             if (function.ReturnTypes.Length > 0)
@@ -81,7 +100,7 @@ namespace Paganism.PParser.AST
 
                 foreach (var argument in totalArguments)
                 {
-                    Variables.Remove(argument.Name);
+                    Variables.Instance.Value.Remove(function.Statements, argument.Name);
                 }
 
                 return result;
@@ -91,7 +110,7 @@ namespace Paganism.PParser.AST
 
             foreach (var argument in totalArguments)
             {
-                Variables.Remove(argument.Name);
+                Variables.Instance.Value.Remove(function.Statements, argument.Name);
             }
 
             return null;

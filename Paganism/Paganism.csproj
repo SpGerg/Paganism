@@ -32,10 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\PaganismException.cs" />
+    <Compile Include="Interpreter\Data\DataStorage.cs" />
     <Compile Include="Interpreter\Data\Instances\Instance.cs" />
     <Compile Include="Interpreter\Data\Instances\FunctionInstance.cs" />
     <Compile Include="Interpreter\Data\Instances\StructureInstance.cs" />
     <Compile Include="Interpreter\Data\Instances\StructureMemberInstance.cs" />
+    <Compile Include="Interpreter\Data\Tasks.cs" />
     <Compile Include="Interpreter\Interpreter.cs" />
     <Compile Include="Exceptions\InterpreterException.cs" />
     <Compile Include="Exceptions\LexerException.cs" />
@@ -47,11 +50,13 @@
     <Compile Include="PParser\AST\ArrayExpression.cs" />
     <Compile Include="PParser\AST\ArrayElementExpression.cs" />
     <Compile Include="PParser\AST\AssignExpression.cs" />
+    <Compile Include="PParser\AST\AwaitExpression.cs" />
     <Compile Include="PParser\AST\BinaryOperatorExpression.cs" />
     <Compile Include="PParser\AST\BlockStatementExpression.cs" />
     <Compile Include="PParser\AST\BooleanExpression.cs" />
     <Compile Include="PParser\AST\BreakExpression.cs" />
     <Compile Include="PParser\AST\CharExpression.cs" />
+    <Compile Include="PParser\AST\EvaluableExpression.cs" />
     <Compile Include="PParser\AST\ForExpression.cs" />
     <Compile Include="PParser\AST\IfExpression.cs" />
     <Compile Include="PParser\AST\NoneExpression.cs" />
@@ -63,7 +68,7 @@
     <Compile Include="PParser\AST\VariableExpression.cs" />
     <Compile Include="PParser\AST\FunctionDeclarateExpression.cs" />
     <Compile Include="PParser\AST\Enums\TypesType.cs" />
-    <Compile Include="PParser\AST\ExpressionNode.cs" />
+    <Compile Include="PParser\AST\Expression.cs" />
     <Compile Include="Lexer\Enums\TokenType.cs" />
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Token.cs" />
@@ -73,7 +78,6 @@
     <Compile Include="Lexer\Tokenizers\Tokenizer.cs" />
     <Compile Include="Lexer\Tokens.cs" />
     <Compile Include="PParser\AST\FunctionCallExpression.cs" />
-    <Compile Include="PParser\AST\Interfaces\IEvaluable.cs" />
     <Compile Include="PParser\AST\Interfaces\IExecutable.cs" />
     <Compile Include="PParser\AST\Interfaces\IStatement.cs" />
     <Compile Include="PParser\AST\NumberExpression.cs" />
@@ -82,9 +86,11 @@
     <Compile Include="PParser\AST\StringExpression.cs" />
     <Compile Include="PParser\AST\UnaryExpression.cs" />
     <Compile Include="PParser\Parser.cs" />
+    <Compile Include="PParser\Return.cs" />
     <Compile Include="PParser\Values\ArrayValue.cs" />
     <Compile Include="PParser\Values\BooleanValue.cs" />
     <Compile Include="PParser\Values\CharValue.cs" />
+    <Compile Include="PParser\Values\FunctionValue.cs" />
     <Compile Include="PParser\Values\NoneValue.cs" />
     <Compile Include="PParser\Values\StringValue.cs" />
     <Compile Include="PParser\Values\StructureValue.cs" />

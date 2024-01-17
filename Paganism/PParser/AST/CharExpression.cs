@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class CharExpression : Expression, IEvaluable
+    public class CharExpression : EvaluableExpression
     {
-        public CharExpression(char value)
+        public CharExpression(BlockStatementExpression parent, int line, int position, string filepath, char value) : base(parent, line, position, filepath)
         {
             Value = value;
             _value = new CharValue(Value);
@@ -20,6 +20,6 @@ namespace Paganism.PParser.AST
 
         private readonly CharValue _value;
 
-        public Value Eval() => _value;
+        public override Value Eval(params Argument[] arguments) => _value;
     }
 }
