@@ -23,16 +23,19 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            while (Expression == null ? true : Expression.Eval().AsBoolean())
+            while (Expression == null || Expression.Eval().AsBoolean())
             {
-                var result = Statement.ExecuteAndReturn();
+                Value result = Statement.ExecuteAndReturn();
 
                 if (result != null)
                 {
                     return result;
                 }
 
-                if (Statement.IsBreaked) break;
+                if (Statement.IsBreaked)
+                {
+                    break;
+                }
 
                 Action.Execute();
             }
@@ -42,7 +45,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval();
+            _ = Eval();
         }
     }
 }

@@ -23,20 +23,26 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            ExecuteAndReturn(arguments);
+            _ = ExecuteAndReturn(arguments);
         }
 
         public Value ExecuteAndReturn(params Argument[] arguments)
         {
-            if (Statements == null) return null;
+            if (Statements == null)
+            {
+                return null;
+            }
 
             Value result = null;
 
             for (int i = 0; i < Statements.Length; i++)
             {
-                if (IsBreaked) break;
+                if (IsBreaked)
+                {
+                    break;
+                }
 
-                var statement = Statements[i];
+                IStatement statement = Statements[i];
 
                 switch (statement)
                 {
@@ -59,7 +65,7 @@ namespace Paganism.PParser.AST
 
                         break;
                     case AssignExpression assignExpression:
-                        assignExpression.Eval();
+                        _ = assignExpression.Eval();
                         break;
                     case FunctionDeclarateExpression functionDeclarate:
                         functionDeclarate.Create();
@@ -68,7 +74,7 @@ namespace Paganism.PParser.AST
                         structureDeclarate.Create();
                         break;
                     case IfExpression ifExpression:
-                        var value = ifExpression.Eval();
+                        Value value = ifExpression.Eval();
 
                         if (IsLoop && (ifExpression.BlockStatement.IsBreaked || ifExpression.ElseBlockStatement.IsBreaked))
                         {
@@ -87,14 +93,14 @@ namespace Paganism.PParser.AST
                         functionCallExpression.Execute();
                         break;
                     case ForExpression forExpression:
-                        var variable = forExpression.Variable as AssignExpression;
+                        AssignExpression variable = forExpression.Variable as AssignExpression;
 
                         if (variable != null)
                         {
                             Variables.Instance.Value.Add(forExpression.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
                         }
 
-                        var result2 = forExpression.Eval();
+                        Value result2 = forExpression.Eval();
 
                         Variables.Instance.Value.Remove(forExpression.Parent, (variable.Left as VariableExpression).Name);
 

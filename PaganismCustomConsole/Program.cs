@@ -4,9 +4,9 @@ namespace PaganismCustomConsole
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var customConsole = new CustomConsole(false);
+            CustomConsole customConsole = new(false);
 
             customConsole.Run();
         }

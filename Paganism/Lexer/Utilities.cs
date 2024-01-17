@@ -19,7 +19,7 @@
 
             for (int i = 0; i < value.Length; i++)
             {
-                var c = value[i];
+                char c = value[i];
 
                 if (c == '\\')
                 {

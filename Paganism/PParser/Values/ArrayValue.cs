@@ -41,10 +41,10 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
-            var result = $"{Name}: ";
+            string result = $"{Name}: ";
             result += "[";
 
-            foreach (var item in Elements)
+            foreach (Value item in Elements)
             {
                 result += $"{item.AsString()}, ";
             }

@@ -58,7 +58,7 @@ namespace Paganism.Interpreter.Data
         {
             if (expression is null)
             {
-                GlobalDeclarated.Remove(name);
+                _ = GlobalDeclarated.Remove(name);
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace Paganism.Interpreter.Data
                 Declarated.Add(expression, new Dictionary<string, T>());
             }
 
-            Declarated[expression].Remove(name);
+            _ = Declarated[expression].Remove(name);
         }
 
         public void Clear()
@@ -101,12 +101,7 @@ namespace Paganism.Interpreter.Data
         {
             if (expression is null)
             {
-                if (Language.ContainsKey(name))
-                {
-                    return Language[name];
-                }
-
-                return GlobalDeclarated[name];
+                return Language.ContainsKey(name) ? Language[name] : GlobalDeclarated[name];
             }
 
             if (!Declarated.TryGetValue(expression, out _))
@@ -114,19 +109,14 @@ namespace Paganism.Interpreter.Data
                 Declarated.Add(expression, new Dictionary<string, T>());
             }
 
-            if (!Language.TryGetValue(name, out var result) && !Declarated[expression].TryGetValue(name, out var result1))
+            if (!Language.TryGetValue(name, out T result) && !Declarated[expression].TryGetValue(name, out _))
             {
-                var value = Get(expression.Parent, name);
+                T value = Get(expression.Parent, name);
 
-                if (value != null)
-                {
-                    return value;
-                }
-
-                throw new InterpreterException($"{Name} with '{name}' name not found");
+                return value != null ? value : throw new InterpreterException($"{Name} with '{name}' name not found");
             }
 
-            return Declarated[expression].TryGetValue(name, out result1) ? result1 : result;
+            return Declarated[expression].TryGetValue(name, out T result1) ? result1 : result;
         }
     }
 }

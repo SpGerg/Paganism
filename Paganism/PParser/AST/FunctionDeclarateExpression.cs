@@ -23,7 +23,10 @@ namespace Paganism.PParser.AST
             IsAsync = isAsync;
             ReturnTypes = returnTypes;
 
-            if (Statement is null || Statement.Statements is null) return;
+            if (Statement is null || Statement.Statements is null)
+            {
+                return;
+            }
 
             if (!Functions.Instance.Value.IsLanguage(Name) && ReturnTypes.Length > 0 && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
@@ -46,7 +49,7 @@ namespace Paganism.PParser.AST
 
         public Return[] ReturnTypes { get; }
 
-        private static Dictionary<string, Type> Types = new Dictionary<string, Type>()
+        private static readonly Dictionary<string, Type> Types = new()
         {
             { "System.Console", typeof(Console) }
         };
@@ -63,12 +66,12 @@ namespace Paganism.PParser.AST
 
         public Task ExecuteAsync(params Argument[] arguments)
         {
-            var task = Task.Run(() =>
+            Task task = Task.Run(() =>
             {
-                Statement.ExecuteAndReturn(arguments);
+                _ = Statement.ExecuteAndReturn(arguments);
             });
 
-            task.ContinueWith(_ =>
+            _ = task.ContinueWith(_ =>
             {
                 Tasks.Remove(task);
             });
@@ -80,18 +83,17 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval(arguments);
+            _ = Eval(arguments);
         }
 
         public override Value Eval(params Argument[] arguments)
         {
             if (Name == "pgm_call")
             {
-                Type findedClass = null;
 
-                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out findedClass))
+                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
                 {
-                    var name = arguments[0].Value.Eval().AsString();
+                    string name = arguments[0].Value.Eval().AsString();
 
                     findedClass = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
 
@@ -103,37 +105,23 @@ namespace Paganism.PParser.AST
 
                 if (arguments[2].Value.Eval() is NoneValue)
                 {
-                    var method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { });
+                    MethodInfo method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { });
 
                     return Value.Create(method.Invoke(null, new object[] { }));
                 }
                 else
                 {
-                    var paramater = arguments[2].Value.Eval();
+                    Value paramater = arguments[2].Value.Eval();
 
-                    MethodInfo method = null;
-
-                    if (paramater is StringValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(string) });
-                    }
-                    else if (paramater is CharValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(char) });
-                    }
-                    else if (paramater is BooleanValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(bool) });
-                    }
-                    else if (paramater is NumberValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(int) });
-                    }
-                    else
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(object) });
-                    }
-
+                    MethodInfo method = paramater is StringValue
+                        ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(string) })
+                        : paramater is CharValue
+                            ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(char) })
+                            : paramater is BooleanValue
+                                                    ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(bool) })
+                                                    : paramater is NumberValue
+                                                                            ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(int) })
+                                                                            : findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(object) });
                     if (method.GetParameters()[0].ParameterType == typeof(string) || method.GetParameters()[0].ParameterType == typeof(object))
                     {
                         return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
@@ -152,7 +140,7 @@ namespace Paganism.PParser.AST
                     }
                     else
                     {
-                        var g = arguments[2].Value.Eval();
+                        Value g = arguments[2].Value.Eval();
                         return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
                     }
                 }
@@ -167,9 +155,9 @@ namespace Paganism.PParser.AST
             }
             else if (Name == "pgm_resize")
             {
-                var array = arguments[0].Value.Eval() as ArrayValue;
+                ArrayValue array = arguments[0].Value.Eval() as ArrayValue;
 
-                var newElements = new Value[(int)arguments[1].Value.Eval().AsNumber()];
+                Value[] newElements = new Value[(int)arguments[1].Value.Eval().AsNumber()];
 
                 for (int i = 0; i < newElements.Length; i++)
                 {
@@ -182,33 +170,36 @@ namespace Paganism.PParser.AST
                     newElements[i] = array.Elements[i];
                 }
 
-                var newArray = new ArrayValue(newElements);
+                ArrayValue newArray = new(newElements);
 
                 return newArray;
             }
             else if (Name == "pgm_import")
             {
-                var name = arguments[0].Value.Eval().AsString();
-                var files = Directory.GetFileSystemEntries(Directory.GetCurrentDirectory(), name);
-                var result = File.ReadAllLines(files[0]);
+                string name = arguments[0].Value.Eval().AsString();
+                string[] files = Directory.GetFileSystemEntries(Directory.GetCurrentDirectory(), name);
+                string[] result = File.ReadAllLines(files[0]);
 
-                var lexer = new Lexer.Lexer(result);
-                var parser = new Parser(lexer.Run(), files[0]);
-                var interpreter = new Interpreter.Interpreter(parser.Run());
+                Lexer.Lexer lexer = new(result);
+                Parser parser = new(lexer.Run(), files[0]);
+                Interpreter.Interpreter interpreter = new(parser.Run());
                 interpreter.Run(false);
             }
 
-            if (Statement == null) return new NoneValue();
+            if (Statement == null)
+            {
+                return new NoneValue();
+            }
 
             if (IsAsync)
             {
-                var task = ExecuteAsync(arguments);
+                Task task = ExecuteAsync(arguments);
 
-                var structureExpression = new StructureDeclarateExpression(Parent, Line, Position, Filepath, "task", new StructureMemberExpression[1]);
+                StructureDeclarateExpression structureExpression = new(Parent, Line, Position, Filepath, "task", new StructureMemberExpression[1]);
                 structureExpression.Members[0] = new StructureMemberExpression(
                     structureExpression.Parent, structureExpression.Line, structureExpression.Position, Filepath, structureExpression.Name, string.Empty, TypesType.Number, "id", true);
 
-                var structure = Value.Create(structureExpression) as StructureValue;
+                StructureValue structure = Value.Create(structureExpression) as StructureValue;
                 structure.Set("id", new NumberValue(task.Id));
 
                 return structure;

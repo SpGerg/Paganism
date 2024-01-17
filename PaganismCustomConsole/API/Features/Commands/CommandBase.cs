@@ -27,38 +27,38 @@ namespace PaganismCustomConsole.API.Features.Commands
         {
             if (arguments.Count - 1 < Parameters.Length)
             {
-                var stringBuilder = new StringBuilder();
-                stringBuilder.AppendLine("Command paramaters: ");
+                StringBuilder stringBuilder = new();
+                _ = stringBuilder.AppendLine("Command paramaters: ");
 
-                foreach (var parameter in Parameters)
+                foreach (CommandParameter parameter in Parameters)
                 {
-                    stringBuilder.AppendLine($"{parameter.Name}: {parameter.Description} " + (parameter.Type is null ? string.Empty : parameter.Type.Name));
+                    _ = stringBuilder.AppendLine($"{parameter.Name}: {parameter.Description} " + (parameter.Type is null ? string.Empty : parameter.Type.Name));
                 }
 
                 response = stringBuilder.ToString();
                 return false;
             }
 
-            var result = new Dictionary<string, string>();
+            Dictionary<string, string> result = new();
 
             for (int i = 0; i < Parameters.Length; i++)
             {
-                var index = (arguments.Array.Length - 1) - i;
+                int index = arguments.Array.Length - 1 - i;
 
                 if (index > arguments.Count && Parameters[i].IsRequired)
                 {
-                    throw new ArgumentException($"{(arguments.Array.Length - 1) - i} argument must be exists");
+                    throw new ArgumentException($"{arguments.Array.Length - 1 - i} argument must be exists");
                 }
 
-                var value = arguments.Array[index];
+                string value = arguments.Array[index];
 
                 if (Parameters[i].Type != null)
                 {
-                    var type = Parameters[i].Type;
+                    Type type = Parameters[i].Type;
 
                     if (!TryParse(type, value))
                     {
-                        throw new ArgumentException($"{(arguments.Array.Length - 1) - i} argument must be {type.Name}");
+                        throw new ArgumentException($"{arguments.Array.Length - 1 - i} argument must be {type.Name}");
                     }
                 }
 
@@ -70,22 +70,9 @@ namespace PaganismCustomConsole.API.Features.Commands
 
         private bool TryParse(Type type, string value)
         {
-            if (type == typeof(int))
-            {
-                return int.TryParse(value, out _);
-            }
-
-            if (type == typeof(bool))
-            {
-                return bool.TryParse(value, out _);
-            }
-
-            if (type == typeof(char))
-            {
-                return char.TryParse(value, out _);
-            }
-
-            return false;
+            return type == typeof(int)
+                ? int.TryParse(value, out _)
+                : type == typeof(bool) ? bool.TryParse(value, out _) : type == typeof(char) && char.TryParse(value, out _);
         }
     }
 }

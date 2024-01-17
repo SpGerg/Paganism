@@ -20,34 +20,21 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            var result = Expression.Eval().AsBoolean();
+            bool result = Expression.Eval().AsBoolean();
 
-            if (result)
-            {
-                return BlockStatement.ExecuteAndReturn();
-            }
-
-            if (ElseBlockStatement != null)
-            {
-                return ElseBlockStatement.ExecuteAndReturn();
-            }
-
-            return null;
+            return result ? BlockStatement.ExecuteAndReturn() : ElseBlockStatement?.ExecuteAndReturn();
         }
 
         public void Execute(params Argument[] arguments)
         {
-            var result = Expression.Eval().AsBoolean();
+            bool result = Expression.Eval().AsBoolean();
 
             if (result)
             {
                 BlockStatement.Execute();
             }
 
-            if (ElseBlockStatement != null)
-            {
-                ElseBlockStatement.Execute();
-            }
+            ElseBlockStatement?.Execute();
         }
     }
 }

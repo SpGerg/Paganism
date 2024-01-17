@@ -42,7 +42,7 @@ namespace Paganism.Lexer.Tokenizers
                     {
                         if (savedLine[0] == '\\')
                         {
-                            var code = Utilities.ReplaceEscapeCode(savedLine);
+                            string code = Utilities.ReplaceEscapeCode(savedLine);
 
                             if (code == savedLine)
                             {
@@ -59,12 +59,9 @@ namespace Paganism.Lexer.Tokenizers
                     {
                         Position++;
 
-                        if (savedLine == "\\")
-                        {
-                            throw new LexerException($"After \\ need identifier (\\n, \\t e.t.c)", startLine, startPosition);
-                        }
-
-                        return new Token(Utilities.ReplaceEscapeCodes(savedLine), startPosition, startLine, TokenType.Char);
+                        return savedLine == "\\"
+                            ? throw new LexerException($"After \\ need identifier (\\n, \\t e.t.c)", startLine, startPosition)
+                            : new Token(Utilities.ReplaceEscapeCodes(savedLine), startPosition, startLine, TokenType.Char);
                     }
 
                     savedLine += Current;

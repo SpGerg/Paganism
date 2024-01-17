@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            var function = Functions.Instance.Value.Get(Parent, FunctionName);
+            Interpreter.Data.Instances.FunctionInstance function = Functions.Instance.Value.Get(Parent, FunctionName);
 
             if (!function.IsAsync && IsAwait)
             {
@@ -34,7 +34,7 @@ namespace Paganism.PParser.AST
 
             for (int i = 0; i < function.Arguments.Length; i++)
             {
-                var functionArgument = function.Arguments[i];
+                Argument functionArgument = function.Arguments[i];
 
                 if (i > Arguments.Length - 1)
                 {
@@ -43,18 +43,18 @@ namespace Paganism.PParser.AST
                         throw new InterpreterException($"Argument in {function.Name} function is required.", Line, Position);
                     }
 
-                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneExpression(Parent, Line, Position, Filepath));
+                    Argument noneArgument = new(functionArgument.Name, functionArgument.Type, new NoneExpression(Parent, Line, Position, Filepath));
 
                     totalArguments[i] = noneArgument;
                     Variables.Instance.Value.Add(function.Statements, functionArgument.Name, noneArgument.Value.Eval());
                     continue;
                 }
 
-                var argument = Arguments[i];
+                Argument argument = Arguments[i];
 
                 if (functionArgument.Type == TypesType.Structure)
                 {
-                    var variable = Variables.Instance.Value.Get(function.Statements, argument.Name);
+                    Value variable = Variables.Instance.Value.Get(function.Statements, argument.Name);
 
                     if (variable is not NoneValue)
                     {
@@ -75,7 +75,7 @@ namespace Paganism.PParser.AST
                     throw new InterpreterException($"Except {functionArgument.Type}", Line, Position);
                 }
 
-                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.StructureName);
+                Argument initArgument = new(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.StructureName);
 
                 totalArguments[i] = initArgument;
 
@@ -89,9 +89,9 @@ namespace Paganism.PParser.AST
 
             if (function.ReturnTypes.Length > 0)
             {
-                var result = function.ExecuteAndReturn(totalArguments);
+                Value result = function.ExecuteAndReturn(totalArguments);
 
-                foreach (var argument in totalArguments)
+                foreach (Argument argument in totalArguments)
                 {
                     Variables.Instance.Value.Remove(function.Statements, argument.Name);
                 }
@@ -99,9 +99,9 @@ namespace Paganism.PParser.AST
                 return result;
             }
 
-            function.ExecuteAndReturn(totalArguments);
+            _ = function.ExecuteAndReturn(totalArguments);
 
-            foreach (var argument in totalArguments)
+            foreach (Argument argument in totalArguments)
             {
                 Variables.Instance.Value.Remove(function.Statements, argument.Name);
             }
@@ -111,7 +111,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval();
+            _ = Eval();
         }
     }
 }

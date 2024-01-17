@@ -19,19 +19,9 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            var variable = Variables.Instance.Value.Get(Parent, Name);
+            Value variable = Variables.Instance.Value.Get(Parent, Name);
 
-            if (variable is NoneValue)
-            {
-                return variable;
-            }
-
-            if (variable is not StructureValue)
-            {
-                return Value.Create(variable);
-            }
-
-            return variable;
+            return variable is NoneValue ? variable : variable is not StructureValue ? Value.Create(variable) : variable;
         }
     }
 }
