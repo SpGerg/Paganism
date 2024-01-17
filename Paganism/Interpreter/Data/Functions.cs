@@ -51,7 +51,7 @@ namespace Paganism.Interpreter.Data
             },
             { "pgm_size", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_size", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
-                {   
+                {
                     new Argument("array", TypesType.Array)
                 },
                     false)

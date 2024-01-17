@@ -50,7 +50,7 @@ namespace Paganism.Lexer
             { "structure_type", TokenType.StructureType },
             { "as", TokenType.As },
         };
-         
+
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
         {
             { "+", TokenType.Plus },

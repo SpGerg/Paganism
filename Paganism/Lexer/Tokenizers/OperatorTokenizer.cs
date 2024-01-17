@@ -38,7 +38,7 @@ namespace Paganism.Lexer.Tokenizers
                 else
                 {
                     Tokens.Add(new Token(line, Position - (SavedLine.Length - 1), Line, TokenType.Word));
-                }              
+                }
             }
 
             return new Token(Operator, Position, Line, Paganism.Lexer.Tokens.OperatorsType[Operator]);

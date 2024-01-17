@@ -17,13 +17,13 @@
         {
             string result = string.Empty;
 
-            for (int i = 0; i < value.Length;i++)
+            for (int i = 0; i < value.Length; i++)
             {
                 var c = value[i];
 
                 if (c == '\\')
                 {
-                    result += ReplaceEscapeCode(c.ToString() + value[i+1]);
+                    result += ReplaceEscapeCode(c.ToString() + value[i + 1]);
                     i++; //Skip identifier
                     continue;
                 }

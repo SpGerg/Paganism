@@ -133,7 +133,7 @@ namespace Paganism.Lexer
                     savedLine += Current;
                     Position++;
                 }
-                
+
                 if (!string.IsNullOrEmpty(savedLine) && !string.IsNullOrWhiteSpace(savedLine))
                 {
                     tokens.Add(new Token(savedLine.Replace("\n", string.Empty).Replace(" ", string.Empty), Position, Line, TokenType.Word));

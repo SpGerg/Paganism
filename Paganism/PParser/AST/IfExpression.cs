@@ -26,7 +26,7 @@ namespace Paganism.PParser.AST
             {
                 return BlockStatement.ExecuteAndReturn();
             }
-            
+
             if (ElseBlockStatement != null)
             {
                 return ElseBlockStatement.ExecuteAndReturn();

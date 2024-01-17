@@ -113,7 +113,7 @@ namespace Paganism.Interpreter.Data
             {
                 Declarated.Add(expression, new Dictionary<string, T>());
             }
-            
+
             if (!Language.TryGetValue(name, out var result) && !Declarated[expression].TryGetValue(name, out var result1))
             {
                 var value = Get(expression.Parent, name);

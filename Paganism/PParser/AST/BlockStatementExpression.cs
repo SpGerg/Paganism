@@ -22,7 +22,7 @@ namespace Paganism.PParser.AST
         public bool IsBreaked { get; private set; }
 
         public void Execute(params Argument[] arguments)
-        { 
+        {
             ExecuteAndReturn(arguments);
         }
 
@@ -32,7 +32,7 @@ namespace Paganism.PParser.AST
 
             Value result = null;
 
-            for (int i = 0;i < Statements.Length;i++)
+            for (int i = 0; i < Statements.Length; i++)
             {
                 if (IsBreaked) break;
 
@@ -92,7 +92,7 @@ namespace Paganism.PParser.AST
                         if (variable != null)
                         {
                             Variables.Instance.Value.Add(forExpression.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
-                        }          
+                        }
 
                         var result2 = forExpression.Eval();
 

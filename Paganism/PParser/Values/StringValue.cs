@@ -23,7 +23,7 @@ namespace Paganism.PParser.Values
                 return;
             }
 
-            Value = (string) value;
+            Value = (string)value;
         }
 
         public override string AsString()

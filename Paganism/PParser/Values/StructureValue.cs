@@ -13,7 +13,7 @@ namespace Paganism.PParser.Values
         {
             Structure = structureInstance;
             Parent = parent;
-            var values = new Dictionary<string, Value> ();
+            var values = new Dictionary<string, Value>();
 
             foreach (var member in structureInstance.Members)
             {

@@ -211,7 +211,7 @@ namespace Paganism.PParser
             if (!Require(0, TokenType.Semicolon))
             {
                 expression = ParseBinary() as EvaluableExpression;
-            }  
+            }
 
             if (!Match(TokenType.Semicolon)) throw new ParserException("Except ';'.", Current.Line, Current.Position);
 
@@ -313,7 +313,7 @@ namespace Paganism.PParser
                 }
 
                 Position++;
-            } 
+            }
 
             bool isAsync = Match(TokenType.Async);
 
@@ -762,13 +762,13 @@ namespace Paganism.PParser
 
             if (values is not null)
             {
-                return values; 
+                return values;
             }
             else if (Require(0, TokenType.Word) && Require(1, TokenType.LeftBracket))
             {
                 return ParseElementFromArray();
             }
-            else if(Require(0, TokenType.Word) && Require(1, TokenType.LeftPar))
+            else if (Require(0, TokenType.Word) && Require(1, TokenType.LeftPar))
             {
                 return ParseFunctionCall();
             }
@@ -847,7 +847,7 @@ namespace Paganism.PParser
 
                 return result;
             }
-  
+
             var result2 = Require(relativePosition, TokenType.NumberType, TokenType.StringType, TokenType.BooleanType, TokenType.CharType, TokenType.ObjectType);
 
             if (!result2 && isWithStructureType)

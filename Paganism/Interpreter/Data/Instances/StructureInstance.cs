@@ -11,7 +11,7 @@ namespace Paganism.Interpreter.Data.Instances
             StructureDeclarateExpression = structureDeclarate;
             Members = new Dictionary<string, StructureMemberExpression>(structureDeclarate.Members.Length);
 
-            for (int i = 0;i < structureDeclarate.Members.Length;i++)
+            for (int i = 0; i < structureDeclarate.Members.Length; i++)
             {
                 Members.Add(structureDeclarate.Members[i].Name, structureDeclarate.Members[i]);
             }

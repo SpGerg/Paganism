@@ -7,7 +7,7 @@
         }
 
         public ParserException(string message)
-            : base(message,  "Parser")
+            : base(message, "Parser")
         {
         }
 

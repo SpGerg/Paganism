@@ -6,7 +6,7 @@
         {
         }
 
-        public LexerException(string message) 
+        public LexerException(string message)
             : base(message, "Lexer")
         {
         }
