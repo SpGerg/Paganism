@@ -42,6 +42,8 @@ namespace Paganism.Lexer
             { "struct", TokenType.Structure },
             { "show", TokenType.Show },
             { "hide", TokenType.Hide },
+            { "public", TokenType.Show },
+            { "prvate", TokenType.Hide },
             { "castable", TokenType.Castable },
             { "object", TokenType.ObjectType },
             { "async", TokenType.Async },

@@ -660,7 +660,6 @@ namespace Paganism.PParser
                     continue;
                 }
 
-
                 if (Match(TokenType.As))
                 {
                     result = new BinaryOperatorExpression(_parent, Current.Line, Current.Position, Filepath,
