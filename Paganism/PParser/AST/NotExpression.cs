@@ -1,10 +1,4 @@
-﻿using Paganism.PParser.AST.Interfaces;
-using Paganism.PParser.Values;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Paganism.PParser.Values;
 
 namespace Paganism.PParser.AST
 {

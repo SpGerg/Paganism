@@ -1,20 +1,13 @@
-﻿using Paganism;
-using Paganism.Exceptions;
+﻿using Paganism.Exceptions;
 using Paganism.Interpreter;
 using Paganism.Interpreter.Data;
 using Paganism.Lexer;
 using Paganism.PParser;
-using Paganism.PParser.AST;
-using Paganism.PParser.AST.Interfaces;
 using PaganismCustomConsole.API.Features;
 using PaganismCustomConsole.API.Features.Commands;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PaganismCustomConsole.Commands
 {

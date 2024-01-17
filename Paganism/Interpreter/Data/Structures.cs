@@ -1,15 +1,8 @@
-﻿using Paganism.Exceptions;
-using Paganism.Interpreter.Data.Instances;
-using Paganism.Lexer.Enums;
-using Paganism.PParser;
+﻿using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Paganism.Interpreter.Data
 {

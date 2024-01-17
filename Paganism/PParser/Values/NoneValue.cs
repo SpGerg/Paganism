@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Paganism.PParser.AST.Enums;
+﻿using Paganism.PParser.AST.Enums;
 
 namespace Paganism.PParser.Values
 {
