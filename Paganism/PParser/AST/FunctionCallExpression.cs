@@ -108,14 +108,14 @@ namespace Paganism.PParser.AST
                 return result;
             }
 
-            function.ExecuteAndReturn(totalArguments);
+            var result2 = function.ExecuteAndReturn(totalArguments);
 
             foreach (var argument in totalArguments)
             {
                 Variables.Instance.Value.Remove(function.Statements, argument.Name);
             }
 
-            return null;
+            return result2;
         }
 
         public void Execute(params Argument[] arguments)

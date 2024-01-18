@@ -137,7 +137,17 @@ namespace Paganism.PParser.AST
         public static KeyValuePair<string, Value> GetMemberWithKeyOfStructure(BinaryOperatorExpression binaryOperatorExpression)
         {
             var structure = GetStructure(binaryOperatorExpression);
-            var name = (binaryOperatorExpression.Right as VariableExpression).Name.Replace("()", string.Empty);
+            var name = string.Empty;
+
+            if (binaryOperatorExpression.Right is VariableExpression variableExpression)
+            {
+                name = variableExpression.Name.Replace("()", string.Empty);
+            }
+            else if (binaryOperatorExpression.Right is ArrayElementExpression arrayElementExpression)
+            {
+                name = arrayElementExpression.Name;
+            }
+
             var member = structure.Values[name];
 
             if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
@@ -233,6 +243,7 @@ namespace Paganism.PParser.AST
                 TypesType.Any => new NumberValue(left.AsNumber() + right.AsNumber()),
                 TypesType.Number => new NumberValue(left.AsNumber() + right.AsNumber()),
                 TypesType.String => new StringValue(left.AsString() + right.AsString()),
+                TypesType.Type => new StringValue(left.AsString() + right.AsString()),
                 _ => throw new InterpreterException($"You cant addition type {left.Type} and {right.Type}"),
             };
         }
@@ -260,16 +271,58 @@ namespace Paganism.PParser.AST
 
         public Value Assign()
         {
+            var value = Right.Eval();
+
             if (Left is VariableExpression variableExpression)
             {
-                Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, Right.Eval());
+                if (variableExpression.Type is null)
+                {
+                    variableExpression = new VariableExpression(variableExpression.Parent, variableExpression.Line, variableExpression.Position, variableExpression.Filepath,
+                        variableExpression.Name, new TypeValue(value.Type, value is TypeValue typeValue ? typeValue.StructureName : string.Empty));
+                }
+                else
+                {
+                    if (value.Type != variableExpression.Type.Type)
+                    {
+                        throw new InterpreterException($"Except {variableExpression.Type.Type} type", variableExpression.Line, variableExpression.Position);
+                    }
+
+                    if (variableExpression.Type.Type is TypesType.Structure && value is StructureValue structureValue && variableExpression.Type.StructureName != structureValue.Structure.Name)
+                    {
+                        throw new InterpreterException($"Except {variableExpression.Type.StructureName} structure type", variableExpression.Line, variableExpression.Position);
+                    }
+                }           
+
+                Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, value);
             }
             else if (Left is BinaryOperatorExpression binary)
             {
                 var structure = GetStructure(binary);
                 var member = GetMemberWithKeyOfStructure(binary);
 
-                structure.Set(member.Key, Right.Eval());
+                structure.Set(member.Key, value);
+            }
+            else if (Left is ArrayElementExpression arrayElementExpression)
+            {
+                var variable2 = Variables.Instance.Value.Get(Parent, arrayElementExpression.Name);
+
+                if (variable2 is not NoneValue)
+                {
+                    var array = (variable2 as ArrayValue);
+
+                    var eval = arrayElementExpression.EvalWithKey();
+
+                    if (eval.Value is NoneValue)
+                    {
+                        array.Set(eval.Key, value);
+                    }
+                    else
+                    {
+                        eval.Value.Set(value);
+                    }
+                }
+
+                return variable2;
             }
 
             return Right.Eval();

@@ -7,7 +7,7 @@ namespace Paganism.PParser.AST
 {
     public class VariableExpression : EvaluableExpression, IStatement
     {
-        public VariableExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, TypesType type) : base(parent, line, position, filepath)
+        public VariableExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, TypeValue type) : base(parent, line, position, filepath)
         {
             Name = name;
             Type = type;
@@ -15,7 +15,7 @@ namespace Paganism.PParser.AST
 
         public string Name { get; }
 
-        public TypesType Type { get; }
+        public TypeValue Type { get; }
 
         public override Value Eval(params Argument[] arguments)
         {

@@ -53,6 +53,7 @@
         Char = 50,
         Required = 51,
         StructureType = 52,
-        As = 53
+        As = 53,
+        Delegate = 54
     }
 }

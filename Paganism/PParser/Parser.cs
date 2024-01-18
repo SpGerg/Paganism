@@ -4,6 +4,7 @@ using Paganism.Lexer.Enums;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
+using Paganism.PParser.Values;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -72,18 +73,7 @@ namespace Paganism.PParser
 
             if (Require(0, TokenType.Structure))
             {
-                if (Require(1, TokenType.Word))
-                {
-                    if (Require(2, TokenType.Word))
-                    {
-                        return ParseVariable();
-                    }
-                    else
-                    {
-                        Match(TokenType.Structure);
-                        return ParseStructure();
-                    }
-                }
+                return ParseStructure();
             }
 
             if (Match(TokenType.Return))
@@ -139,6 +129,7 @@ namespace Paganism.PParser
 
         private IStatement ParseStructure()
         {
+            Match(TokenType.Structure);
             var name = Current.Value;
 
             if (!Match(TokenType.Word)) throw new ParserException("Except structure name.", Current.Line, Current.Position);
@@ -155,17 +146,19 @@ namespace Paganism.PParser
 
         private StructureMemberExpression ParseStructureMember(string structureName)
         {
-            var isCastable = false;
-            var isShow = false;
-
-            isShow = Match(TokenType.Show);
-            isCastable = Match(TokenType.Castable);
+            var isShow = Match(TokenType.Show);
+            var isCastable = Match(TokenType.Castable);
 
             var current = Current.Type;
 
             var structureTypeName = string.Empty;
 
-            if (!IsType(0, true, true))
+            if (Require(0, TokenType.Delegate))
+            {
+                return ParseDelegate(structureName, isShow, isCastable);
+            }
+
+            if (!IsType(0, true))
             {
                 if (Match(TokenType.StructureType))
                 {
@@ -188,6 +181,37 @@ namespace Paganism.PParser
             if (!Match(TokenType.Semicolon)) throw new ParserException("Except ';'.", Current.Line, Current.Position);
 
             return member;
+        }
+
+        private StructureMemberExpression ParseDelegate(string structureName, bool isShow, bool isCastable)
+        {
+            Match(TokenType.Delegate);
+
+            var structureTypeName = string.Empty;
+            var current = Current.Type;
+
+            if (!IsType(0, true))
+            {
+                if (Match(TokenType.StructureType))
+                {
+                    structureTypeName = Current.Value;
+                }
+            }
+
+            if (!Match(TokenType.Function))
+            {
+                throw new ParserException("Except delegate name.", Current.Line, Current.Position);
+            }
+            
+            var memberName = Current.Value;
+
+            if (!Match(TokenType.Word)) throw new ParserException("Except structure member name.", Current.Line, Current.Position);
+
+            var arguments = ParseFunctionArguments();
+
+            Match(TokenType.Semicolon);
+
+            return new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, structureTypeName, current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], memberName, isShow, true, arguments, isCastable);
         }
 
         private IStatement ParseFor()
@@ -330,13 +354,21 @@ namespace Paganism.PParser
 
         private IStatement ParseVariable()
         {
-            var type = TokenType.AnyType;
+            TypeValue type = null;
             var current = Current;
 
             if (IsType(0, true, true))
             {
+                if (Require(-1, TokenType.StructureType))
+                {
+                    type = new TypeValue(TypesType.Structure, Current.Value);
+                }
+                else
+                {
+                    type = new TypeValue(Lexer.Tokens.TokenTypeToValueType[Current.Type], string.Empty);
+                }
+
                 Position++; //Skip type
-                type = current.Type;
             }
 
             var isArray = false;
@@ -370,7 +402,7 @@ namespace Paganism.PParser
 
             if (left is VariableExpression variable)
             {
-                left = new VariableExpression(_parent, Current.Line, Current.Position, Filepath, variable.Name, Lexer.Tokens.TokenTypeToValueType[valueType]);
+                left = new VariableExpression(_parent, Current.Line, Current.Position, Filepath, variable.Name, type);
             }
 
             if (right is ArrayExpression array)
@@ -769,7 +801,23 @@ namespace Paganism.PParser
             }
             else if (Match(TokenType.Word))
             {
-                return new VariableExpression(_parent, Current.Line, Current.Position, Filepath, current.Value, TypesType.Any);
+                TypeValue type = null;
+
+                if (IsType(0, true, true))
+                {
+                    if (Require(-1, TokenType.StructureType))
+                    {
+                        type = new TypeValue(TypesType.Structure, Current.Value);
+                    }
+                    else
+                    {
+                        type = new TypeValue(Lexer.Tokens.TokenTypeToValueType[Current.Type], string.Empty);
+                    }
+
+                    Position++; //Skip type
+                }
+
+                return new VariableExpression(_parent, Current.Line, Current.Position, Filepath, current.Value, type);
             }
             else if (Match(TokenType.LeftPar))
             {

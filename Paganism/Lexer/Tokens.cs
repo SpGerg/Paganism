@@ -49,6 +49,7 @@ namespace Paganism.Lexer
             { "rqr", TokenType.Required },
             { "structure_type", TokenType.StructureType },
             { "as", TokenType.As },
+            { "delegate", TokenType.Delegate },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()

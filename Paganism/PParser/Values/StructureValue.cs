@@ -84,11 +84,6 @@ namespace Paganism.PParser.Values
                 throw new InterpreterException($"Except structure '{member.StructureTypeName}' type");
             }
 
-            if (value is StructureValue structureValue)
-            {
-                Values[key] = new StructureValue(BlockStatement, structureValue.Structure.Name, structureValue.Values, Structure.Name);
-            }
-
             if (Values.TryGetValue(key, out Value result))
             {
                 if (result is NoneValue)

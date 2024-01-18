@@ -28,6 +28,14 @@ namespace Paganism.PParser.Values
 
         public Value[] Elements { get; set; }
 
+        public override void Set(object value)
+        {
+            if (value is ArrayValue arrayValue)
+            {
+                Elements = arrayValue.Elements;
+            }
+        }
+
         public void Set(int index, object value)
         {
             if (value is Value objectValue)

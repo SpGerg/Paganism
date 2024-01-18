@@ -30,11 +30,16 @@ namespace Paganism.PParser.AST
         {
             if (Statements == null) return null;
 
+            IsBreaked = false;
+
             Value result = null;
 
             for (int i = 0; i < Statements.Length; i++)
             {
-                if (IsBreaked) break;
+                if (IsBreaked)
+                {
+                    break;
+                }
 
                 var statement = Statements[i];
 

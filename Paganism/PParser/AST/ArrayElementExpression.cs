@@ -38,9 +38,9 @@ namespace Paganism.PParser.AST
                     throw new InterpreterException($"Index must be a non-negative, in array variable with {Name} name");
                 }
 
-                if (arrayValue.Elements.Length - 1 < value && Left.Eval() is ArrayValue)
+                if (arrayValue.Elements.Length - 1 < value && Left is not null && Left.Eval() is ArrayValue)
                 {
-                    throw new InterpreterException($"Index out of range, in array variable with {Name} name");
+                    throw new InterpreterException($"Index out of range, in array with {Name} name");
                 }
 
                 //Breaking bad...
