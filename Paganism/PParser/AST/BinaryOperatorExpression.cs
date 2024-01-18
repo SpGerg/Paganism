@@ -317,12 +317,12 @@ namespace Paganism.PParser.AST
                 }
                 else
                 {
-                    if (value.Type != variableExpression.Type.Type)
+                    if (value.Type != variableExpression.Type.Value)
                     {
-                        throw new InterpreterException($"Except {variableExpression.Type.Type} type", variableExpression.Line, variableExpression.Position);
+                        throw new InterpreterException($"Except {variableExpression.Type.Value} type", variableExpression.Line, variableExpression.Position);
                     }
 
-                    if (variableExpression.Type.Type is TypesType.Structure && value is StructureValue structureValue && variableExpression.Type.StructureName != structureValue.Structure.Name)
+                    if (variableExpression.Type.Value is TypesType.Structure && value is StructureValue structureValue && variableExpression.Type.StructureName != structureValue.Structure.Name)
                     {
                         throw new InterpreterException($"Except {variableExpression.Type.StructureName} structure type", variableExpression.Line, variableExpression.Position);
                     }
