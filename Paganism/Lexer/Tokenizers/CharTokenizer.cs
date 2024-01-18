@@ -59,7 +59,7 @@ namespace Paganism.Lexer.Tokenizers
                     {
                         Position++;
 
-                        if (savedLine == "\\")
+                        return savedLine == "\\"
                         {
                             throw new LexerException($"After \\ need identifier (\\n, \\t e.t.c)", startLine, startPosition);
                         }
