@@ -86,11 +86,76 @@ namespace Paganism.PParser.AST
             Eval(arguments);
         }
 
+        public void CreateArguments(params Argument[] arguments)
+        {
+            Argument[] totalArguments = new Argument[RequiredArguments.Length];
+
+            for (int i = 0; i < RequiredArguments.Length; i++)
+            {
+                var functionArgument = RequiredArguments[i];
+
+                if (i > arguments.Length - 1)
+                {
+                    if (functionArgument.IsRequired)
+                    {
+                        throw new InterpreterException($"Argument in {Name} function is required.", Line, Position);
+                    }
+
+                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneExpression(Parent, Line, Position, Filepath));
+
+                    totalArguments[i] = noneArgument;
+                    Variables.Instance.Value.Add(Statement, functionArgument.Name, noneArgument.Value.Eval());
+                    continue;
+                }
+
+                var argument = arguments[i];
+
+                if (functionArgument.Type is TypesType.Structure)
+                {
+                    Value value = null;
+
+                    try
+                    {
+                        value = Variables.Instance.Value.Get(Statement, argument.Name);
+                    }
+                    catch
+                    {
+                        value = argument.Value.Eval();
+                    }
+
+                    if (value is not NoneValue)
+                    {
+                        if (value is not StructureValue structure)
+                        {
+                            throw new InterpreterException($"Except variable with structure {functionArgument.Name} type");
+                        }
+
+                        if (functionArgument.StructureName != structure.Structure.Name)
+                        {
+                            throw new InterpreterException($"Except structure {functionArgument.StructureName} type");
+                        }
+                    }
+                }
+
+                if (functionArgument.Type != TypesType.Any && argument.Type != TypesType.Any && functionArgument.Type != argument.Type)
+                {
+                    throw new InterpreterException($"Except {functionArgument.Type}", Line, Position);
+                }
+
+                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.StructureName);
+
+                totalArguments[i] = initArgument;
+
+                Variables.Instance.Value.Add(Statement, initArgument.Name, initArgument.Value.Eval());
+            }
+        }
+
         public override Value Eval(params Argument[] arguments)
         {
+            CreateArguments(arguments);
+
             if (Name == "pgm_call")
             {
-
                 if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
                 {
                     var name = arguments[0].Value.Eval().AsString();

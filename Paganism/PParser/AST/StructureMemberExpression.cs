@@ -13,6 +13,7 @@ namespace Paganism.PParser.AST
             Name = name;
             IsShow = isShow;
             IsDelegate = isDelegate;
+            Arguments = arguments;
             IsCastable = isCastable;
         }
 

@@ -84,6 +84,32 @@ namespace Paganism.PParser.Values
                 throw new InterpreterException($"Except structure '{member.StructureTypeName}' type");
             }
 
+            if (member.IsDelegate)
+            {
+                if (value is not FunctionValue functionValue)
+                {
+                    throw new InterpreterException($"Except function", member.Line, member.Position);
+                }
+
+                for (int i = 0;i < member.Arguments.Length;i++)
+                {
+                    if (i > functionValue.Value.RequiredArguments.Length)
+                    {
+                        throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                    }
+
+                    if (member.Arguments[i].Type != functionValue.Value.RequiredArguments[i].Type)
+                    {
+                        throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                    }
+
+                    if (value is StructureValue structureValue && member.Arguments[i].StructureName != structureValue.Structure.Name)
+                    {
+                        throw new InterpreterException($"Except {member.Arguments[i].Type} structure type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                    }
+                }
+            }
+
             if (Values.TryGetValue(key, out Value result))
             {
                 if (result is NoneValue)

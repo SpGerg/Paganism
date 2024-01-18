@@ -21,6 +21,11 @@ namespace Paganism.PParser.AST
         {
             var variable = Variables.Instance.Value.Get(Parent, Name);
 
+            if (variable is null)
+            {
+                return new NoneValue();
+            }
+
             if (variable is NoneValue)
             {
                 return variable;

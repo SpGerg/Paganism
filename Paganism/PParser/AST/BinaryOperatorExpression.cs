@@ -1,5 +1,6 @@
 ﻿using Paganism.Exceptions;
 using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.Values;
 using System.Collections.Generic;
@@ -117,12 +118,40 @@ namespace Paganism.PParser.AST
             if (binaryOperatorExpression.Left is BinaryOperatorExpression binary)
             {
                 var structure = GetStructure(binary);
-                var name = (binary.Right as VariableExpression).Name.Replace("()", string.Empty);
-                var member = structure.Values[name] as StructureValue;
 
-                return !structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath
-                    ? throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position)
-                    : member;
+                var name = string.Empty;
+
+                if (binary.Right is VariableExpression variableExpression2)
+                {
+                    name = variableExpression2.Name;
+                }
+                else if (binary.Right is FunctionCallExpression functionCallExpression)
+                {
+                    name = functionCallExpression.FunctionName;
+                }
+
+                if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath)
+                {
+                    throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position);
+                }
+
+                var member = structure.Values[name];
+
+                if (member is StructureValue structureValue)
+                {
+                    return structureValue;
+                }
+                else if (member is FunctionValue functionValue && binary.Right is FunctionCallExpression functionCallExpression)
+                {
+                    var value = functionValue.Value.Eval(functionCallExpression.Arguments);
+
+                    if (value is not StructureValue structureValue1)
+                    {
+                        return null;
+                    }
+
+                    return structureValue1;
+                }
             }
 
             return null;
@@ -141,14 +170,29 @@ namespace Paganism.PParser.AST
             {
                 name = arrayElementExpression.Name;
             }
+            else if (binaryOperatorExpression.Right is FunctionCallExpression functionCallExpression)
+            {
+                name = functionCallExpression.FunctionName;
+            }
 
             var member = structure.Values[name];
 
-            return !structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath
-                ? throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position)
-                : structure is null
-                ? throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position)
-                : new KeyValuePair<string, Value>(name, member);
+            if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
+            {
+                throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+            }
+
+            if (structure is null)
+            {
+                throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+            }
+
+            if (member is FunctionValue functionValue && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
+            {
+                return new KeyValuePair<string, Value>(name, functionValue.Value.Eval(callExpression.Arguments));
+            }
+
+            return new KeyValuePair<string, Value>(name, member);
         }
 
         public static Value GetMemberOfStructure(BinaryOperatorExpression binaryOperatorExpression)
@@ -253,7 +297,16 @@ namespace Paganism.PParser.AST
 
         public Value Assign()
         {
-            var value = Right.Eval();
+            Value value = null;
+
+            if (Right is FunctionDeclarateExpression function)
+            {
+                value = Value.Create(function);
+            }
+            else
+            {
+                value = Right.Eval();
+            }
 
             if (Left is VariableExpression variableExpression)
             {
@@ -275,7 +328,14 @@ namespace Paganism.PParser.AST
                     }
                 }
 
-                Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, value);
+                if (value is FunctionValue)
+                {
+                    Functions.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
+                }
+                else
+                {
+                    Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, value);
+                }
             }
             else if (Left is BinaryOperatorExpression binary)
             {

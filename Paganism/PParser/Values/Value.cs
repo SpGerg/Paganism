@@ -21,6 +21,7 @@ namespace Paganism.PParser.Values
                 CharExpression charExpression => new CharValue(charExpression.Value),
                 VariableExpression variableExpression => Create(variableExpression),
                 StructureDeclarateExpression structureDeclarateExpression => new StructureValue(structureDeclarateExpression.Parent, structureDeclarateExpression.Name),
+                FunctionDeclarateExpression functionDeclarateExpression => new FunctionValue(functionDeclarateExpression),
                 TypeExpression typeExpression => new TypeValue(typeExpression.Value, typeExpression.StructureName),
                 _ => new NoneValue(),
             };

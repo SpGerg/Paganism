@@ -135,7 +135,9 @@ namespace Paganism.PParser
 
             while (!Match(TokenType.End))
             {
-                statements.Add(ParseStructureMember(name));
+                var member = ParseStructureMember(name);
+
+                statements.Add(member);
             }
 
             return new StructureDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, name, statements.ToArray());
@@ -152,7 +154,9 @@ namespace Paganism.PParser
 
             if (Require(0, TokenType.Delegate))
             {
-                return ParseDelegate(structureName, isShow, isCastable);
+                var memher = ParseDelegate(structureName, isShow, isCastable);
+
+                return memher;
             }
 
             if (!IsType(0, true))

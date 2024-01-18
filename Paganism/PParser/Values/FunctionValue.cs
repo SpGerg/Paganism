@@ -1,27 +1,28 @@
 ﻿using Paganism.Interpreter.Data.Instances;
+using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 
 namespace Paganism.PParser.Values
 {
     public class FunctionValue : Value
     {
-        public FunctionValue(FunctionInstance va)
+        public FunctionValue(FunctionDeclarateExpression value)
         {
-            Value = Value;
+            Value = value;
         }
 
         public override string Name => "Function";
 
         public override TypesType Type => TypesType.Function;
 
-        public FunctionInstance Value { get; }
+        public FunctionDeclarateExpression Value { get; }
 
         public override string AsString()
         {
             var result = $"{Name}: ";
             result += "[";
 
-            foreach (var argument in Value.Arguments)
+            foreach (var argument in Value.RequiredArguments)
             {
                 result += $"[{argument.Name}: {argument.Type}], ";
             }
