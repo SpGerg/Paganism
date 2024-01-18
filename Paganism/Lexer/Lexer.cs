@@ -30,7 +30,7 @@ namespace Paganism.Lexer
 
         public Token[] Run()
         {
-            List<Token> tokens = new List<Token>();
+            List<Token> tokens = new();
 
             var savedLine = string.Empty;
 

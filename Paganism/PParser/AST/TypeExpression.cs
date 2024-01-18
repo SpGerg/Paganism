@@ -18,6 +18,9 @@ namespace Paganism.PParser.AST
 
         private readonly TypeValue _value;
 
-        public override Value Eval(params Argument[] arguments) => _value;
+        public override Value Eval(params Argument[] arguments)
+        {
+            return _value;
+        }
     }
 }

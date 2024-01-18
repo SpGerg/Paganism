@@ -28,7 +28,10 @@ namespace Paganism.PParser.AST
 
         public Value ExecuteAndReturn(params Argument[] arguments)
         {
-            if (Statements == null) return null;
+            if (Statements == null)
+            {
+                return null;
+            }
 
             IsBreaked = false;
 

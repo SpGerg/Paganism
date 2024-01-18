@@ -28,7 +28,10 @@ namespace Paganism.PParser.Values
 
         public static Value Create(object value)
         {
-            if (value == null) return new NoneValue();
+            if (value == null)
+            {
+                return new NoneValue();
+            }
 
             if (value.GetType() == typeof(string))
             {
@@ -56,12 +59,9 @@ namespace Paganism.PParser.Values
 
         public static Value Create(StructureValue structure, VariableExpression variable)
         {
-            if (!structure.Values.ContainsKey(variable.Name))
-            {
-                throw new InterpreterException($"Unknown structure member with {variable.Name} name, in structure with {structure.Structure.Name} name");
-            }
-
-            return structure.Values[variable.Name];
+            return !structure.Values.ContainsKey(variable.Name)
+                ? throw new InterpreterException($"Unknown structure member with {variable.Name} name, in structure with {structure.Structure.Name} name")
+                : structure.Values[variable.Name];
         }
 
         public static Value Create(Value copy)

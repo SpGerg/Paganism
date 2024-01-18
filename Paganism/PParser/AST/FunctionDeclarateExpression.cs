@@ -23,7 +23,10 @@ namespace Paganism.PParser.AST
             IsAsync = isAsync;
             ReturnTypes = returnTypes;
 
-            if (Statement is null || Statement.Statements is null) return;
+            if (Statement is null || Statement.Statements is null)
+            {
+                return;
+            }
 
             if (!Functions.Instance.Value.IsLanguage(Name) && ReturnTypes.Length > 0 && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
@@ -46,7 +49,7 @@ namespace Paganism.PParser.AST
 
         public Return[] ReturnTypes { get; }
 
-        private static Dictionary<string, Type> Types = new Dictionary<string, Type>()
+        private static readonly Dictionary<string, Type> Types = new()
         {
             { "System.Console", typeof(Console) }
         };
@@ -87,9 +90,8 @@ namespace Paganism.PParser.AST
         {
             if (Name == "pgm_call")
             {
-                Type findedClass = null;
 
-                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out findedClass))
+                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
                 {
                     var name = arguments[0].Value.Eval().AsString();
 
@@ -121,17 +123,13 @@ namespace Paganism.PParser.AST
                     {
                         method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(char) });
                     }
-                    else if (paramater is BooleanValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(bool) });
-                    }
-                    else if (paramater is NumberValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(int) });
-                    }
                     else
                     {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(object) });
+                        method = paramater is BooleanValue
+                            ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(bool) })
+                            : paramater is NumberValue
+                                                    ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(int) })
+                                                    : findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(object) });
                     }
 
                     if (method.GetParameters()[0].ParameterType == typeof(string) || method.GetParameters()[0].ParameterType == typeof(object))
@@ -198,7 +196,10 @@ namespace Paganism.PParser.AST
                 interpreter.Run(false);
             }
 
-            if (Statement == null) return new NoneValue();
+            if (Statement == null)
+            {
+                return new NoneValue();
+            }
 
             if (IsAsync)
             {
