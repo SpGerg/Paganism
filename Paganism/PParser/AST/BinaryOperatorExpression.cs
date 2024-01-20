@@ -335,10 +335,8 @@ namespace Paganism.PParser.AST
                 {
                     Functions.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
                 }
-                else
-                {
-                    Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, value);
-                }
+
+                Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, value);
             }
             else if (Left is BinaryOperatorExpression binary)
             {
