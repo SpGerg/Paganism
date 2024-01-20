@@ -97,6 +97,21 @@ namespace Paganism.Interpreter.Data
             return Language.ContainsKey(name);
         }
 
+        public bool TryGet(BlockStatementExpression expression, string name, out T value)
+        {
+            try
+            {
+                value = Get(expression, name);
+
+                return true;
+            }
+            catch
+            {
+                value = default;
+                return false;
+            }
+        }
+
         public T Get(BlockStatementExpression expression, string name)
         {
             if (Language.ContainsKey(name))

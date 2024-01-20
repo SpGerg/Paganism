@@ -310,21 +310,24 @@ namespace Paganism.PParser.AST
 
             if (Left is VariableExpression variableExpression)
             {
-                if (variableExpression.Type is null)
+                if (!Variables.Instance.Value.TryGet(Parent, variableExpression.Name, out var result))
                 {
-                    variableExpression = new VariableExpression(variableExpression.Parent, variableExpression.Line, variableExpression.Position, variableExpression.Filepath,
-                        variableExpression.Name, new TypeValue(value.Type, value is TypeValue typeValue ? typeValue.StructureName : string.Empty));
+                    if (variableExpression.Type is null)
+                    {
+                        variableExpression = new VariableExpression(variableExpression.Parent, variableExpression.Line, variableExpression.Position, variableExpression.Filepath,
+                            variableExpression.Name, new TypeValue(value.Type, value is TypeValue typeValue ? typeValue.StructureName : string.Empty));
+                    }
                 }
                 else
                 {
-                    if (value.Type != variableExpression.Type.Value)
+                    if (value.Type != result.Type)
                     {
-                        throw new InterpreterException($"Except {variableExpression.Type.Value} type", variableExpression.Line, variableExpression.Position);
+                        throw new InterpreterException($"Except {result.Type} type", variableExpression.Line, variableExpression.Position);
                     }
 
-                    if (variableExpression.Type.Value is TypesType.Structure && value is StructureValue structureValue && variableExpression.Type.StructureName != structureValue.Structure.Name)
+                    if (result is StructureValue structureValue1 && value is StructureValue structureValue && structureValue1.Structure.Name != structureValue.Structure.Name)
                     {
-                        throw new InterpreterException($"Except {variableExpression.Type.StructureName} structure type", variableExpression.Line, variableExpression.Position);
+                        throw new InterpreterException($"Except {structureValue1.Structure.Name} structure type", variableExpression.Line, variableExpression.Position);
                     }
                 }
 
