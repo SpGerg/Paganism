@@ -149,7 +149,15 @@ namespace Paganism.PParser.AST
 
                 totalArguments[i] = initArgument;
 
-                Variables.Instance.Value.Add(Statement, initArgument.Name, initArgument.Value.Eval());
+                if (initArgument.Value is FunctionDeclarateExpression functionDeclarateExpression)
+                {
+                    Variables.Instance.Value.Add(Statement, initArgument.Name, new FunctionValue(functionDeclarateExpression));
+                    Functions.Instance.Value.Add(Statement, initArgument.Name, new FunctionInstance(functionDeclarateExpression));
+                }
+                else
+                {
+                    Variables.Instance.Value.Add(Statement, initArgument.Name, initArgument.Value.Eval());
+                }             
             }
         }
 
