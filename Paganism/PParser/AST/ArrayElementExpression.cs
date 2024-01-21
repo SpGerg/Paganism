@@ -48,22 +48,22 @@ namespace Paganism.PParser.AST
                 {
                     var left = Left.Eval();
 
-                    if (left is not ArrayValue arrayValue1)
+                    if (left is ArrayValue arrayValue1)
                     {
-                        if (left is StringValue stringValue)
-                        {
-                            if ((int)value > stringValue.Value.Length - 1)
-                            {
-                                throw new InterpreterException($"Index out of range, in array variable with {Name} name");
-                            }
+                        return new KeyValuePair<int, Value>((int)value, arrayValue1.Elements[(int)value]);
+                    }
 
-                            return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.Value[(int)value]));
-                        }
-
+                    if (left is not StringValue stringValue)
+                    {
                         return new KeyValuePair<int, Value>((int)value, left);
                     }
 
-                    return new KeyValuePair<int, Value>((int)value, arrayValue1.Elements[(int)value]);
+                    if ((int)value > stringValue.Value.Length - 1)
+                    {
+                        throw new InterpreterException($"Index out of range, in array variable with {Name} name");
+                    }
+
+                    return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.Value[(int)value]));
                 }
 
                 return new KeyValuePair<int, Value>((int)value, arrayValue.Elements[(int)value]);
