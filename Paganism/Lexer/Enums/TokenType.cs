@@ -54,6 +54,8 @@
         Required = 51,
         StructureType = 52,
         As = 53,
-        Delegate = 54
+        Delegate = 54,
+        Try = 55,
+        Catch = 56
     }
 }

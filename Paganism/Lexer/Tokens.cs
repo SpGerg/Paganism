@@ -50,6 +50,8 @@ namespace Paganism.Lexer
             { "structure_type", TokenType.StructureType },
             { "as", TokenType.As },
             { "delegate", TokenType.Delegate },
+            { "try", TokenType.Try },
+            { "catch", TokenType.Catch }
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()

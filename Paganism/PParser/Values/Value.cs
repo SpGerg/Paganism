@@ -5,8 +5,12 @@ using System;
 
 namespace Paganism.PParser.Values
 {
-    public abstract class Value
+    public abstract class Value : EvaluableExpression
     {
+        protected Value() : base(null, 0, 0, string.Empty)
+        {
+        }
+
         public abstract string Name { get; }
 
         public abstract TypesType Type { get; }
@@ -92,6 +96,11 @@ namespace Paganism.PParser.Values
             }
 
             return null;
+        }
+
+        public override Value Eval(params Argument[] arguments)
+        {
+            return this;
         }
 
         public virtual void Set(object value) { }

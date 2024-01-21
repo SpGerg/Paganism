@@ -75,6 +75,22 @@ namespace Paganism.PParser.AST
                     case StructureDeclarateExpression structureDeclarate:
                         structureDeclarate.Create();
                         break;
+                    case TryCatchExpression tryCatchExpression:
+                        var value2 = tryCatchExpression.Eval();
+
+                        if (IsLoop && (tryCatchExpression.TryExpression.IsBreaked || tryCatchExpression.CatchExpression.IsBreaked))
+                        {
+                            IsBreaked = true;
+                            break;
+                        }
+
+                        if (value2 != null)
+                        {
+                            IsBreaked = true;
+                            return value2;
+                        }
+
+                        break;
                     case IfExpression ifExpression:
                         var value = ifExpression.Eval();
 

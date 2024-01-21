@@ -19,6 +19,13 @@ namespace Paganism.Interpreter.Data
                     new StructureMemberExpression(null, -1, -1, string.Empty, "task", string.Empty, TypesType.Number, "id", true)
                 }
             ))
+            },
+            { "exception", new StructureInstance(new StructureDeclarateExpression(null, -1, -1, string.Empty, "exception", new StructureMemberExpression[]
+                {
+                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", string.Empty, TypesType.String, "name", true),
+                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", string.Empty, TypesType.String, "description", true)
+                }
+            ))
             }
         };
     }

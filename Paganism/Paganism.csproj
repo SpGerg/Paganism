@@ -64,6 +64,7 @@
     <Compile Include="PParser\AST\StructureDeclarateExpression.cs" />
     <Compile Include="PParser\AST\StructureExpression.cs" />
     <Compile Include="PParser\AST\StructureMemberExpression.cs" />
+    <Compile Include="PParser\AST\TryCatchExpression.cs" />
     <Compile Include="PParser\AST\TypeExpression.cs" />
     <Compile Include="PParser\AST\VariableExpression.cs" />
     <Compile Include="PParser\AST\FunctionDeclarateExpression.cs" />

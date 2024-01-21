@@ -24,6 +24,5 @@ namespace Paganism.Interpreter.Data.Instances
         public StructureDeclarateExpression StructureDeclarateExpression { get; }
 
         public Dictionary<string, StructureMemberExpression> Members { get; }
-
     }
 }

@@ -86,6 +86,11 @@ namespace Paganism.PParser
                 return ParseBreak();
             }
 
+            if (Match(TokenType.Try))
+            {
+                return ParseTryCatch();
+            }
+
             if (Current.Type == TokenType.Word)
             {
                 if (Require(1, TokenType.LeftPar))
@@ -107,6 +112,21 @@ namespace Paganism.PParser
                 : Match(TokenType.Await)
                 ? ParseAwait()
                 : throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position);
+        }
+
+
+        private IStatement ParseTryCatch()
+        {
+            Match(TokenType.Try);
+
+            var tryBlock = new BlockStatementExpression(_parent, Current.Line, Current.Position, Filepath, new IStatement[0]);
+            var catchBlock = new BlockStatementExpression(_parent, Current.Line, Current.Position, Filepath, new IStatement[0]);
+
+            ParseExpressions(tryBlock, TokenType.Catch);
+
+            ParseExpressions(catchBlock, TokenType.End);
+
+            return new TryCatchExpression(_parent, Current.Position, Current.Line, Filepath, tryBlock, catchBlock);
         }
 
         private IStatement ParseAwait()
@@ -274,7 +294,7 @@ namespace Paganism.PParser
             return new BreakExpression(_parent, Current.Line, Current.Position, Filepath);
         }
 
-        private IStatement[] ParseExpressions(BlockStatementExpression statement = null, bool isToEnd = true)
+        private IStatement[] ParseExpressions(BlockStatementExpression statement = null, TokenType endToken = TokenType.End)
         {
             List<IStatement> statements = new();
 
@@ -284,14 +304,14 @@ namespace Paganism.PParser
                 ? new BlockStatementExpression(_parent, Current.Line, Current.Position, Filepath, new IStatement[0])
                 : statement;
 
-            if (Match(TokenType.End))
+            if (Match(endToken))
             {
                 _parent = oldParent;
 
                 return statements.ToArray();
             }
 
-            while (!Match(TokenType.End))
+            while (!Match(endToken))
             {
                 statements.Add(ParseStatement());
             }
