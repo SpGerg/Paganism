@@ -20,7 +20,8 @@ namespace Paganism.Interpreter.Data
                     new Argument("method", TypesType.String),
                     new Argument("arguments", TypesType.Any)
                 },
-                    false)
+                    false,
+                    true)
                 )
             },
             { "pgm_create", new FunctionInstance(
@@ -29,6 +30,7 @@ namespace Paganism.Interpreter.Data
                     new Argument("name", TypesType.String)
                 },
                     false,
+                    true,
                     new Return(TypesType.Any, string.Empty))
                 )
             },
@@ -37,7 +39,8 @@ namespace Paganism.Interpreter.Data
                 {
                     new Argument("file", TypesType.String)
                 },
-                    false)
+                    false,
+                    true)
                 )
             },
             { "pgm_resize", new FunctionInstance(
@@ -46,7 +49,8 @@ namespace Paganism.Interpreter.Data
                     new Argument("array", TypesType.Array),
                     new Argument("size", TypesType.Number)
                 },
-                    false)
+                    false,
+                    true)
                 )
             },
             { "pgm_size", new FunctionInstance(
@@ -54,7 +58,8 @@ namespace Paganism.Interpreter.Data
                 {
                     new Argument("array", TypesType.Array)
                 },
-                    false)
+                    false,
+                    true)
                 )
             },
         };

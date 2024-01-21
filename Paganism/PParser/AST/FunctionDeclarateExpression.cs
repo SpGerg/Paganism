@@ -13,14 +13,15 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable
+    public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable, IDeclaratable
     {
-        public FunctionDeclarateExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, params Return[] returnTypes) : base(parent, line, position, filepath)
+        public FunctionDeclarateExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, bool isShow = false, params Return[] returnTypes) : base(parent, line, position, filepath)
         {
             Name = name;
             Statement = statement;
             RequiredArguments = requiredArguments;
             IsAsync = isAsync;
+            IsShow = isShow;
             ReturnTypes = returnTypes;
 
             if (Statement is null || Statement.Statements is null)
@@ -45,6 +46,8 @@ namespace Paganism.PParser.AST
 
         public bool IsAsync { get; }
 
+        public bool IsShow { get; }
+
         public Argument[] RequiredArguments { get; }
 
         public Return[] ReturnTypes { get; }
@@ -54,7 +57,7 @@ namespace Paganism.PParser.AST
             { "System.Console", typeof(Console) }
         };
 
-        public void Create()
+        public void Declarate()
         {
             Functions.Instance.Value.Add(Parent, Name, new FunctionInstance(this));
         }

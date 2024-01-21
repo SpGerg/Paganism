@@ -71,28 +71,28 @@ namespace Paganism.PParser.Values
 
         public static Value Create(Value copy)
         {
-            switch (copy.Type)
+            switch (copy)
             {
-                case TypesType.String:
-                    return new StringValue((copy as StringValue).Value);
-                case TypesType.Number:
-                    return new NumberValue((copy as NumberValue).Value);
-                case TypesType.Boolean:
-                    return new BooleanValue((copy as BooleanValue).Value);
-                case TypesType.Function:
-                    return new FunctionValue((copy as FunctionValue).Value);
-                case TypesType.Array:
-                    var array = copy as ArrayValue;
-                    return new ArrayValue(array.Elements);
-                case TypesType.None:
+                case StringValue stringValue:
+                    return new StringValue(stringValue.Value);
+                case NumberValue numberValue:
+                    return new NumberValue(numberValue.Value);
+                case BooleanValue booleanValue:
+                    return new BooleanValue(booleanValue.Value);
+                case FunctionValue functionValue:
+                    return new FunctionValue(functionValue.Value);
+                case ArrayValue arrayValue:
+                    return new ArrayValue(arrayValue.Elements);
+                case NoneValue:
                     return new NoneValue();
-                case TypesType.Structure:
-                    var structure = copy as StructureValue;
-                    return new StructureValue(structure.BlockStatement, structure.Structure);
-                case TypesType.Char:
-                    return new CharValue((copy as CharValue).Value);
-                case TypesType.Type:
-                    return new TypeValue((copy as TypeValue).Value, (copy as TypeValue).StructureName);
+                case EnumValue enumValue:
+                    return new EnumValue(enumValue.Member);
+                case StructureValue structureValue:
+                    return new StructureValue(structureValue.BlockStatement, structureValue.Structure);
+                case CharValue charValue:
+                    return new CharValue(charValue.Value);
+                case TypeValue typeValue:
+                    return new TypeValue(typeValue.Value, typeValue.StructureName);
             }
 
             return null;

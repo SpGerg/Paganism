@@ -64,16 +64,12 @@ namespace Paganism.PParser.AST
                         break;
                     case AwaitExpression awaitExpression:
                         awaitExpression.Execute();
-
                         break;
                     case AssignExpression assignExpression:
                         assignExpression.Eval();
                         break;
-                    case FunctionDeclarateExpression functionDeclarate:
-                        functionDeclarate.Create();
-                        break;
-                    case StructureDeclarateExpression structureDeclarate:
-                        structureDeclarate.Create();
+                    case IDeclaratable declaratable:
+                        declaratable.Declarate();
                         break;
                     case TryCatchExpression tryCatchExpression:
                         var value2 = tryCatchExpression.Eval();

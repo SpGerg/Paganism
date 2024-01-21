@@ -51,7 +51,8 @@ namespace Paganism.Lexer
             { "as", TokenType.As },
             { "delegate", TokenType.Delegate },
             { "try", TokenType.Try },
-            { "catch", TokenType.Catch }
+            { "catch", TokenType.Catch },
+            { "enum", TokenType.Enum },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()

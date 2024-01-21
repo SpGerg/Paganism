@@ -202,6 +202,16 @@ namespace Paganism.PParser.AST
 
         private Value Point()
         {
+            if (Left is VariableExpression variableExpression && Interpreter.Data.Enums.Instance.Value.TryGet(Parent, variableExpression.Name, out var value))
+            {
+                if (Right is not VariableExpression variableExpression1)
+                {
+                    throw new InterpreterException("Except enum member name", variableExpression.Line, variableExpression.Position);
+                }
+
+                return new EnumValue(value.Members[variableExpression1.Name]);
+            }
+
             var member = GetMemberOfStructure(this);
             return member;
         }
@@ -246,6 +256,7 @@ namespace Paganism.PParser.AST
                     TypesType.String => new BooleanValue(left.AsString() == right.AsString()),
                     TypesType.Boolean => new BooleanValue(left.AsBoolean() == right.AsBoolean()),
                     TypesType.Char => new BooleanValue(left.AsString() == right.AsString()),
+                    TypesType.Enum => new BooleanValue((left as EnumValue).Member == (right as EnumValue).Member),
                     TypesType.None => new BooleanValue(left.Name == right.Name),
                     TypesType.Structure => new BooleanValue(left == right),
                     _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),

@@ -12,6 +12,7 @@
         Array = 7,
         Structure = 8,
         Char = 9,
-        Type = 10
+        Type = 10,
+        Enum = 11
     }
 }

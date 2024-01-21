@@ -34,10 +34,11 @@
   <ItemGroup>
     <Compile Include="Exceptions\PaganismException.cs" />
     <Compile Include="Interpreter\Data\DataStorage.cs" />
+    <Compile Include="Interpreter\Data\Enums.cs" />
+    <Compile Include="Interpreter\Data\Instances\EnumInstance.cs" />
     <Compile Include="Interpreter\Data\Instances\Instance.cs" />
     <Compile Include="Interpreter\Data\Instances\FunctionInstance.cs" />
     <Compile Include="Interpreter\Data\Instances\StructureInstance.cs" />
-    <Compile Include="Interpreter\Data\Instances\StructureMemberInstance.cs" />
     <Compile Include="Interpreter\Data\Tasks.cs" />
     <Compile Include="Interpreter\Interpreter.cs" />
     <Compile Include="Exceptions\InterpreterException.cs" />
@@ -56,9 +57,12 @@
     <Compile Include="PParser\AST\BooleanExpression.cs" />
     <Compile Include="PParser\AST\BreakExpression.cs" />
     <Compile Include="PParser\AST\CharExpression.cs" />
+    <Compile Include="PParser\AST\EnumDeclarateExpression.cs" />
+    <Compile Include="PParser\AST\EnumMemberExpression.cs" />
     <Compile Include="PParser\AST\EvaluableExpression.cs" />
     <Compile Include="PParser\AST\ForExpression.cs" />
     <Compile Include="PParser\AST\IfExpression.cs" />
+    <Compile Include="PParser\AST\Interfaces\IDeclaratable.cs" />
     <Compile Include="PParser\AST\NoneExpression.cs" />
     <Compile Include="PParser\AST\NotExpression.cs" />
     <Compile Include="PParser\AST\StructureDeclarateExpression.cs" />
@@ -91,6 +95,7 @@
     <Compile Include="PParser\Values\ArrayValue.cs" />
     <Compile Include="PParser\Values\BooleanValue.cs" />
     <Compile Include="PParser\Values\CharValue.cs" />
+    <Compile Include="PParser\Values\EnumValue.cs" />
     <Compile Include="PParser\Values\FunctionValue.cs" />
     <Compile Include="PParser\Values\NoneValue.cs" />
     <Compile Include="PParser\Values\StringValue.cs" />

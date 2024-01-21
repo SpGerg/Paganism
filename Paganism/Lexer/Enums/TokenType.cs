@@ -56,6 +56,7 @@
         As = 53,
         Delegate = 54,
         Try = 55,
-        Catch = 56
+        Catch = 56,
+        Enum = 57
     }
 }
