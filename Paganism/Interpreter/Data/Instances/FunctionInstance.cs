@@ -11,7 +11,7 @@ namespace Paganism.Interpreter.Data.Instances
             Name = functionDeclarate.Name;
             Statements = functionDeclarate.Statement;
             Arguments = functionDeclarate.RequiredArguments;
-            ReturnTypes = functionDeclarate.ReturnTypes;
+            ReturnType = functionDeclarate.ReturnType;
             IsAsync = functionDeclarate.IsAsync;
             FunctionDeclarateExpression = functionDeclarate;
             Filepath = functionDeclarate.Filepath;
@@ -25,7 +25,7 @@ namespace Paganism.Interpreter.Data.Instances
 
         public Argument[] Arguments { get; }
 
-        public Return[] ReturnTypes { get; }
+        public TypeValue ReturnType { get; }
 
         public bool IsAsync { get; }
 

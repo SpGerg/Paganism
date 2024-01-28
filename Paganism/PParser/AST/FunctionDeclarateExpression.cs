@@ -15,26 +15,27 @@ namespace Paganism.PParser.AST
 {
     public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable, IDeclaratable
     {
-        public FunctionDeclarateExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, bool isShow = false, params Return[] returnTypes) : base(parent, line, position, filepath)
+        public FunctionDeclarateExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, bool isShow = false, TypeValue returnType = null) : base(parent, line, position, filepath)
         {
             Name = name;
             Statement = statement;
             RequiredArguments = requiredArguments;
+            RequiredArguments ??= new Argument[0];
             IsAsync = isAsync;
             IsShow = isShow;
-            ReturnTypes = returnTypes;
+            ReturnType = returnType;
 
             if (Statement is null || Statement.Statements is null)
             {
                 return;
             }
 
-            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnTypes.Length > 0 && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
+            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType is not null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
                 throw new InterpreterException($"Function with {Name} name must return value");
             }
 
-            if (ReturnTypes.Length == 0 && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
+            if (ReturnType is null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
             {
                 throw new InterpreterException($"Except return value type in function with {Name} name");
             }
@@ -50,7 +51,7 @@ namespace Paganism.PParser.AST
 
         public Argument[] RequiredArguments { get; }
 
-        public Return[] ReturnTypes { get; }
+        public TypeValue ReturnType { get; }
 
         private static readonly Dictionary<string, Type> Types = new()
         {
@@ -133,9 +134,9 @@ namespace Paganism.PParser.AST
                             throw new InterpreterException($"Except variable with structure {functionArgument.Name} type");
                         }
 
-                        if (functionArgument.StructureName != structure.Structure.Name)
+                        if (functionArgument.TypeName != structure.Structure.Name)
                         {
-                            throw new InterpreterException($"Except structure {functionArgument.StructureName} type");
+                            throw new InterpreterException($"Except structure {functionArgument.TypeName} type");
                         }
                     }
                 }
@@ -145,7 +146,7 @@ namespace Paganism.PParser.AST
                     throw new InterpreterException($"Except {functionArgument.Type}", Line, Position);
                 }
 
-                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.StructureName);
+                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.TypeName);
 
                 totalArguments[i] = initArgument;
 
@@ -230,10 +231,6 @@ namespace Paganism.PParser.AST
                         return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
                     }
                 }
-            }
-            else if (Name == "pgm_create")
-            {
-                return new StructureValue(Parent, arguments[0].Value.Eval().AsString());
             }
             else if (Name == "pgm_size")
             {

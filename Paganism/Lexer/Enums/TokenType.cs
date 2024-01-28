@@ -57,6 +57,8 @@
         Delegate = 54,
         Try = 55,
         Catch = 56,
-        Enum = 57
+        Enum = 57,
+        New = 58,
+        EnumType = 59
     }
 }

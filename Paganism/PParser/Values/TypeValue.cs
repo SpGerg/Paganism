@@ -4,23 +4,23 @@ namespace Paganism.PParser.Values
 {
     public class TypeValue : Value
     {
-        public TypeValue(TypesType value, string structureName)
+        public TypeValue(TypesType value, string typeName)
         {
             Value = value;
-            StructureName = structureName;
+            TypeName = typeName;
         }
 
         public override string Name => "Type";
 
         public override TypesType Type => TypesType.Type;
 
-        public string StructureName { get; }
+        public string TypeName { get; }
 
         public TypesType Value { get; }
 
         public override string AsString()
         {
-            return Value.ToString();
+            return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value}";
         }
     }
 }

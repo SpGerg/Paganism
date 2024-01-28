@@ -8,7 +8,6 @@
         Boolean = 3,
         Function = 4,
         Any = 5,
-        Void = 6,
         Array = 7,
         Structure = 8,
         Char = 9,

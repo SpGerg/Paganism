@@ -92,7 +92,7 @@ namespace Paganism.PParser.Values
                 case CharValue charValue:
                     return new CharValue(charValue.Value);
                 case TypeValue typeValue:
-                    return new TypeValue(typeValue.Value, typeValue.StructureName);
+                    return new TypeValue(typeValue.Value, typeValue.TypeName);
             }
 
             return null;

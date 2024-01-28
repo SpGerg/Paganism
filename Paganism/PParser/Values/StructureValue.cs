@@ -3,61 +3,47 @@ using Paganism.Interpreter.Data;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.AST.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Paganism.PParser.Values
 {
     public class StructureValue : Value
     {
-        public StructureValue(BlockStatementExpression expression, StructureInstance structureInstance, string parent = null)
+        public StructureValue(Dictionary<string, StructureMemberExpression> members)
         {
-            Structure = structureInstance;
-            Parent = parent;
-            var values = new Dictionary<string, Value>();
-
-            foreach (var member in structureInstance.Members)
-            {
-                values.Add(member.Key, new NoneValue());
-            }
-
-            Values = values;
-            BlockStatement = expression;
-        }
-
-        public StructureValue(BlockStatementExpression expression, string name, string parent = null)
-        {
-            Structure = Structures.Instance.Value.Get(expression, name);
-            Parent = parent;
-            var values = new Dictionary<string, Value>();
-
-            foreach (var member in Structure.Members)
-            {
-                values.Add(member.Key, new NoneValue());
-            }
-
-            Values = values;
-            BlockStatement = expression;
-        }
-
-        public StructureValue(BlockStatementExpression expression, string name, Dictionary<string, Value> values, string parent = null)
-        {
-            Structure = Structures.Instance.Value.Get(expression, name);
-            Parent = parent;
             Values = new Dictionary<string, Value>();
 
-            foreach (var member in values)
+            foreach (var member in members)
             {
-                Values.Add(member.Key, member.Value);
+                if (member.Value.IsDelegate)
+                {
+                    Values.Add(member.Key, new FunctionValue(null));
+                }
+                else
+                {
+                    Values.Add(member.Key, new NoneValue());
+                }
             }
+        }
 
+        public StructureValue(BlockStatementExpression expression, StructureInstance structureInstance) : this(structureInstance.Members)
+        {
+            Structure = structureInstance;
+            BlockStatement = expression;
+        }
+
+        public StructureValue(BlockStatementExpression expression, string name) : this(Structures.Instance.Value.Get(expression, name).Members)
+        {
+            Structure = Structures.Instance.Value.Get(expression, name);
             BlockStatement = expression;
         }
 
         public override string Name => "Structure";
 
         public override TypesType Type => TypesType.Structure;
-
-        public string Parent { get; }
 
         public Dictionary<string, Value> Values { get; }
 
@@ -74,14 +60,22 @@ namespace Paganism.PParser.Values
 
             var member = Structure.Members[key];
 
-            if (member.Type != value.Type && value is TypeValue typeValue && typeValue.Value is TypesType.None)
+            if (member.Type != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
             {
-                throw new InterpreterException($"Except {member.Type} type");
+                throw new InterpreterException($"Except {member.GetRequiredType()} type");
             }
 
-            if (member.Structure is not null && member.Structure != string.Empty && value is StructureValue structureValue1 && structureValue1.Structure.Name != member.StructureTypeName)
+            if (member.Structure is not null && member.Structure != string.Empty)
             {
-                throw new InterpreterException($"Except structure '{member.StructureTypeName}' type");
+                if (value is StructureValue structureValue1 && structureValue1.Structure.Name != member.TypeName)
+                {
+                    throw new InterpreterException($"Except structure '{member.GetRequiredType()}' type");
+                }
+
+                if (value is EnumValue enumValue && enumValue.Member.Enum != member.TypeName)
+                {
+                    throw new InterpreterException($"Except enum '{member.GetRequiredType()}' type");
+                }
             }
 
             if (member.IsDelegate)
@@ -91,28 +85,50 @@ namespace Paganism.PParser.Values
                     throw new InterpreterException($"Except function", member.Line, member.Position);
                 }
 
-                for (int i = 0;i < member.Arguments.Length;i++)
+                if (functionValue.Value.ReturnType is null)
                 {
-                    if (i > functionValue.Value.RequiredArguments.Length)
+                    if (member.Type is not TypesType.None)
                     {
-                        throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                        throw new InterpreterException($"Except {(member.Type is TypesType.None ? "void" : member.GetRequiredType())} return type", member.Line, member.Position);
+                    }
+                }
+                else
+                {
+                    if (member.Type != functionValue.Value.ReturnType.Value || member.TypeName != functionValue.Value.ReturnType.TypeName)
+                    {
+                        throw new InterpreterException($"Except {member.GetRequiredType()} type", member.Line, member.Position);
                     }
 
-                    if (member.Arguments[i].Type != functionValue.Value.RequiredArguments[i].Type)
+                    if (functionValue.Value.ReturnType.Type is TypesType.Structure or TypesType.Enum && functionValue.Value.ReturnType.TypeName != functionValue.Value.ReturnType.TypeName)
                     {
-                        throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                        throw new InterpreterException($"Except {member.GetRequiredType()} return type", member.Line, member.Position);
                     }
 
-                    if (value is StructureValue structureValue && member.Arguments[i].StructureName != structureValue.Structure.Name)
+                    for (int i = 0; i < member.Arguments.Length; i++)
                     {
-                        throw new InterpreterException($"Except {member.Arguments[i].Type} structure type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                        if (i > functionValue.Value.RequiredArguments.Length)
+                        {
+                            throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                        }
+
+                        if (member.Arguments[i].Type != functionValue.Value.RequiredArguments[i].Type)
+                        {
+                            throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                        }
+
+                        if (value is StructureValue structureValue && member.Arguments[i].TypeName != structureValue.Structure.Name)
+                        {
+                            throw new InterpreterException($"Except {member.Arguments[i].Type} structure type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
+                        }
                     }
+
+                    //holy shit this is shit
                 }
             }
 
             if (Values.TryGetValue(key, out Value result))
             {
-                if (result is NoneValue)
+                if (result is NoneValue || (result is FunctionValue functionValue && functionValue.Value is null))
                 {
                     Values.Remove(key);
 

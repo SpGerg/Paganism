@@ -4,11 +4,11 @@ namespace Paganism.PParser.AST
 {
     public class ReturnExpression : Expression, IStatement
     {
-        public ReturnExpression(BlockStatementExpression parent, int line, int position, string filepath, Expression[] values) : base(parent, line, position, filepath)
+        public ReturnExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression value) : base(parent, line, position, filepath)
         {
-            Values = values;
+            Value = value;
         }
 
-        public Expression[] Values { get; }
+        public EvaluableExpression Value { get; }
     }
 }

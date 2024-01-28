@@ -19,7 +19,12 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
-            var result = $"{Name}: ";
+            if (Value is null)
+            {
+                return Name + " (Function)";
+            }
+
+            var result = $"{Name} (Function): ";
             result += "[";
 
             foreach (var argument in Value.RequiredArguments)

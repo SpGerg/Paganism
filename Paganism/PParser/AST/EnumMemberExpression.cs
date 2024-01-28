@@ -8,14 +8,17 @@ namespace Paganism.PParser.AST
 {
     public class EnumMemberExpression : Expression
     {
-        public EnumMemberExpression(BlockStatementExpression parent, int position, int line, string filepath, string name, NumberExpression value) : base(parent, position, line, filepath)
+        public EnumMemberExpression(BlockStatementExpression parent, int position, int line, string filepath, string name, NumberExpression value, string enumParent) : base(parent, position, line, filepath)
         {
             Name = name;
             Value = value;
+            Enum = enumParent;
         }
 
         public string Name { get; }
 
         public NumberExpression Value { get; }
+
+        public string Enum { get; }
     }
 }

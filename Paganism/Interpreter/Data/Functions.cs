@@ -24,16 +24,6 @@ namespace Paganism.Interpreter.Data
                     true)
                 )
             },
-            { "pgm_create", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_create", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
-                {
-                    new Argument("name", TypesType.String)
-                },
-                    false,
-                    true,
-                    new Return(TypesType.Any, string.Empty))
-                )
-            },
             { "pgm_import", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_import", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {

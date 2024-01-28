@@ -49,7 +49,7 @@ namespace Paganism.PParser.AST
                 switch (statement)
                 {
                     case ReturnExpression returnExpression:
-                        result = (returnExpression.Values[0] as EvaluableExpression).Eval();
+                        result = returnExpression.Value.Eval();
                         IsBreaked = true;
                         break;
                     case BreakExpression breakExpression:

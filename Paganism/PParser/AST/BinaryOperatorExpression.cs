@@ -71,7 +71,7 @@ namespace Paganism.PParser.AST
 
         private Value AsStructure(Value left, TypeValue right)
         {
-            if (left is not StructureValue structureValue || right.StructureName == string.Empty || right.StructureName is null)
+            if (left is not StructureValue structureValue || right.TypeName == string.Empty || right.TypeName is null)
             {
                 throw new InterpreterException($"Cannot cast {left.Type} to Structure", Line, Position);
             }
@@ -90,7 +90,7 @@ namespace Paganism.PParser.AST
                     continue;
                 }
 
-                if (structureValue1.Structure.Name != right.StructureName)
+                if (structureValue1.Structure.Name != right.TypeName)
                 {
                     continue;
                 }
@@ -98,7 +98,7 @@ namespace Paganism.PParser.AST
                 return structureValue1;
             }
 
-            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.StructureName}' type", Line, Position);
+            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", Line, Position);
         }
 
         private Value AsChar(Value left, Value right)
@@ -187,7 +187,7 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
             }
 
-            if (member is FunctionValue functionValue && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
+            if ((member is FunctionValue functionValue && functionValue.Value is not null) && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
             {
                 return new KeyValuePair<string, Value>(name, functionValue.Value.Eval(callExpression.Arguments));
             }
@@ -241,7 +241,7 @@ namespace Paganism.PParser.AST
             if (right is TypeValue typeValue)
             {
                 return left is StructureValue structureValue
-                    ? new BooleanValue(typeValue.StructureName == structureValue.Structure.Name)
+                    ? new BooleanValue(typeValue.TypeName == structureValue.Structure.Name)
                     : (Value)new BooleanValue(typeValue.Value == left.Type);
             }
 
@@ -326,7 +326,7 @@ namespace Paganism.PParser.AST
                     if (variableExpression.Type is null)
                     {
                         variableExpression = new VariableExpression(variableExpression.Parent, variableExpression.Line, variableExpression.Position, variableExpression.Filepath,
-                            variableExpression.Name, new TypeValue(value.Type, value is TypeValue typeValue ? typeValue.StructureName : string.Empty));
+                            variableExpression.Name, new TypeValue(value.Type, value is TypeValue typeValue ? typeValue.TypeName : string.Empty));
                     }
                 }
                 else
