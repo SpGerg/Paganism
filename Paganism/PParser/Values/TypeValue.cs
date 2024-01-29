@@ -20,7 +20,7 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
-            return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value}";
+            return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value})";
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Paganism.PParser.AST
 
             if (!function.IsAsync && IsAwait)
             {
-                throw new InterpreterException("You cant use await for not async functions");
+                throw new InterpreterException("You cant use await for not async functions", Line, Position);
             }
 
             if (IsAwait && function.IsAsync)

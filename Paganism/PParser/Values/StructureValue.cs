@@ -121,12 +121,10 @@ namespace Paganism.PParser.Values
                             throw new InterpreterException($"Except {member.Arguments[i].Type} structure type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
                         }
                     }
-
-                    //holy shit this is shit
                 }
             }
 
-            if (Values.TryGetValue(key, out Value result))
+            if (Values.TryGetValue(key, out var result))
             {
                 if (result is NoneValue || (result is FunctionValue functionValue && functionValue.Value is null))
                 {

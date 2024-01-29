@@ -1,5 +1,6 @@
 ﻿using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values;
 
 namespace Paganism.PParser
 {
@@ -13,6 +14,16 @@ namespace Paganism.PParser
             Value = value;
             IsArray = isArray;
             TypeName = typeName;
+
+            if (Value is ArrayExpression)
+            {
+                IsArray = true;
+            }
+
+            if (Value is ArrayElementExpression elementExpression && elementExpression.Eval() is ArrayValue)
+            {
+                IsArray = true;
+            }
         }
 
         public string Name { get; set; }

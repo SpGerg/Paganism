@@ -15,7 +15,16 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.Function;
 
-        public FunctionDeclarateExpression Value { get; }
+        public FunctionDeclarateExpression Value { get; set; }
+
+        public override void Set(object value)
+        {
+            if (value is FunctionValue functionValue)
+            {
+                Value = functionValue.Value;
+                return;
+            }
+        }
 
         public override string AsString()
         {

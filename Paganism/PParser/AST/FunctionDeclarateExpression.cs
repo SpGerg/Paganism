@@ -25,6 +25,11 @@ namespace Paganism.PParser.AST
             IsShow = isShow;
             ReturnType = returnType;
 
+            if (name.StartsWith("__"))
+            {
+                throw new InterpreterException($"Function cant start with '__'", Line, Position);
+            }
+
             if (Statement is null || Statement.Statements is null)
             {
                 return;
@@ -32,12 +37,12 @@ namespace Paganism.PParser.AST
 
             if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType is not null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
-                throw new InterpreterException($"Function with {Name} name must return value");
+                throw new InterpreterException($"Function with {Name} name must return value", Line, Position);
             }
 
             if (ReturnType is null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
             {
-                throw new InterpreterException($"Except return value type in function with {Name} name");
+                throw new InterpreterException($"Except return value type in function with {Name} name", Line, Position);
             }
         }
 
@@ -52,6 +57,8 @@ namespace Paganism.PParser.AST
         public Argument[] RequiredArguments { get; }
 
         public TypeValue ReturnType { get; }
+
+        private bool IsChecked { get; set; }
 
         private static readonly Dictionary<string, Type> Types = new()
         {
@@ -114,6 +121,16 @@ namespace Paganism.PParser.AST
 
                 var argument = arguments[i];
 
+                if (functionArgument.IsArray && !argument.IsArray)
+                {
+                    throw new InterpreterException($"Except array in argument with {Name} name");
+                }
+
+                if (!functionArgument.IsArray && argument.IsArray)
+                {
+                    throw new InterpreterException($"Didnt except array in argument with {Name} name");
+                }
+
                 if (functionArgument.Type is TypesType.Structure)
                 {
                     Value value = null;
@@ -164,6 +181,68 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
+            if (!IsChecked && Statement.Statements is not null)
+            {
+                var statements = Statement.Statements.Where(statement => statement is ReturnExpression);
+
+                if (statements.Count() != 0)
+                {
+                    foreach (ReturnExpression returnExpression in statements)
+                    {
+                        if (returnExpression.Value is FunctionCallExpression function && function.GetFunction().ReturnType != ReturnType)
+                        {
+                            throw new InterpreterException($"Except return {ReturnType.AsString()} type", returnExpression.Line, returnExpression.Position);
+                        }
+
+                        if (ReturnType.Value is not TypesType.Array)
+                        {
+                            if (returnExpression.Value is ArrayExpression)
+                            {
+                                throw new InterpreterException($"Didnt except array", returnExpression.Line, returnExpression.Position);
+                            }
+
+                            if (returnExpression.Value is ArrayElementExpression elementExpression && elementExpression.Eval().Type is TypesType.Array)
+                            {
+                                throw new InterpreterException($"Didnt except array", returnExpression.Line, returnExpression.Position);
+                            }
+                        }
+
+                        if (ReturnType.Value is TypesType.Array)
+                        {
+                            if (returnExpression.Value is not ArrayExpression)
+                            {
+                                throw new InterpreterException($"Except array", returnExpression.Line, returnExpression.Position);
+                            }
+
+                            if (returnExpression.Value is ArrayElementExpression elementExpression && elementExpression.Eval().Type is not TypesType.Array)
+                            {
+                                throw new InterpreterException($"Except array", returnExpression.Line, returnExpression.Position);
+                            }
+                        }
+
+                        var value = returnExpression.Value.Eval();
+
+                        if (ReturnType.Value != value.Type)
+                        {
+                            throw new InterpreterException($"Except {ReturnType.AsString()}", returnExpression.Line, returnExpression.Position);
+                        }
+
+                        if (value is StructureValue structureValue && structureValue.Structure.Name != ReturnType.TypeName)
+                        {
+                            throw new InterpreterException($"Except {ReturnType.AsString()}", returnExpression.Line, returnExpression.Position);
+                        }
+
+                        if (value is EnumValue enumValue && enumValue.Member.Enum != ReturnType.TypeName)
+                        {
+                            throw new InterpreterException($"Except {ReturnType.AsString()}", returnExpression.Line, returnExpression.Position);
+                        }
+                    }
+                }
+
+                IsChecked = true;
+            }
+            
+
             CreateArguments(arguments);
 
             if (Name == "pgm_call")

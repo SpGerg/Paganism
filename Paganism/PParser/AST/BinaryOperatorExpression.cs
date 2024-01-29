@@ -2,12 +2,13 @@
 using Paganism.Interpreter.Data;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System.Collections.Generic;
 
 namespace Paganism.PParser.AST
 {
-    public class BinaryOperatorExpression : EvaluableExpression
+    public class BinaryOperatorExpression : EvaluableExpression, IStatement
     {
         public BinaryOperatorExpression(BlockStatementExpression parent, int line, int position, string filepath, BinaryOperatorType type, EvaluableExpression left, EvaluableExpression right) : base(parent, line, position, filepath)
         {
@@ -24,11 +25,11 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            if (Type == BinaryOperatorType.Point)
+            if (Type is BinaryOperatorType.Point)
             {
                 return Point();
             }
-            else if (Type == BinaryOperatorType.Assign)
+            else if (Type is BinaryOperatorType.Assign)
             {
                 return Assign();
             }
@@ -212,8 +213,10 @@ namespace Paganism.PParser.AST
                 return new EnumValue(value.Members[variableExpression1.Name]);
             }
 
-            var member = GetMemberOfStructure(this);
-            return member;
+            var structure = GetStructure(this);
+            var member = GetMemberWithKeyOfStructure(this);
+
+            return member.Value;
         }
 
         private Value More(Value left, Value right)
@@ -379,7 +382,7 @@ namespace Paganism.PParser.AST
                 return variable2;
             }
 
-            return Right.Eval();
+            return value;
         }
     }
 }

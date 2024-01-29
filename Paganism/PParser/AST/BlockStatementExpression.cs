@@ -68,6 +68,9 @@ namespace Paganism.PParser.AST
                     case AssignExpression assignExpression:
                         assignExpression.Eval();
                         break;
+                    case BinaryOperatorExpression binaryOperatorExpression:
+                        binaryOperatorExpression.Eval();
+                        break;
                     case IDeclaratable declaratable:
                         declaratable.Declarate();
                         break;
