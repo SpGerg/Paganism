@@ -213,7 +213,6 @@ namespace Paganism.PParser.AST
                 return new EnumValue(value.Members[variableExpression1.Name]);
             }
 
-            var structure = GetStructure(this);
             var member = GetMemberWithKeyOfStructure(this);
 
             return member.Value;
