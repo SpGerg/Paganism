@@ -41,7 +41,7 @@ namespace Paganism.PParser.AST
             {
                 BinaryOperatorType.Plus => Addition(left, right),
                 BinaryOperatorType.Minus => Minus(left, right),
-                BinaryOperatorType.Multiplicative => Addition(left, right),
+                BinaryOperatorType.Multiplicative => Multiplicative(left, right),
                 BinaryOperatorType.Division => Division(left, right),
                 BinaryOperatorType.Is => Is(left, right),
                 BinaryOperatorType.And => And(left, right),
@@ -283,6 +283,7 @@ namespace Paganism.PParser.AST
                 TypesType.Number => new NumberValue(left.AsNumber() + right.AsNumber()),
                 TypesType.String => new StringValue(left.AsString() + right.AsString()),
                 TypesType.Type => new StringValue(left.AsString() + right.AsString()),
+                TypesType.None => new StringValue(left.AsString() + right.AsString()),
                 _ => throw new InterpreterException($"You cant addition type {left.Type} and {right.Type}"),
             };
         }

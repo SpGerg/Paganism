@@ -98,6 +98,76 @@ namespace Paganism.PParser.Values
             return null;
         }
 
+        public bool IsType(Value value)
+        {
+            if (value.Type is TypesType.Any)
+            {
+                return true;
+            }
+
+            if (value.Type != Type && value.Type != TypesType.Type)
+            {
+                return false;
+            }
+
+            if (value is StructureValue structureValue)
+            {
+                if (this is not StructureValue structureValue1)
+                {
+                    return false;
+                }
+
+                if (structureValue1.Structure.Name != structureValue.Structure.Name)
+                {
+                    return false;
+                }
+            }
+
+            if (value is EnumValue enumValue)
+            {
+                if (this is not EnumValue enumValue1)
+                {
+                    return false;
+                }
+
+                if (enumValue.Member.Enum != enumValue1.Member.Enum)
+                {
+                    return false;
+                }
+            }
+
+            if (value is TypeValue typeValue)
+            {
+                if (typeValue.Value is TypesType.Structure)
+                {
+                    if (this is not StructureValue structureValue1)
+                    {
+                        return false;
+                    }
+
+                    if (structureValue1.Structure.Name != typeValue.TypeName)
+                    {
+                        return false;
+                    }
+                }
+
+                if (typeValue.Value is TypesType.Enum)
+                {
+                    if (this is not EnumValue enumValue1)
+                    {
+                        return false;
+                    }
+
+                    if (enumValue1.Member.Enum != typeValue.TypeName)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public override Value Eval(params Argument[] arguments)
         {
             return this;

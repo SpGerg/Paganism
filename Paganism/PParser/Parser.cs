@@ -330,6 +330,8 @@ namespace Paganism.PParser
 
         private IStatement ParseFor()
         {
+            Match(TokenType.For);
+
             if (!Match(TokenType.LeftPar))
             {
                 throw new ParserException("Except '('.", Current.Line, Current.Position);
@@ -344,7 +346,7 @@ namespace Paganism.PParser
 
             if (!Require(0, TokenType.Semicolon))
             {
-                variable = ParseVariable();
+                variable = ParseVariable(false, ParseType());
             }
 
             if (!Match(TokenType.Semicolon))
@@ -460,7 +462,6 @@ namespace Paganism.PParser
             }
             else
             {
-                Position--;
                 return ParseVariable(isShow, type);
             }
         }
@@ -484,16 +485,6 @@ namespace Paganism.PParser
             if (left is BinaryOperatorExpression binaryOperatorExpression && binaryOperatorExpression.Right is FunctionCallExpression function)
             {
                 return binaryOperatorExpression;
-            }
-
-            if (Match(TokenType.LeftBracket))
-            {
-                isArray = true;
-
-                if (!Match(TokenType.RightBracket))
-                {
-                    throw new ParserException("Except ].", Current.Line, Current.Position);
-                }
             }
 
             Match(TokenType.Assign);

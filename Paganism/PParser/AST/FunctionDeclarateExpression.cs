@@ -58,7 +58,7 @@ namespace Paganism.PParser.AST
 
         public TypeValue ReturnType { get; }
 
-        private bool IsChecked { get; set; }
+        private bool _isChecked { get; set; }
 
         private static readonly Dictionary<string, Type> Types = new()
         {
@@ -137,7 +137,7 @@ namespace Paganism.PParser.AST
 
                     try
                     {
-                        value = Variables.Instance.Value.Get(Statement, argument.Name);
+                        value = Variables.Instance.Value.Get(Statement, functionArgument.Name);
                     }
                     catch
                     {
@@ -167,82 +167,32 @@ namespace Paganism.PParser.AST
 
                 totalArguments[i] = initArgument;
 
-                if (initArgument.Value is FunctionDeclarateExpression functionDeclarateExpression)
+                if (initArgument.Value is FunctionCallExpression function)
                 {
-                    Variables.Instance.Value.Add(Statement, initArgument.Name, new FunctionValue(functionDeclarateExpression));
-                    Functions.Instance.Value.Add(Statement, initArgument.Name, new FunctionInstance(functionDeclarateExpression));
+                    initArgument.Value = function.Eval(function.Arguments);
+                }
+                else if (initArgument.Value is BinaryOperatorExpression operatorExpression)
+                {
+                    initArgument.Value = operatorExpression.Eval();
+                }
+            }
+
+            foreach (var argument in totalArguments)
+            {
+                if (argument.Value is FunctionDeclarateExpression functionDeclarateExpression)
+                {
+                    Variables.Instance.Value.Add(Statement, argument.Name, new FunctionValue(functionDeclarateExpression));
+                    Functions.Instance.Value.Add(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
                 }
                 else
                 {
-                    Variables.Instance.Value.Add(Statement, initArgument.Name, initArgument.Value.Eval());
-                }             
+                    Variables.Instance.Value.Add(Statement, argument.Name, argument.Value.Eval());
+                }
             }
         }
 
         public override Value Eval(params Argument[] arguments)
         {
-            if (!IsChecked && Statement.Statements is not null)
-            {
-                var statements = Statement.Statements.Where(statement => statement is ReturnExpression);
-
-                if (statements.Count() != 0)
-                {
-                    foreach (ReturnExpression returnExpression in statements)
-                    {
-                        if (returnExpression.Value is FunctionCallExpression function && function.GetFunction().ReturnType != ReturnType)
-                        {
-                            throw new InterpreterException($"Except return {ReturnType.AsString()} type", returnExpression.Line, returnExpression.Position);
-                        }
-
-                        if (ReturnType.Value is not TypesType.Array)
-                        {
-                            if (returnExpression.Value is ArrayExpression)
-                            {
-                                throw new InterpreterException($"Didnt except array", returnExpression.Line, returnExpression.Position);
-                            }
-
-                            if (returnExpression.Value is ArrayElementExpression elementExpression && elementExpression.Eval().Type is TypesType.Array)
-                            {
-                                throw new InterpreterException($"Didnt except array", returnExpression.Line, returnExpression.Position);
-                            }
-                        }
-
-                        if (ReturnType.Value is TypesType.Array)
-                        {
-                            if (returnExpression.Value is not ArrayExpression)
-                            {
-                                throw new InterpreterException($"Except array", returnExpression.Line, returnExpression.Position);
-                            }
-
-                            if (returnExpression.Value is ArrayElementExpression elementExpression && elementExpression.Eval().Type is not TypesType.Array)
-                            {
-                                throw new InterpreterException($"Except array", returnExpression.Line, returnExpression.Position);
-                            }
-                        }
-
-                        var value = returnExpression.Value.Eval();
-
-                        if (ReturnType.Value != value.Type)
-                        {
-                            throw new InterpreterException($"Except {ReturnType.AsString()}", returnExpression.Line, returnExpression.Position);
-                        }
-
-                        if (value is StructureValue structureValue && structureValue.Structure.Name != ReturnType.TypeName)
-                        {
-                            throw new InterpreterException($"Except {ReturnType.AsString()}", returnExpression.Line, returnExpression.Position);
-                        }
-
-                        if (value is EnumValue enumValue && enumValue.Member.Enum != ReturnType.TypeName)
-                        {
-                            throw new InterpreterException($"Except {ReturnType.AsString()}", returnExpression.Line, returnExpression.Position);
-                        }
-                    }
-                }
-
-                IsChecked = true;
-            }
-            
-
             CreateArguments(arguments);
 
             if (Name == "pgm_call")
@@ -348,7 +298,7 @@ namespace Paganism.PParser.AST
                 interpreter.Run(false);
             }
 
-            if (Statement == null)
+            if (Statement is null)
             {
                 return new NoneValue();
             }
@@ -368,7 +318,19 @@ namespace Paganism.PParser.AST
             }
             else
             {
-                return Statement.ExecuteAndReturn(arguments);
+                var result = Statement.ExecuteAndReturn(arguments);
+
+                if (result is null)
+                {
+                    return new NoneValue();
+                }
+
+                if (!result.IsType(ReturnType))
+                {
+                    throw new InterpreterException($"Except {ReturnType.AsString()} type");
+                }
+
+                return result;
             }
         }
     }

@@ -60,7 +60,7 @@ namespace Paganism.PParser.Values
 
             var member = Structure.Members[key];
 
-            if (member.Type != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
+            if (member.Type != TypesType.Any && member.Type != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
             {
                 throw new InterpreterException($"Except {member.GetRequiredType()} type");
             }
