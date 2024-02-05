@@ -51,7 +51,7 @@ namespace Paganism.PParser.Values
 
         public BlockStatementExpression BlockStatement { get; }
 
-        public void Set(string key, Value value)
+        public void Set(string key, Value value, string filePath)
         {
             if (!Values.ContainsKey(key))
             {
@@ -59,6 +59,11 @@ namespace Paganism.PParser.Values
             }
 
             var member = Structure.Members[key];
+
+            if (member.IsReadOnly && filePath != member.Filepath)
+            {
+                throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure");
+            }
 
             if (member.Type != TypesType.Any && member.Type != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
             {

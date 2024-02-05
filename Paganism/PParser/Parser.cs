@@ -276,13 +276,14 @@ namespace Paganism.PParser
         private StructureMemberExpression ParseStructureMember(string structureName)
         {
             var isShow = Match(TokenType.Show) ? true : !Match(TokenType.Hide);
+            var isReadOnly = Match(TokenType.Readonly);
             var isCastable = Match(TokenType.Castable);
 
             var current = Current.Type;
 
             if (Require(0, TokenType.Delegate))
             {
-                var member2 = ParseDelegate(structureName, isShow, isCastable);
+                var member2 = ParseDelegate(structureName, isShow, isReadOnly, isCastable);
 
                 return member2;
             }
@@ -296,12 +297,12 @@ namespace Paganism.PParser
                 throw new ParserException("Except structure member name.", Current.Line, Current.Position);
             }
 
-            var member = new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, Lexer.Tokens.TokenTypeToValueType[current], memberName, isShow, isCastable);
+            var member = new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, Lexer.Tokens.TokenTypeToValueType[current], memberName, isShow, isReadOnly, isCastable);
 
             return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position) : member;
         }
 
-        private StructureMemberExpression ParseDelegate(string structureName, bool isShow, bool isCastable)
+        private StructureMemberExpression ParseDelegate(string structureName, bool isShow, bool isReadOnly, bool isCastable)
         {
             Match(TokenType.Delegate);
 
@@ -328,7 +329,7 @@ namespace Paganism.PParser
             Match(TokenType.Semicolon);
 
             return new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], memberName,
-                isShow, isAsync, true, arguments, isCastable);
+                isShow, isReadOnly, isAsync, true, arguments, isCastable);
         }
 
         private IStatement ParseFor()

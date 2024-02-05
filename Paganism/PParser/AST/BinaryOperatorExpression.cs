@@ -357,7 +357,7 @@ namespace Paganism.PParser.AST
                 var structure = GetStructure(binary);
                 var member = GetMemberWithKeyOfStructure(binary);
 
-                structure.Set(member.Key, value);
+                structure.Set(member.Key, value, Filepath);
             }
             else if (Left is ArrayElementExpression arrayElementExpression)
             {

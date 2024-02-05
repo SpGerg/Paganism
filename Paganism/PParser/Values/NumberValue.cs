@@ -35,5 +35,10 @@ namespace Paganism.PParser.Values
         {
             return Value.ToString();
         }
+
+        public override bool AsBoolean()
+        {
+            return Value == 1 ? true : false;
+        }
     }
 }

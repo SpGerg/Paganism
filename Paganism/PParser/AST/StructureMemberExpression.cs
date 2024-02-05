@@ -7,13 +7,14 @@ namespace Paganism.PParser.AST
     public class StructureMemberExpression : Expression, IStatement
     {
         public StructureMemberExpression(BlockStatementExpression parent, int line, int position, string filepath, string structure, string typeName, TypesType type, string name,
-            bool isShow = false, bool isAsync = false, bool isDelegate = false, Argument[] arguments = null, bool isCastable = false) : base(parent, line, position, filepath)
+            bool isShow = false, bool isReadOnly = false, bool isAsync = false, bool isDelegate = false, Argument[] arguments = null, bool isCastable = false) : base(parent, line, position, filepath)
         {
             Structure = structure;
             TypeName = typeName;
             Type = type;
             Name = name;
             IsShow = isShow;
+            IsReadOnly = isReadOnly;
             IsAsync = isAsync;
             IsDelegate = isDelegate;
             Arguments = arguments;
@@ -31,6 +32,8 @@ namespace Paganism.PParser.AST
         public bool IsDelegate { get; }
 
         public Argument[] Arguments { get; }
+
+        public bool IsReadOnly { get; }
 
         public bool IsShow { get; }
 

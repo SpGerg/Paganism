@@ -59,6 +59,7 @@
         Catch = 56,
         Enum = 57,
         New = 58,
-        EnumType = 59
+        EnumType = 59,
+        Readonly = 60
     }
 }

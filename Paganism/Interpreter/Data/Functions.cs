@@ -13,12 +13,23 @@ namespace Paganism.Interpreter.Data
 
         protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
         {
-            { "pgm_call", new FunctionInstance(
+            { "cs_call", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_call", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("namespace", TypesType.String),
-                    new Argument("method", TypesType.String),
-                    new Argument("arguments", TypesType.Any)
+                    new Argument("namespace", TypesType.String, null, true),
+                    new Argument("method", TypesType.String, null, true),
+                    new Argument("arguments", TypesType.Any, null, true, true)
+                },
+                    false,
+                    true)
+                )
+            },
+            { "cs_create", new FunctionInstance(
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "cs_create", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                {
+                    new Argument("namespace", TypesType.String, null, true),
+                    new Argument("class", TypesType.String, null, true),
+                    new Argument("arguments", TypesType.Any, null, true, true)
                 },
                     false,
                     true)

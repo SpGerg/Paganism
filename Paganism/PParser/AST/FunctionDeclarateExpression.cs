@@ -312,7 +312,7 @@ namespace Paganism.PParser.AST
                     structureExpression.Parent, structureExpression.Line, structureExpression.Position, Filepath, structureExpression.Name, string.Empty, TypesType.Number, "id", true);
 
                 var structure = Value.Create(structureExpression) as StructureValue;
-                structure.Set("id", new NumberValue(task.Id));
+                structure.Set("id", new NumberValue(task.Id), Filepath);
 
                 return structure;
             }
