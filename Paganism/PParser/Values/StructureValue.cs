@@ -85,42 +85,9 @@ namespace Paganism.PParser.Values
                     throw new InterpreterException($"Except function", member.Line, member.Position);
                 }
 
-                if (functionValue.Value.ReturnType is null)
+                if (!functionValue.Is(member.Type, member.TypeName))
                 {
-                    if (member.Type is not TypesType.None)
-                    {
-                        throw new InterpreterException($"Except {(member.Type is TypesType.None ? "void" : member.GetRequiredType())} return type", member.Line, member.Position);
-                    }
-                }
-                else
-                {
-                    if (member.Type != functionValue.Value.ReturnType.Value || member.TypeName != functionValue.Value.ReturnType.TypeName)
-                    {
-                        throw new InterpreterException($"Except {member.GetRequiredType()} type", member.Line, member.Position);
-                    }
-
-                    if (functionValue.Value.ReturnType.Type is TypesType.Structure or TypesType.Enum && functionValue.Value.ReturnType.TypeName != functionValue.Value.ReturnType.TypeName)
-                    {
-                        throw new InterpreterException($"Except {member.GetRequiredType()} return type", member.Line, member.Position);
-                    }
-
-                    for (int i = 0; i < member.Arguments.Length; i++)
-                    {
-                        if (i > functionValue.Value.RequiredArguments.Length)
-                        {
-                            throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
-                        }
-
-                        if (member.Arguments[i].Type != functionValue.Value.RequiredArguments[i].Type)
-                        {
-                            throw new InterpreterException($"Except {member.Arguments[i].Type} type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
-                        }
-
-                        if (value is StructureValue structureValue && member.Arguments[i].TypeName != structureValue.Structure.Name)
-                        {
-                            throw new InterpreterException($"Except {member.Arguments[i].Type} structure type in argument with {member.Arguments[i].Name} name", member.Line, member.Position);
-                        }
-                    }
+                    throw new InterpreterException($"Except member {member.Name}, {member.GetRequiredType()}", member.Line, member.Position);
                 }
             }
 
@@ -161,6 +128,21 @@ namespace Paganism.PParser.Values
             result += "}";
 
             return result;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not StructureValue structureValue)
+            {
+                return false;
+            }
+
+            if (structureValue.Structure.Name != Structure.Name)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

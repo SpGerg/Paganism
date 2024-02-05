@@ -6,13 +6,15 @@ namespace Paganism.PParser.AST
 {
     public class StructureMemberExpression : Expression, IStatement
     {
-        public StructureMemberExpression(BlockStatementExpression parent, int line, int position, string filepath, string structure, string typeName, TypesType type, string name, bool isShow = false, bool isDelegate = false, Argument[] arguments = null, bool isCastable = false) : base(parent, line, position, filepath)
+        public StructureMemberExpression(BlockStatementExpression parent, int line, int position, string filepath, string structure, string typeName, TypesType type, string name,
+            bool isShow = false, bool isAsync = false, bool isDelegate = false, Argument[] arguments = null, bool isCastable = false) : base(parent, line, position, filepath)
         {
             Structure = structure;
             TypeName = typeName;
             Type = type;
             Name = name;
             IsShow = isShow;
+            IsAsync = isAsync;
             IsDelegate = isDelegate;
             Arguments = arguments;
             IsCastable = isCastable;
@@ -34,9 +36,17 @@ namespace Paganism.PParser.AST
 
         public bool IsCastable { get; }
 
+        public bool IsAsync { get; }
+
         public string GetRequiredType()
         {
             return TypeName == string.Empty || TypeName is null ? Type.ToString() : $"{TypeName} ({Type})";
+        }
+
+        public FunctionValue ToFunctionValue()
+        {
+            return new FunctionValue(new FunctionDeclarateExpression(Parent, Line, Position, Filepath, Name,
+                null, Arguments, IsAsync, IsShow, new TypeValue(Type, TypeName)));
         }
     }
 }

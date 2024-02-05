@@ -22,5 +22,25 @@ namespace Paganism.PParser.Values
         {
             return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value})";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not TypeValue typeValue)
+            {
+                return false;
+            }
+
+            if (typeValue.Value != Value)
+            {
+                return false;
+            }
+
+            if (typeValue.TypeName != TypeName)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

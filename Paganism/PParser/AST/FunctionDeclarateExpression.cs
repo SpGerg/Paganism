@@ -325,7 +325,7 @@ namespace Paganism.PParser.AST
                     return new NoneValue();
                 }
 
-                if (!result.IsType(ReturnType))
+                if (!result.Is(ReturnType.Value, ReturnType.TypeName))
                 {
                     throw new InterpreterException($"Except {ReturnType.AsString()} type");
                 }

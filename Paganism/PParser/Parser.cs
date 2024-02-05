@@ -275,16 +275,16 @@ namespace Paganism.PParser
 
         private StructureMemberExpression ParseStructureMember(string structureName)
         {
-            var isShow = Match(TokenType.Show);
+            var isShow = Match(TokenType.Show) ? true : !Match(TokenType.Hide);
             var isCastable = Match(TokenType.Castable);
 
             var current = Current.Type;
 
             if (Require(0, TokenType.Delegate))
             {
-                var memher = ParseDelegate(structureName, isShow, isCastable);
+                var member2 = ParseDelegate(structureName, isShow, isCastable);
 
-                return memher;
+                return member2;
             }
 
             var type = ParseType();
@@ -307,6 +307,8 @@ namespace Paganism.PParser
 
             var current = Current.Type;
 
+            var isAsync = Match(TokenType.Async);
+
             var type = ParseType();
 
             if (!Match(TokenType.Function))
@@ -325,7 +327,8 @@ namespace Paganism.PParser
 
             Match(TokenType.Semicolon);
 
-            return new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], memberName, isShow, true, arguments, isCastable);
+            return new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], memberName,
+                isShow, isAsync, true, arguments, isCastable);
         }
 
         private IStatement ParseFor()
@@ -829,12 +832,18 @@ namespace Paganism.PParser
             {
                 return new NoneExpression(_parent, Current.Line, Current.Position, Filepath);
             }
+            else if (Match(TokenType.Show))
+            {
+                return ParseFunctionOrVariable(true) as Expression;
+            }
+            else if (Match(TokenType.Hide))
+            {
+                return ParseFunctionOrVariable() as Expression;
+            }
             else if (IsType(0))
             {
                 if (Require(1, TokenType.Function))
                 {
-                    Position--;
-
                     return ParseFunctionOrVariable() as Expression;
                 }
 

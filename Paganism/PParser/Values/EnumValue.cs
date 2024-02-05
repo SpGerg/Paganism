@@ -30,5 +30,20 @@ namespace Paganism.PParser.Values
         {
             return Member.Value.Value;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not EnumValue enumValue)
+            {
+                return false;
+            }
+
+            if (Member.Enum != enumValue.Member.Enum)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

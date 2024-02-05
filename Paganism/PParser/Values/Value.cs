@@ -112,60 +112,52 @@ namespace Paganism.PParser.Values
 
             if (value is StructureValue structureValue)
             {
-                if (this is not StructureValue structureValue1)
-                {
-                    return false;
-                }
-
-                if (structureValue1.Structure.Name != structureValue.Structure.Name)
-                {
-                    return false;
-                }
+                return structureValue.Equals(this);
             }
 
             if (value is EnumValue enumValue)
             {
-                if (this is not EnumValue enumValue1)
-                {
-                    return false;
-                }
-
-                if (enumValue.Member.Enum != enumValue1.Member.Enum)
-                {
-                    return false;
-                }
+                return enumValue.Equals(this);
             }
 
             if (value is TypeValue typeValue)
             {
-                if (typeValue.Value is TypesType.Structure)
-                {
-                    if (this is not StructureValue structureValue1)
-                    {
-                        return false;
-                    }
+                return typeValue.Equals(this);
+            }
 
-                    if (structureValue1.Structure.Name != typeValue.TypeName)
-                    {
-                        return false;
-                    }
-                }
-
-                if (typeValue.Value is TypesType.Enum)
-                {
-                    if (this is not EnumValue enumValue1)
-                    {
-                        return false;
-                    }
-
-                    if (enumValue1.Member.Enum != typeValue.TypeName)
-                    {
-                        return false;
-                    }
-                }
+            if (value is FunctionValue functionValue)
+            {
+                return functionValue.Equals(this);
             }
 
             return true;
+        }
+
+        public bool Is(TypesType type, string typeName)
+        {
+            if (this is NoneValue)
+            {
+                return true;
+            }
+
+            if (this is FunctionValue functionValue)
+            {
+                return (functionValue.Value.ReturnType is null && type is TypesType.None)
+                    ||
+                    functionValue.Value.ReturnType.Value == type && functionValue.Value.ReturnType.TypeName == typeName;
+            }
+
+            if (this is StructureValue structureValue)
+            {
+                return structureValue.Structure.Name == typeName;
+            }
+
+            if (this is EnumValue enumValue)
+            {
+                return enumValue.Member.Enum == typeName;
+            }
+
+            return Type == type;
         }
 
         public override Value Eval(params Argument[] arguments)
