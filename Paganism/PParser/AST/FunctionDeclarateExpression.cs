@@ -195,7 +195,7 @@ namespace Paganism.PParser.AST
         {
             CreateArguments(arguments);
 
-            if (Name == "pgm_call")
+            if (Name == "cs_call")
             {
                 if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
                 {
