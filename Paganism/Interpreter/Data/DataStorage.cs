@@ -1,4 +1,5 @@
 ﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using System.Collections.Generic;
 

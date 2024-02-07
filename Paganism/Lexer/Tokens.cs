@@ -56,6 +56,7 @@ namespace Paganism.Lexer
             { "new", TokenType.New },
             { "enum_type", TokenType.EnumType },
             { "readonly", TokenType.Readonly },
+            { "extension", TokenType.Extension }
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
@@ -75,6 +76,7 @@ namespace Paganism.Lexer
             { "<", TokenType.Less },
             { ">", TokenType.More },
             { ".", TokenType.Point },
+            { "#", TokenType.Sharp }
         };
 
         public static IReadOnlyDictionary<TypesType, TokenType> ValueTypeToTokenType { get; } = new Dictionary<TypesType, TokenType>()

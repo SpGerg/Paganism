@@ -32,9 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="API\ImportManager.cs" />
+    <Compile Include="Exceptions\ExtensionException.cs" />
     <Compile Include="Exceptions\PaganismException.cs" />
     <Compile Include="Interpreter\Data\DataStorage.cs" />
     <Compile Include="Interpreter\Data\Enums.cs" />
+    <Compile Include="Interpreter\Data\Extensions\Extension.cs" />
+    <Compile Include="Interpreter\Data\Extensions\ExtensionExecutor.cs" />
     <Compile Include="Interpreter\Data\Instances\EnumInstance.cs" />
     <Compile Include="Interpreter\Data\Instances\Instance.cs" />
     <Compile Include="Interpreter\Data\Instances\FunctionInstance.cs" />
@@ -57,6 +61,7 @@
     <Compile Include="PParser\AST\BooleanExpression.cs" />
     <Compile Include="PParser\AST\BreakExpression.cs" />
     <Compile Include="PParser\AST\CharExpression.cs" />
+    <Compile Include="PParser\AST\DirectiveExpression.cs" />
     <Compile Include="PParser\AST\EnumDeclarateExpression.cs" />
     <Compile Include="PParser\AST\EnumMemberExpression.cs" />
     <Compile Include="PParser\AST\EvaluableExpression.cs" />

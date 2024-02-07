@@ -1,4 +1,6 @@
 ﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data.Extensions;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.Lexer;
 using Paganism.Lexer.Enums;
 using Paganism.PParser.AST;
@@ -28,6 +30,7 @@ namespace Paganism.PParser
         public bool InLoop { get; private set; }
 
         public string Filepath { get; private set; }
+        public string _ExtensionFunction { get; private set; } = string.Empty;
 
         private BlockStatementExpression _parent;
 
@@ -107,6 +110,11 @@ namespace Paganism.PParser
                 return ParseFunctionOrVariable();
             }
 
+            if (Match(TokenType.Sharp))
+            {
+                return ParseDirective();
+            }
+
             if (Current.Type is TokenType.Word)
             {
                 if (Require(1, TokenType.LeftPar))
@@ -130,6 +138,15 @@ namespace Paganism.PParser
                 : throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position);
         }
 
+        private Token NextToken(int Relative)
+        {
+            if (Position + Relative < Tokens.Length)
+            {
+                return Tokens[Position + Relative];
+            }
+            return null;
+        }
+
         private Expression ParseNew()
         {
             Match(TokenType.New);
@@ -142,6 +159,18 @@ namespace Paganism.PParser
             }
 
             return new NewExpression(_parent, Current.Position, Current.Line, Filepath, name);
+        }
+
+        private IStatement ParseDirective()
+        {
+            if (Match(TokenType.Extension))
+            {
+                if (Match(TokenType.Word))
+                {
+                    _ExtensionFunction = Tokens[Position-1].Value;
+                }
+            }
+            return new DirectiveExpression(_parent, Current.Line, Current.Position, Filepath);
         }
 
         private IStatement ParseEnum()
@@ -584,7 +613,32 @@ namespace Paganism.PParser
             var statement = new BlockStatementExpression(_parent, Current.Line, Current.Position, Filepath, new IStatement[0], InLoop);
             ParseExpressions(statement);
 
-            return new FunctionDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, name, statement, arguments, isAsync, isShow, returnType);
+            if (_ExtensionFunction == string.Empty)
+            {
+                return new FunctionDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, name, statement, arguments, isAsync, isShow, returnType);
+            }
+
+            if (!Extension.AllowedExtensions.Contains(_ExtensionFunction))
+            {
+                throw new ParserException($"The Extension type {_ExtensionFunction} does not exist!");
+            }
+
+            string original_name = $"..stringFunc_{name}";
+            FunctionDeclarateExpression DeclarationExpression = new FunctionDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, original_name, statement, arguments, isAsync, isShow, returnType);
+
+            switch (_ExtensionFunction)
+            {
+                case "StringExtension":
+                    if (!Extension.StringExtension.ContainsKey(name))
+                    {
+                        Extension.StringExtension.Add(name, new FunctionInstance(DeclarationExpression));
+                    }
+                    break;
+                default:
+                    throw new ParserException($"The Extension type {_ExtensionFunction} does not exist!");
+            }
+
+            return DeclarationExpression;
         }
 
         private Argument[] ParseFunctionArguments()
@@ -939,6 +993,11 @@ namespace Paganism.PParser
         private bool Require(int relativePosition, params TokenType[] type)
         {
             var position = Position + relativePosition;
+
+            if (position < 0)
+            {
+                return false;
+            }
 
             return position <= Tokens.Length - 1 && type.Contains(Tokens[position].Type);
         }

@@ -1,10 +1,12 @@
 ﻿using Paganism.Exceptions;
 using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Extensions;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Paganism.PParser.AST
 {
@@ -176,6 +178,11 @@ namespace Paganism.PParser.AST
                 name = functionCallExpression.FunctionName;
             }
 
+            if (!structure.Values.ContainsKey(name))
+            {
+                return new();
+            }
+
             var member = structure.Values[name];
 
             if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
@@ -211,6 +218,38 @@ namespace Paganism.PParser.AST
                 }
 
                 return new EnumValue(value.Members[variableExpression1.Name]);
+            }
+
+            if (Left is VariableExpression leftVariableExpression && Right is FunctionCallExpression functionCallExpression)
+            {
+                Dictionary<string, dynamic> InternalFunctionExtension;
+                switch (leftVariableExpression.Type.Type)
+                {
+                    case TypesType.String:
+                        InternalFunctionExtension = Extension.StringExtension; break;
+                    default:
+                        throw new ExtensionException($"Cannot use any point function for a {leftVariableExpression.Type.Type} variable!");
+                }
+
+                if (InternalFunctionExtension.ContainsKey(functionCallExpression.FunctionName) && Extension.TryGet(InternalFunctionExtension, functionCallExpression.FunctionName, out dynamic ExtensionElement))
+                {
+                    if (ExtensionElement is ExtensionExecutor ExtensionExecutor) 
+                    {
+                        return ExtensionExecutor.Action(leftVariableExpression, functionCallExpression.Arguments);
+                    }
+                    if (ExtensionElement is FunctionInstance FunctionInstance)
+                    {
+                        List<Argument> Arguments = new()
+                        {
+                            new("var", TypesType.Any, leftVariableExpression, true, false)
+                        };
+                        foreach (Argument Argument in functionCallExpression.Arguments)
+                        {
+                            Arguments.Add(Argument);
+                        }
+                        return FunctionInstance.ExecuteAndReturn(Arguments.ToArray());
+                    }
+                }
             }
 
             var member = GetMemberWithKeyOfStructure(this);

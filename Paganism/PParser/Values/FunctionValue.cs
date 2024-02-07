@@ -2,6 +2,7 @@
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 
+#pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
     public class FunctionValue : Value

@@ -60,7 +60,7 @@ namespace Paganism.PParser.AST
 
         private bool _isChecked { get; set; }
 
-        private static readonly Dictionary<string, Type> Types = new()
+        public static readonly Dictionary<string, Type> Types = new()
         {
             { "System.Console", typeof(Console) }
         };
@@ -195,6 +195,16 @@ namespace Paganism.PParser.AST
         {
             CreateArguments(arguments);
 
+            if (Functions.Instance.Value.IsLanguage(Name))
+            {
+                var NativeFunction = Functions.Instance.Value.Get(Statement, Name);
+                if (NativeFunction.Action is not null)
+                {
+                    return NativeFunction.Action(arguments);
+                }
+            }
+
+            /*
             if (Name == "pgm_call")
             {
                 if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
@@ -297,6 +307,7 @@ namespace Paganism.PParser.AST
                 var interpreter = new Interpreter.Interpreter(parser.Run());
                 interpreter.Run(false);
             }
+            */
 
             if (Statement is null)
             {
