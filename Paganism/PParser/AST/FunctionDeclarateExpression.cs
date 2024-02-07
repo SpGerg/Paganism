@@ -58,7 +58,8 @@ namespace Paganism.PParser.AST
 
         public TypeValue ReturnType { get; }
 
-        private bool _isChecked { get; set; }
+        //удалить потом
+        private List<Assembly> _importAssemblies { get; }
 
         private static readonly Dictionary<string, Type> Types = new()
         {
@@ -197,7 +198,7 @@ namespace Paganism.PParser.AST
 
             if (Name == "cs_call")
             {
-                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
+                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out var findedClass))
                 {
                     var name = arguments[0].Value.Eval().AsString();
 
@@ -205,7 +206,12 @@ namespace Paganism.PParser.AST
 
                     if (findedClass == default)
                     {
-                        throw new InterpreterException($"Method with {name} name not found");
+                        findedClass = _importAssemblies.SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
+
+                        if (findedClass == default)
+                        {
+                            throw new InterpreterException($"Method with {name} name not found");
+                        } 
                     }
                 }
 
@@ -289,13 +295,23 @@ namespace Paganism.PParser.AST
             else if (Name == "pgm_import")
             {
                 var name = arguments[0].Value.Eval().AsString();
-                var files = Directory.GetFileSystemEntries(Directory.GetCurrentDirectory(), name);
-                var result = File.ReadAllLines(files[0]);
+                var file = Directory.GetFileSystemEntries(Directory.GetCurrentDirectory(), name)[0];
 
-                var lexer = new Lexer.Lexer(result);
-                var parser = new Parser(lexer.Run(), files[0]);
-                var interpreter = new Interpreter.Interpreter(parser.Run());
-                interpreter.Run(false);
+                if (Name.EndsWith("dll"))
+                {
+                    var assembly = Assembly.LoadFile(file);
+
+                    _importAssemblies.Add(assembly);
+                }
+                else
+                {
+                    var result = File.ReadAllLines(file);
+
+                    var lexer = new Lexer.Lexer(result);
+                    var parser = new Parser(lexer.Run(), file);
+                    var interpreter = new Interpreter.Interpreter(parser.Run());
+                    interpreter.Run(false);
+                }
             }
 
             if (Statement is null)
