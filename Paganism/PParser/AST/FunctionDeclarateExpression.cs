@@ -1,4 +1,4 @@
-﻿using Paganism.Exceptions;
+using Paganism.Exceptions;
 using Paganism.Interpreter.Data;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
