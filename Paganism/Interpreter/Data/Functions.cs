@@ -14,6 +14,8 @@ namespace Paganism.Interpreter.Data
 {
     public class Functions : DataStorage<FunctionInstance>
     {
+        public override string Name => "Function";
+
         public static Lazy<Functions> Instance { get; } = new();
 
         protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
@@ -183,6 +185,17 @@ namespace Paganism.Interpreter.Data
                     }
                 ) 
             },
+            { "println", new FunctionInstance(
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "println", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                {
+                    new("content", TypesType.String)
+                }, false, true), (Argument[] arguments) =>
+                    {
+                        Console.Write(arguments[0].Value.Eval().AsString());
+                        return new NoneValue();
+                    }
+                )
+            },
             { "read", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "read", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
@@ -192,9 +205,15 @@ namespace Paganism.Interpreter.Data
                         return Value.Create(Console.ReadLine());
                     }
                 )
+            },
+            {
+                "millitime", new FunctionInstance(
+                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "millitime", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]{}, false, true), (Argument[] arguments) =>
+                    {
+                        return Value.Create(DateTimeOffset.Now.ToUnixTimeMilliseconds());
+                    }
+                )
             }
         };
-
-        public override string Name => "Function";
     }
 }

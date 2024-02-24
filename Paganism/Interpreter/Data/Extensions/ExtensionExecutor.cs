@@ -33,6 +33,7 @@ namespace Paganism.Interpreter.Data.Extensions
         public static Dictionary<string, Argument> FixArguments(Argument[] ArgumentList)
         {
             Dictionary<string, Argument> Data = new();
+
             foreach (Argument Argument in ArgumentList)
             {
                 if (Data.ContainsKey(Argument.Name)) {
@@ -41,8 +42,8 @@ namespace Paganism.Interpreter.Data.Extensions
                 }
                 Data.Add(Argument.Name, Argument);
             }
+
             return Data;
         }
-
     }
 }
