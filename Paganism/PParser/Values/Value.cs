@@ -2,6 +2,7 @@
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
+using System.CodeDom;
 
 namespace Paganism.PParser.Values
 {
@@ -57,6 +58,26 @@ namespace Paganism.PParser.Values
             else if (value.GetType() == typeof(bool))
             {
                 return new BooleanValue((bool)value);
+            } 
+            else if (value.GetType() == typeof(byte))
+            {
+                return new NumberValue((byte)value);
+            }
+            else if (value.GetType() == typeof(long))
+            {
+                return new NumberValue((long)value);
+            }
+            else if (value.GetType() == typeof(float))
+            {
+                return new NumberValue((float)value);
+            }
+            else if (value.GetType() == typeof(ulong))
+            {
+                return new NumberValue((ulong)value);
+            }
+            else if (value.GetType() == typeof(double))
+            {
+                return new NumberValue((double)value);
             }
 
             return new NoneValue();

@@ -60,6 +60,8 @@
         Enum = 57,
         New = 58,
         EnumType = 59,
-        Readonly = 60
+        Readonly = 60,
+        Extension = 61,
+        Sharp = 62
     }
 }

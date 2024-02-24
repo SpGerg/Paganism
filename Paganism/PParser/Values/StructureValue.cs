@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
     public class StructureValue : Value

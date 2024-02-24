@@ -1,4 +1,4 @@
-﻿using Paganism.Exceptions;
+using Paganism.Exceptions;
 using Paganism.Interpreter.Data;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
@@ -58,10 +58,9 @@ namespace Paganism.PParser.AST
 
         public TypeValue ReturnType { get; }
 
-        //удалить потом
-        private List<Assembly> _importAssemblies { get; }
+        private bool _isChecked { get; set; }
 
-        private static readonly Dictionary<string, Type> Types = new()
+        public static readonly Dictionary<string, Type> Types = new()
         {
             { "System.Console", typeof(Console) }
         };
@@ -196,121 +195,12 @@ namespace Paganism.PParser.AST
         {
             CreateArguments(arguments);
 
-            if (Name == "cs_call")
+            if (Functions.Instance.Value.IsLanguage(Name))
             {
-                if (!Types.TryGetValue(arguments[0].Value.Eval().AsString(), out var findedClass))
+                var NativeFunction = Functions.Instance.Value.Get(Statement, Name);
+                if (NativeFunction.Action is not null)
                 {
-                    var name = arguments[0].Value.Eval().AsString();
-
-                    findedClass = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
-
-                    if (findedClass == default)
-                    {
-                        findedClass = _importAssemblies.SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
-
-                        if (findedClass == default)
-                        {
-                            throw new InterpreterException($"Method with {name} name not found");
-                        } 
-                    }
-                }
-
-                if (arguments[2].Value.Eval() is NoneValue)
-                {
-                    var method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { });
-
-                    return Value.Create(method.Invoke(null, new object[] { }));
-                }
-                else
-                {
-                    var paramater = arguments[2].Value.Eval();
-
-                    MethodInfo method = null;
-
-                    if (paramater is StringValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(string) });
-                    }
-                    else if (paramater is CharValue)
-                    {
-                        method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(char) });
-                    }
-                    else
-                    {
-                        method = paramater is BooleanValue
-                            ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(bool) })
-                            : paramater is NumberValue
-                                                    ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(int) })
-                                                    : findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(object) });
-                    }
-
-                    if (method.GetParameters()[0].ParameterType == typeof(string) || method.GetParameters()[0].ParameterType == typeof(object))
-                    {
-                        return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
-                    }
-                    else if (method.GetParameters()[0].ParameterType == typeof(bool))
-                    {
-                        return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsBoolean() }));
-                    }
-                    else if (method.GetParameters()[0].ParameterType == typeof(int))
-                    {
-                        return Value.Create(method.Invoke(null, new object[] { (int)arguments[2].Value.Eval().AsNumber() }));
-                    }
-                    else if (method.GetParameters()[0].ParameterType == typeof(char))
-                    {
-                        return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString()[0] }));
-                    }
-                    else
-                    {
-                        var g = arguments[2].Value.Eval();
-                        return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
-                    }
-                }
-            }
-            else if (Name == "pgm_size")
-            {
-                return new NumberValue((arguments[0].Value.Eval() as ArrayValue).Elements.Length);
-            }
-            else if (Name == "pgm_resize")
-            {
-                var array = arguments[0].Value.Eval() as ArrayValue;
-
-                var newElements = new Value[(int)arguments[1].Value.Eval().AsNumber()];
-
-                for (int i = 0; i < newElements.Length; i++)
-                {
-                    if (i > array.Elements.Length - 1)
-                    {
-                        newElements[i] = new NoneValue();
-                        continue;
-                    }
-
-                    newElements[i] = array.Elements[i];
-                }
-
-                var newArray = new ArrayValue(newElements);
-
-                return newArray;
-            }
-            else if (Name == "pgm_import")
-            {
-                var name = arguments[0].Value.Eval().AsString();
-                var file = Directory.GetFileSystemEntries(Directory.GetCurrentDirectory(), name)[0];
-
-                if (Name.EndsWith("dll"))
-                {
-                    var assembly = Assembly.LoadFile(file);
-
-                    _importAssemblies.Add(assembly);
-                }
-                else
-                {
-                    var result = File.ReadAllLines(file);
-
-                    var lexer = new Lexer.Lexer(result);
-                    var parser = new Parser(lexer.Run(), file);
-                    var interpreter = new Interpreter.Interpreter(parser.Run());
-                    interpreter.Run(false);
+                    return NativeFunction.Action(arguments);
                 }
             }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
     public class EnumValue : Value
