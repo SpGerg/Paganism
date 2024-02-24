@@ -21,9 +21,9 @@ namespace Paganism.Interpreter.Data
             { "cs_call", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "cs_call", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("namespace", TypesType.String, null, true),
-                    new Argument("method", TypesType.String, null, true),
-                    new Argument("arguments", TypesType.Any, null, true, true)
+                    new("namespace", TypesType.String, null, true),
+                    new("method", TypesType.String, null, true),
+                    new("arguments", TypesType.Any, null, true, true)
                 },
                     false,
                     true), (Argument[] arguments) =>
@@ -97,7 +97,7 @@ namespace Paganism.Interpreter.Data
             { "import", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "import", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("file", TypesType.String)
+                    new("file", TypesType.String)
                 },
                     false,
                     true)
@@ -133,8 +133,8 @@ namespace Paganism.Interpreter.Data
             { "pgm_resize", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_resize", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("array", TypesType.Array),
-                    new Argument("size", TypesType.Number)
+                    new("array", TypesType.Array),
+                    new("size", TypesType.Number)
                 },
                     false,
                     true), (Argument[] arguments) =>
@@ -163,7 +163,7 @@ namespace Paganism.Interpreter.Data
             { "pgm_size", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_size", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("array", TypesType.Array)
+                    new("array", TypesType.Array)
                 },
                     false,
                     true), (Argument[] arguments) =>
@@ -175,7 +175,7 @@ namespace Paganism.Interpreter.Data
             { "print", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "print", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("content", TypesType.String)
+                    new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
                     {
                         Console.WriteLine(arguments[0].Value.Eval().AsString());
@@ -186,7 +186,7 @@ namespace Paganism.Interpreter.Data
             { "read", new FunctionInstance(
                 new FunctionDeclarateExpression(null, -1, -1, string.Empty, "read", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
                 {
-                    new Argument("content", TypesType.String)
+                    new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
                     {
                         return Value.Create(Console.ReadLine());

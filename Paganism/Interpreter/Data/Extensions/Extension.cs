@@ -1,14 +1,9 @@
 ﻿using Paganism.PParser.AST.Enums;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Paganism.PParser;
 using Paganism.PParser.AST;
 using Paganism.PParser.Values;
 using Paganism.Exceptions;
-using System.Collections.ObjectModel;
 
 #nullable enable
 namespace Paganism.Interpreter.Data.Extensions
@@ -30,20 +25,22 @@ namespace Paganism.Interpreter.Data.Extensions
         {
             { "Replace", new ExtensionExecutor(TypesType.String, "Replace", new Argument[]
                 {
-                    new Argument("original", TypesType.String),
-                    new Argument("replace", TypesType.String)
+                    new("original", TypesType.String),
+                    new("replace", TypesType.String)
                 }, (VariableExpression Original, Argument[] Arguments) =>
                 {
                     if (!Variables.Instance.Value.TryGet(Original.Parent, Original.Name, out Value result))
                     {
                         throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
 
-                    } else
+                    } 
+                    else
                     {
                         if (result is null)
                         {
                             throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
-                        } else
+                        } 
+                        else
                         {
                             return Value.Create(result.AsString().Replace(Arguments[0].Value.Eval().AsString(), Arguments[1].Value.Eval().AsString()));
                         }
@@ -52,19 +49,21 @@ namespace Paganism.Interpreter.Data.Extensions
             },
             { "Split", new ExtensionExecutor(TypesType.String, "Split", new Argument[]
                 {
-                    new Argument("char", TypesType.Char)
+                    new("char", TypesType.Char)
                 }, (VariableExpression Original, Argument[] Arguments) =>
                 {
                     if (!Variables.Instance.Value.TryGet(Original.Parent, Original.Name, out Value result))
                     {
                         throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
 
-                    } else
+                    } 
+                    else
                     {
                         if (result is null)
                         {
                             throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
-                        } else
+                        } 
+                        else
                         {
                             return Value.Create(result.AsString().Split(char.Parse(Arguments[0].Value.Eval().AsString())));
                         }
@@ -72,7 +71,9 @@ namespace Paganism.Interpreter.Data.Extensions
                 })
             }
         };
+
         public static Dictionary<string, dynamic> ArrayExtension { get; set; } = new();
+
         public static dynamic? Get(Dictionary<string, dynamic> Base, string Name)
         {
             return Base[Name] ?? null;
@@ -81,11 +82,13 @@ namespace Paganism.Interpreter.Data.Extensions
         public static bool TryGet(Dictionary<string, dynamic> Base, string Name, out dynamic? executor)
         {
             executor = Get(Base, Name);
+
             if (executor is null)
             {
                 executor = null;
                 return false;
             }
+
             return true;
         }
     }

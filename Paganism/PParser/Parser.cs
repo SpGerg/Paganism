@@ -30,7 +30,7 @@ namespace Paganism.PParser
         public bool InLoop { get; private set; }
 
         public string Filepath { get; private set; }
-        public string _ExtensionFunction { get; private set; } = string.Empty;
+        internal string _ExtensionFunction { get; private set; } = string.Empty;
 
         private BlockStatementExpression _parent;
 

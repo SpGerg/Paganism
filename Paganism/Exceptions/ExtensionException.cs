@@ -5,11 +5,11 @@
         public ExtensionException()
         {
         }
+
         public ExtensionException(string message)
             : base(message, "Extension")
         {
         }
-
 
         public ExtensionException(string message, int line, int position)
             : base(message, line, position, "Extension")
