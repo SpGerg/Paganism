@@ -30,7 +30,7 @@ namespace Paganism.PParser
         public bool InLoop { get; private set; }
 
         public string Filepath { get; private set; }
-        internal string _ExtensionFunction { get; private set; } = string.Empty;
+        internal string ExtensionFunction { get; private set; } = string.Empty;
 
         private BlockStatementExpression _parent;
 
@@ -167,7 +167,7 @@ namespace Paganism.PParser
             {
                 if (Match(TokenType.Word))
                 {
-                    _ExtensionFunction = Tokens[Position-1].Value;
+                    ExtensionFunction = Tokens[Position-1].Value;
                 }
             }
             return new DirectiveExpression(_parent, Current.Line, Current.Position, Filepath);
@@ -613,20 +613,20 @@ namespace Paganism.PParser
             var statement = new BlockStatementExpression(_parent, Current.Line, Current.Position, Filepath, new IStatement[0], InLoop);
             ParseExpressions(statement);
 
-            if (_ExtensionFunction == string.Empty)
+            if (ExtensionFunction == string.Empty)
             {
                 return new FunctionDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, name, statement, arguments, isAsync, isShow, returnType);
             }
 
-            if (!Extension.AllowedExtensions.Contains(_ExtensionFunction))
+            if (!Extension.AllowedExtensions.Contains(ExtensionFunction))
             {
-                throw new ParserException($"The Extension type {_ExtensionFunction} does not exist!");
+                throw new ParserException($"The Extension type {ExtensionFunction} does not exist!");
             }
 
             string original_name = $"..stringFunc_{name}";
             FunctionDeclarateExpression DeclarationExpression = new FunctionDeclarateExpression(_parent, Current.Line, Current.Position, Filepath, original_name, statement, arguments, isAsync, isShow, returnType);
 
-            switch (_ExtensionFunction)
+            switch (ExtensionFunction)
             {
                 case "StringExtension":
                     if (!Extension.StringExtension.ContainsKey(name))
@@ -635,7 +635,7 @@ namespace Paganism.PParser
                     }
                     break;
                 default:
-                    throw new ParserException($"The Extension type {_ExtensionFunction} does not exist!");
+                    throw new ParserException($"The Extension type {ExtensionFunction} does not exist!");
             }
 
             return DeclarationExpression;
