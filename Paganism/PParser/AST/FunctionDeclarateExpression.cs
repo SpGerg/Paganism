@@ -67,7 +67,7 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Functions.Instance.Value.Add(Parent, Name, new FunctionInstance(this));
+            Functions.Instance.Value.Set(Parent, Name, new FunctionInstance(this));
         }
 
         public void Remove()
@@ -79,7 +79,7 @@ namespace Paganism.PParser.AST
         {
             var task = Task.Run(() =>
             {
-                Statement.ExecuteAndReturn(arguments);
+                Statement.Eval(arguments);
             });
 
             task.ContinueWith(_ =>
@@ -115,55 +115,18 @@ namespace Paganism.PParser.AST
                     var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneExpression(Parent, Line, Position, Filepath));
 
                     totalArguments[i] = noneArgument;
-                    Variables.Instance.Value.Add(Statement, functionArgument.Name, noneArgument.Value.Eval());
+                    Variables.Instance.Value.Set(Statement, functionArgument.Name, noneArgument.Value.Eval());
                     continue;
                 }
 
                 var argument = arguments[i];
 
-                if (functionArgument.IsArray && !argument.IsArray)
+                if (!functionArgument.Equals(argument))
                 {
-                    throw new InterpreterException($"Except array in argument with {Name} name");
+                    throw new InterpreterException($"Except {functionArgument.Type}");
                 }
 
-                if (!functionArgument.IsArray && argument.IsArray)
-                {
-                    throw new InterpreterException($"Didnt except array in argument with {Name} name");
-                }
-
-                if (functionArgument.Type is TypesType.Structure)
-                {
-                    Value value = null;
-
-                    try
-                    {
-                        value = Variables.Instance.Value.Get(Statement, functionArgument.Name);
-                    }
-                    catch
-                    {
-                        value = argument.Value.Eval();
-                    }
-
-                    if (value is not NoneValue)
-                    {
-                        if (value is not StructureValue structure)
-                        {
-                            throw new InterpreterException($"Except variable with structure {functionArgument.Name} type");
-                        }
-
-                        if (functionArgument.TypeName != structure.Structure.Name)
-                        {
-                            throw new InterpreterException($"Except structure {functionArgument.TypeName} type");
-                        }
-                    }
-                }
-
-                if (functionArgument.Type != TypesType.Any && argument.Type != TypesType.Any && functionArgument.Type != argument.Type)
-                {
-                    throw new InterpreterException($"Except {functionArgument.Type}", Line, Position);
-                }
-
-                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray, functionArgument.TypeName);
+                var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray);
 
                 totalArguments[i] = initArgument;
 
@@ -181,12 +144,12 @@ namespace Paganism.PParser.AST
             {
                 if (argument.Value is FunctionDeclarateExpression functionDeclarateExpression)
                 {
-                    Variables.Instance.Value.Add(Statement, argument.Name, new FunctionValue(functionDeclarateExpression));
-                    Functions.Instance.Value.Add(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
+                    Variables.Instance.Value.Set(Statement, argument.Name, new FunctionValue(functionDeclarateExpression));
+                    Functions.Instance.Value.Set(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
                 }
                 else
                 {
-                    Variables.Instance.Value.Add(Statement, argument.Name, argument.Value.Eval());
+                    Variables.Instance.Value.Set(Statement, argument.Name, argument.Value.Eval());
                 }
             }
         }
@@ -197,16 +160,17 @@ namespace Paganism.PParser.AST
 
             if (Functions.Instance.Value.IsLanguage(Name))
             {
-                var NativeFunction = Functions.Instance.Value.Get(Statement, Name);
-                if (NativeFunction.Action is not null)
+                var nativeFunction = Functions.Instance.Value.Get(Statement, Name);
+
+                if (nativeFunction.Action is not null)
                 {
-                    return NativeFunction.Action(arguments);
+                    return nativeFunction.Action(arguments);
                 }
             }
 
             if (Statement is null)
             {
-                return new NoneValue();
+                return Value.NoneValue;
             }
 
             if (IsAsync)
@@ -215,7 +179,7 @@ namespace Paganism.PParser.AST
 
                 var structureExpression = new StructureDeclarateExpression(Parent, Line, Position, Filepath, "task", new StructureMemberExpression[1]);
                 structureExpression.Members[0] = new StructureMemberExpression(
-                    structureExpression.Parent, structureExpression.Line, structureExpression.Position, Filepath, structureExpression.Name, string.Empty, TypesType.Number, "id", true);
+                    structureExpression.Parent, structureExpression.Line, structureExpression.Position, Filepath, structureExpression.Name, new TypeValue(TypesType.Number, string.Empty), "id", true);
 
                 var structure = Value.Create(structureExpression) as StructureValue;
                 structure.Set("id", new NumberValue(task.Id), Filepath);
@@ -224,11 +188,11 @@ namespace Paganism.PParser.AST
             }
             else
             {
-                var result = Statement.ExecuteAndReturn(arguments);
+                var result = Statement.Eval(arguments);
 
                 if (result is null)
                 {
-                    return new NoneValue();
+                    return Value.NoneValue;
                 }
 
                 if (!result.Is(ReturnType.Value, ReturnType.TypeName))

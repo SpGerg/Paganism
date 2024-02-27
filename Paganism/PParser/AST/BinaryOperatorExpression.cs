@@ -25,90 +25,6 @@ namespace Paganism.PParser.AST
 
         public EvaluableExpression Right { get; }
 
-        public override Value Eval(params Argument[] arguments)
-        {
-            if (Type is BinaryOperatorType.Point)
-            {
-                return Point();
-            }
-            else if (Type is BinaryOperatorType.Assign)
-            {
-                return Assign();
-            }
-
-            var left = Left.Eval();
-            var right = Right.Eval();
-
-            return Type switch
-            {
-                BinaryOperatorType.Plus => Addition(left, right),
-                BinaryOperatorType.Minus => Minus(left, right),
-                BinaryOperatorType.Multiplicative => Multiplicative(left, right),
-                BinaryOperatorType.Division => Division(left, right),
-                BinaryOperatorType.Is => Is(left, right),
-                BinaryOperatorType.And => And(left, right),
-                BinaryOperatorType.Or => Or(left, right),
-                BinaryOperatorType.Less => Less(left, right),
-                BinaryOperatorType.More => More(left, right),
-                BinaryOperatorType.As => As(left, right),
-                _ => null,
-            };
-        }
-
-        private Value As(Value left, Value right)
-        {
-            return right is not TypeValue typeValue
-                ? throw new InterpreterException("Right expression must be a type", Line, Position)
-                : typeValue.Value switch
-                {
-                    TypesType.Any => new StringValue(left.AsString()),
-                    TypesType.Number => new NumberValue(left.AsNumber()),
-                    TypesType.String => new StringValue(left.AsString()),
-                    TypesType.Boolean => new BooleanValue(left.AsBoolean()),
-                    TypesType.Char => AsChar(left, right),
-                    TypesType.None => new NoneValue(),
-                    TypesType.Structure => AsStructure(left, typeValue),
-                    _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
-                };
-        }
-
-        private Value AsStructure(Value left, TypeValue right)
-        {
-            if (left is not StructureValue structureValue || right.TypeName == string.Empty || right.TypeName is null)
-            {
-                throw new InterpreterException($"Cannot cast {left.Type} to Structure", Line, Position);
-            }
-
-            foreach (var member in structureValue.Structure.Members)
-            {
-                if (!member.Value.IsCastable)
-                {
-                    continue;
-                }
-
-                var value = structureValue.Values[member.Key];
-
-                if (value is not StructureValue structureValue1)
-                {
-                    continue;
-                }
-
-                if (structureValue1.Structure.Name != right.TypeName)
-                {
-                    continue;
-                }
-
-                return structureValue1;
-            }
-
-            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", Line, Position);
-        }
-
-        private Value AsChar(Value left, Value right)
-        {
-            return (left is StringValue stringValue && stringValue.Value.Length == 1) ? new CharValue(left.AsString()[0]) : throw new InterpreterException("Cannot cast string to char. String must be contains only one character.", Line, Position);
-        }
-
         public static StructureValue GetStructure(BinaryOperatorExpression binaryOperatorExpression)
         {
             if (binaryOperatorExpression.Left is VariableExpression variableExpression)
@@ -133,7 +49,7 @@ namespace Paganism.PParser.AST
                     name = functionCallExpression.FunctionName;
                 }
 
-                if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath)
+                if (!structure.Structure.Members[name].Info.IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath)
                 {
                     throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position);
                 }
@@ -185,7 +101,7 @@ namespace Paganism.PParser.AST
 
             var member = structure.Values[name];
 
-            if (!structure.Structure.Members[name].IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
+            if (!structure.Structure.Members[name].Info.IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
             {
                 throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
             }
@@ -206,6 +122,100 @@ namespace Paganism.PParser.AST
         public static Value GetMemberOfStructure(BinaryOperatorExpression binaryOperatorExpression)
         {
             return GetMemberWithKeyOfStructure(binaryOperatorExpression).Value;
+        }
+
+        public override Value Eval(params Argument[] arguments)
+        {
+            if (Type is BinaryOperatorType.Point)
+            {
+                return Point();
+            }
+            else if (Type is BinaryOperatorType.Assign)
+            {
+                return Assign();
+            }
+
+            var left = Left.Eval();
+            var right = Right.Eval();
+
+            return Type switch
+            {
+                BinaryOperatorType.Plus => Addition(left, right),
+                BinaryOperatorType.Minus => Minus(left, right),
+                BinaryOperatorType.Multiplicative => Multiplicative(left, right),
+                BinaryOperatorType.Division => Division(left, right),
+                BinaryOperatorType.Is => Is(left, right),
+                BinaryOperatorType.And => And(left, right),
+                BinaryOperatorType.Or => Or(left, right),
+                BinaryOperatorType.Less => Less(left, right),
+                BinaryOperatorType.More => More(left, right),
+                BinaryOperatorType.As => As(left, right),
+                _ => null,
+            };
+        }
+
+        public TypeValue GetBinaryValueType()
+        {
+            if (Type is BinaryOperatorType.As)
+            {
+                return new TypeValue((Right as TypeExpression).Value, (Right as TypeExpression).TypeName);
+            }
+
+            return Left.GetTypeValue();
+        }
+
+        private Value As(Value left, Value right)
+        {
+            return right is not TypeValue typeValue
+                ? throw new InterpreterException("Right expression must be a type", Line, Position)
+                : typeValue.Value switch
+                {
+                    TypesType.Any => new StringValue(left.AsString()),
+                    TypesType.Number => new NumberValue(left.AsNumber()),
+                    TypesType.String => new StringValue(left.AsString()),
+                    TypesType.Boolean => new BooleanValue(left.AsBoolean()),
+                    TypesType.Char => AsChar(left, right),
+                    TypesType.None => Value.NoneValue,
+                    TypesType.Structure => AsStructure(left, typeValue),
+                    _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
+                };
+        }
+
+        private Value AsStructure(Value left, TypeValue right)
+        {
+            if (left is not StructureValue structureValue || right.TypeName == string.Empty || right.TypeName is null)
+            {
+                throw new InterpreterException($"Cannot cast {left.Type} to Structure", Line, Position);
+            }
+
+            foreach (var member in structureValue.Structure.Members)
+            {
+                if (!member.Value.Info.IsCastable)
+                {
+                    continue;
+                }
+
+                var value = structureValue.Values[member.Key];
+
+                if (value is not StructureValue structureValue1)
+                {
+                    continue;
+                }
+
+                if (structureValue1.Structure.Name != right.TypeName)
+                {
+                    continue;
+                }
+
+                return structureValue1;
+            }
+
+            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", Line, Position);
+        }
+
+        private Value AsChar(Value left, Value right)
+        {
+            return (left is StringValue stringValue && stringValue.Value.Length == 1) ? new CharValue(left.AsString()[0]) : throw new InterpreterException("Cannot cast string to char. String must be contains only one character.", Line, Position);
         }
 
         private Value Point()
@@ -386,10 +396,10 @@ namespace Paganism.PParser.AST
 
                 if (value is FunctionValue)
                 {
-                    Functions.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
+                    Functions.Instance.Value.Set(variableExpression.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
                 }
 
-                Variables.Instance.Value.Add(variableExpression.Parent, variableExpression.Name, value);
+                Variables.Instance.Value.Set(variableExpression.Parent, variableExpression.Name, value);
             }
             else if (Left is BinaryOperatorExpression binary)
             {

@@ -19,13 +19,13 @@ namespace Paganism.PParser.Values
 
             foreach (var member in members)
             {
-                if (member.Value.IsDelegate)
+                if (member.Value.Info.IsDelegate)
                 {
                     Values.Add(member.Key, new FunctionValue(null));
                 }
                 else
                 {
-                    Values.Add(member.Key, new NoneValue());
+                    Values.Add(member.Key, Value.NoneValue);
                 }
             }
         }
@@ -36,15 +36,20 @@ namespace Paganism.PParser.Values
             BlockStatement = expression;
         }
 
-        public StructureValue(BlockStatementExpression expression, string name) : this(Structures.Instance.Value.Get(expression, name).Members)
+        public StructureValue(BlockStatementExpression expression, string name) : this(Interpreter.Data.Structures.Instance.Value.Get(expression, name).Members)
         {
-            Structure = Structures.Instance.Value.Get(expression, name);
+            Structure = Interpreter.Data.Structures.Instance.Value.Get(expression, name);
             BlockStatement = expression;
         }
 
         public override string Name => "Structure";
 
         public override TypesType Type => TypesType.Structure;
+
+        public override TypesType[] CanCastTypes { get; } = new[]
+        {
+            TypesType.String
+        };
 
         public Dictionary<string, Value> Values { get; }
 
@@ -61,39 +66,39 @@ namespace Paganism.PParser.Values
 
             var member = Structure.Members[key];
 
-            if (member.IsReadOnly && filePath != member.Filepath)
+            if (member.Info.IsReadOnly && filePath != member.Filepath)
             {
                 throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure");
             }
 
-            if (member.Type != TypesType.Any && member.Type != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
+            if (member.Type.Value != TypesType.Any && member.Type.Value != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
             {
-                throw new InterpreterException($"Except {member.GetRequiredType()} type");
+                throw new InterpreterException($"Except {member.Type} type");
             }
 
             if (member.Structure is not null && member.Structure != string.Empty)
             {
-                if (value is StructureValue structureValue1 && structureValue1.Structure.Name != member.TypeName)
+                if (value is StructureValue structureValue1 && structureValue1.Structure.Name != member.Type.TypeName)
                 {
-                    throw new InterpreterException($"Except structure '{member.GetRequiredType()}' type");
+                    throw new InterpreterException($"Except structure '{member.Type}' type");
                 }
 
-                if (value is EnumValue enumValue && enumValue.Member.Enum != member.TypeName)
+                if (value is EnumValue enumValue && enumValue.Member.Enum != member.Type.TypeName)
                 {
-                    throw new InterpreterException($"Except enum '{member.GetRequiredType()}' type");
+                    throw new InterpreterException($"Except enum '{member.Type}' type");
                 }
             }
 
-            if (member.IsDelegate)
+            if (member.Info.IsDelegate)
             {
                 if (value is not FunctionValue functionValue)
                 {
                     throw new InterpreterException($"Except function", member.Line, member.Position);
                 }
 
-                if (!functionValue.Is(member.Type, member.TypeName))
+                if (!functionValue.Is(member.Type.Value, member.Type.TypeName))
                 {
-                    throw new InterpreterException($"Except member {member.Name}, {member.GetRequiredType()}", member.Line, member.Position);
+                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", member.Line, member.Position);
                 }
             }
 

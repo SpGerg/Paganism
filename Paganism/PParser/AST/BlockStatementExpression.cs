@@ -4,7 +4,7 @@ using Paganism.PParser.Values;
 
 namespace Paganism.PParser.AST
 {
-    public class BlockStatementExpression : Expression, IStatement, IExecutable
+    public class BlockStatementExpression : EvaluableExpression, IStatement, IExecutable
     {
         public BlockStatementExpression(BlockStatementExpression parent, int line, int position, string filepath, IStatement[] statements, bool isLoop = false, bool isClearing = true) : base(parent, line, position, filepath)
         {
@@ -23,10 +23,10 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            ExecuteAndReturn(arguments);
+            Eval(arguments);
         }
 
-        public Value ExecuteAndReturn(params Argument[] arguments)
+        public override Value Eval(params Argument[] arguments)
         {
             if (Statements == null)
             {
@@ -114,7 +114,7 @@ namespace Paganism.PParser.AST
 
                         if (variable != null)
                         {
-                            Variables.Instance.Value.Add(forExpression.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
+                            Variables.Instance.Value.Set(forExpression.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
                         }
 
                         var result2 = forExpression.Eval();
@@ -135,7 +135,7 @@ namespace Paganism.PParser.AST
             {
                 Variables.Instance.Value.Clear(this);
                 Functions.Instance.Value.Clear(this);
-                Structures.Instance.Value.Clear(this);
+                Interpreter.Data.Structures.Instance.Value.Clear(this);
             }
 
             return result;

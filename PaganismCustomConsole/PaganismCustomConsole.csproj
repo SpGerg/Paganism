@@ -34,8 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Paganism">
-      <HintPath>..\Imports\PaganismCustomConsole\Paganism.dll</HintPath>
+    <Reference Include="Paganism, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Thirdparty\Paganism\Paganism.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

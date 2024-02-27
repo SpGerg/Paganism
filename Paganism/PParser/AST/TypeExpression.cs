@@ -8,11 +8,11 @@ namespace Paganism.PParser.AST
         public TypeExpression(BlockStatementExpression parent, int line, int position, string filepath, TypesType type, string structureName) : base(parent, line, position, filepath)
         {
             Value = type;
-            StructureName = structureName;
+            TypeName = structureName;
             _value = new TypeValue(type, structureName);
         }
 
-        public string StructureName { get; }
+        public string TypeName { get; }
 
         public TypesType Value { get; }
 

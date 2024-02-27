@@ -8,6 +8,11 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.None;
 
+        public override TypesType[] CanCastTypes { get; } = new[]
+        {
+            TypesType.String,
+        };
+
         public override string AsString()
         {
             return "None";

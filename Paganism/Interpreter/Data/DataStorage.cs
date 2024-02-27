@@ -1,5 +1,4 @@
 ﻿using Paganism.Exceptions;
-using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using System.Collections.Generic;
 
@@ -15,7 +14,7 @@ namespace Paganism.Interpreter.Data
 
         protected virtual IReadOnlyDictionary<string, T> Language { get; } = new Dictionary<string, T>();
 
-        public void Add(BlockStatementExpression expression, string name, T value)
+        public void Set(BlockStatementExpression expression, string name, T value)
         {
             if (expression is null)
             {
@@ -36,23 +35,6 @@ namespace Paganism.Interpreter.Data
             {
                 Declarated[expression].Add(name, value);
             }
-        }
-
-        public void Set(BlockStatementExpression expression, string name, T value)
-        {
-            if (expression is null)
-            {
-                GlobalDeclarated[name] = value;
-                return;
-            }
-
-            if (!Declarated.TryGetValue(expression, out _))
-            {
-                Declarated.Add(expression, new Dictionary<string, T>());
-                return;
-            }
-
-            Declarated[expression][name] = value;
         }
 
         public void Remove(BlockStatementExpression expression, string name)

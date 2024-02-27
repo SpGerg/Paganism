@@ -6,7 +6,7 @@ namespace Paganism.PParser.AST
     {
         public NoneExpression(BlockStatementExpression parent, int line, int position, string filepath) : base(parent, line, position, filepath)
         {
-            _value = new NoneValue();
+            _value = Value.NoneValue;
         }
 
         private readonly NoneValue _value;

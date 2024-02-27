@@ -8,12 +8,17 @@ namespace Paganism.PParser.Values
         public TypeValue(TypesType value, string typeName)
         {
             Value = value;
-            TypeName = typeName;
+            TypeName = typeName is null ? string.Empty : typeName;
         }
 
         public override string Name => "Type";
 
         public override TypesType Type => TypesType.Type;
+
+        public override TypesType[] CanCastTypes { get; } = new[]
+        {
+            TypesType.String
+        };
 
         public string TypeName { get; }
 
@@ -22,6 +27,11 @@ namespace Paganism.PParser.Values
         public override string AsString()
         {
             return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value})";
+        }
+
+        public override string ToString()
+        {
+            return AsString();
         }
 
         public override bool Equals(object obj)

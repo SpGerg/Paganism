@@ -20,6 +20,12 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.Enum;
 
+        public override TypesType[] CanCastTypes { get; } = new[]
+        {
+            TypesType.Number,
+            TypesType.String
+        };
+
         public EnumMemberExpression Member { get; }
 
         public override string AsString()

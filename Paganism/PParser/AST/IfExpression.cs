@@ -24,12 +24,12 @@ namespace Paganism.PParser.AST
 
             if (result)
             {
-                return BlockStatement.ExecuteAndReturn();
+                return BlockStatement.Eval();
             }
 
             if (ElseBlockStatement != null)
             {
-                return ElseBlockStatement.ExecuteAndReturn();
+                return ElseBlockStatement.Eval();
             }
 
             return null;

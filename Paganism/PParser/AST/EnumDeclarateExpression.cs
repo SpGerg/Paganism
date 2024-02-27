@@ -25,7 +25,7 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Interpreter.Data.Enums.Instance.Value.Add(Parent, Name, new EnumInstance(this));
+            Interpreter.Data.Enums.Instance.Value.Set(Parent, Name, new EnumInstance(this));
         }
 
         public void Remove()

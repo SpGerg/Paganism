@@ -16,6 +16,11 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.Function;
 
+        public override TypesType[] CanCastTypes { get; } = new[]
+        {
+            TypesType.String
+        };
+
         public FunctionDeclarateExpression Value { get; set; }
 
         public override void Set(object value)
@@ -81,22 +86,20 @@ namespace Paganism.PParser.Values
 
             for (int i = 0; i < Value.RequiredArguments.Length; i++)
             {
-                if (Value.RequiredArguments[i].Type != functionValue.Value.RequiredArguments[i].Type)
+                var argument = Value.RequiredArguments[i];
+                var functionArgument = functionValue.Value.RequiredArguments[i];
+
+                if (argument.Type.IsType(functionArgument.Type))
                 {
                     return false;
                 }
 
-                if (Value.RequiredArguments[i].TypeName != functionValue.Value.RequiredArguments[i].TypeName)
+                if (argument.IsArray != functionValue.Value.RequiredArguments[i].IsArray)
                 {
                     return false;
                 }
 
-                if (Value.RequiredArguments[i].IsArray != functionValue.Value.RequiredArguments[i].IsArray)
-                {
-                    return false;
-                }
-
-                if (Value.RequiredArguments[i].IsRequired != functionValue.Value.RequiredArguments[i].IsRequired)
+                if (argument.IsRequired != functionValue.Value.RequiredArguments[i].IsRequired)
                 {
                     return false;
                 }

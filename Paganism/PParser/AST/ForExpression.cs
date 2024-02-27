@@ -25,7 +25,7 @@ namespace Paganism.PParser.AST
         {
             while (Expression == null || Expression.Eval().AsBoolean())
             {
-                var result = Statement.ExecuteAndReturn();
+                var result = Statement.Eval();
 
                 if (result != null)
                 {
@@ -40,7 +40,7 @@ namespace Paganism.PParser.AST
                 Action.Execute();
             }
 
-            return new NoneValue();
+            return Value.NoneValue;
         }
 
         public void Execute(params Argument[] arguments)

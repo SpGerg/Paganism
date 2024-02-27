@@ -13,6 +13,12 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.Number;
 
+        public override TypesType[] CanCastTypes { get; } = new[]
+        {
+            TypesType.String,
+            TypesType.Boolean
+        };
+
         public double Value { get; set; }
 
         public override void Set(object value)
@@ -33,7 +39,7 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
-            return Value.ToString();
+            return Value.ToString().Replace(',', '.');
         }
 
         public override bool AsBoolean()

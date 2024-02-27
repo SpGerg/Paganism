@@ -19,12 +19,12 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Structures.Instance.Value.Add(Parent, Name, new StructureInstance(this));
+            Interpreter.Data.Structures.Instance.Value.Set(Parent, Name, new StructureInstance(this));
         }
 
         public void Remove()
         {
-            Structures.Instance.Value.Remove(Parent, Name);
+            Interpreter.Data.Structures.Instance.Value.Remove(Parent, Name);
         }
 
         public override Value Eval(params Argument[] arguments)

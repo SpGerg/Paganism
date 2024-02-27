@@ -28,6 +28,8 @@ namespace Paganism.PParser.Values
 
         public Value[] Elements { get; set; }
 
+        public override TypesType[] CanCastTypes { get; } = new TypesType[0];
+
         public override void Set(object value)
         {
             if (value is ArrayValue arrayValue)

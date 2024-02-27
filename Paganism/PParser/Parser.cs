@@ -327,7 +327,7 @@ namespace Paganism.PParser
                 throw new ParserException("Except structure member name.", Current.Line, Current.Position);
             }
 
-            var member = new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, Lexer.Tokens.TokenTypeToValueType[current], memberName, isShow, isReadOnly, isCastable);
+            var member = new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, new TypeValue(Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName, isShow, isReadOnly, isCastable);
 
             return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position) : member;
         }
@@ -358,7 +358,7 @@ namespace Paganism.PParser
 
             Match(TokenType.Semicolon);
 
-            return new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, type.TypeName, current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], memberName,
+            return new StructureMemberExpression(_parent, Current.Line, Current.Position, Filepath, structureName, new TypeValue(current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName,
                 isShow, isReadOnly, isAsync, true, arguments, isCastable);
         }
 

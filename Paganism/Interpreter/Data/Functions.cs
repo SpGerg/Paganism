@@ -129,7 +129,8 @@ namespace Paganism.Interpreter.Data
                     var parser = new Parser(lexer.Run(), files[0]);
                     var interpreter = new Interpreter(parser.Run());
                     interpreter.Run(false); 
-                    return new NoneValue();
+
+                    return Value.NoneValue;
                 })
             },
             { "pgm_resize", new FunctionInstance(
@@ -149,7 +150,7 @@ namespace Paganism.Interpreter.Data
                         {
                             if (i > array.Elements.Length - 1)
                             {
-                                newElements[i] = new NoneValue();
+                                newElements[i] = Value.NoneValue;
                                 continue;
                             }
 
@@ -181,7 +182,7 @@ namespace Paganism.Interpreter.Data
                 }, false, true), (Argument[] arguments) =>
                     {
                         Console.WriteLine(arguments[0].Value.Eval().AsString());
-                        return new NoneValue();
+                        return Value.NoneValue;
                     }
                 ) 
             },
@@ -192,7 +193,7 @@ namespace Paganism.Interpreter.Data
                 }, false, true), (Argument[] arguments) =>
                     {
                         Console.Write(arguments[0].Value.Eval().AsString());
-                        return new NoneValue();
+                        return Value.NoneValue;
                     }
                 )
             },

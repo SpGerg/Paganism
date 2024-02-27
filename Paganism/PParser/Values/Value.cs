@@ -3,6 +3,8 @@ using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
 using System.CodeDom;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Paganism.PParser.Values
 {
@@ -12,9 +14,13 @@ namespace Paganism.PParser.Values
         {
         }
 
+        public static NoneValue NoneValue { get; } = new NoneValue();
+
         public abstract string Name { get; }
 
         public abstract TypesType Type { get; }
+
+        public virtual TypesType[] CanCastTypes { get; } = new TypesType[0];
 
         public static Value Create(Expression expression)
         {
@@ -27,16 +33,16 @@ namespace Paganism.PParser.Values
                 VariableExpression variableExpression => Create(variableExpression),
                 StructureDeclarateExpression structureDeclarateExpression => new StructureValue(structureDeclarateExpression.Parent, structureDeclarateExpression.Name),
                 FunctionDeclarateExpression functionDeclarateExpression => new FunctionValue(functionDeclarateExpression),
-                TypeExpression typeExpression => new TypeValue(typeExpression.Value, typeExpression.StructureName),
-                _ => new NoneValue(),
+                TypeExpression typeExpression => new TypeValue(typeExpression.Value, typeExpression.TypeName),
+                _ => NoneValue,
             };
         }
 
         public static Value Create(object value)
         {
-            if (value == null)
+            if (value is null)
             {
-                return new NoneValue();
+                return NoneValue;
             }
 
             if (value.GetType() == typeof(string))
@@ -80,7 +86,7 @@ namespace Paganism.PParser.Values
                 return new NumberValue((double)value);
             }
 
-            return new NoneValue();
+            return NoneValue;
         }
 
         public static Value Create(StructureValue structure, VariableExpression variable)
@@ -104,8 +110,8 @@ namespace Paganism.PParser.Values
                     return new FunctionValue(functionValue.Value);
                 case ArrayValue arrayValue:
                     return new ArrayValue(arrayValue.Elements);
-                case NoneValue:
-                    return new NoneValue();
+                case Values.NoneValue:
+                    return NoneValue;
                 case EnumValue enumValue:
                     return new EnumValue(enumValue.Member);
                 case StructureValue structureValue:
@@ -181,9 +187,44 @@ namespace Paganism.PParser.Values
             return Type == type;
         }
 
+        public string GetTypeName()
+        {
+            if (this is StructureValue structureValue)
+            {
+                return structureValue.Structure.Name;
+            }
+
+            if (this is EnumValue enumValue)
+            {
+                return enumValue.Member.Enum;
+            }
+
+            return string.Empty;
+        }
+
         public override Value Eval(params Argument[] arguments)
         {
             return this;
+        }
+
+        public bool IsCanCast(Value value)
+        {
+            return value.CanCastTypes.Contains(Type);
+        }
+
+        public T Cast<T>(TypesType type) where T : Value, new()
+        {
+            switch (type)
+            {
+                case TypesType.Number:
+                    return new NumberValue(AsNumber()) as T;
+                case TypesType.Boolean:
+                    return new BooleanValue(AsBoolean()) as T;
+                case TypesType.String:
+                    return new StringValue(AsString()) as T;
+            }
+
+            return this as T;
         }
 
         public virtual void Set(object value) { }
@@ -201,11 +242,6 @@ namespace Paganism.PParser.Values
         public virtual string AsString()
         {
             throw new InterpreterException($"You cant cast {Name} to String");
-        }
-
-        public virtual string AsFunction()
-        {
-            throw new InterpreterException($"You cant cast {Name} to Function");
         }
     }
 }

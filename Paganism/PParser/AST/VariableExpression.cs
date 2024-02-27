@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
 
             if (variable is null)
             {
-                return new NoneValue();
+                return Value.NoneValue;
             }
 
             if (variable is NoneValue)

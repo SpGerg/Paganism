@@ -13,6 +13,8 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.String;
 
+        public override TypesType[] CanCastTypes { get; } = new TypesType[0];
+
         public string Value { get; set; }
 
         public override void Set(object value)

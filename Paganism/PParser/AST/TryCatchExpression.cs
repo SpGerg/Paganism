@@ -25,19 +25,19 @@ namespace Paganism.PParser.AST
         {
             try
             {
-                var result = TryExpression.ExecuteAndReturn(arguments);
+                var result = TryExpression.Eval(arguments);
 
                 return result;
             }
             catch (Exception exception)
             {
-                var structure = new StructureValue(Parent, Structures.Instance.Value.Get(null, "exception"));
+                var structure = new StructureValue(Parent, Interpreter.Data.Structures.Instance.Value.Get(null, "exception"));
                 structure.Set("name", new StringValue(exception.GetType().Name), Filepath);
                 structure.Set("description", new StringValue(exception.Message), Filepath);
 
-                Variables.Instance.Value.Add(CatchExpression, "exception", structure);
+                Variables.Instance.Value.Set(CatchExpression, "exception", structure);
 
-                return CatchExpression.ExecuteAndReturn();
+                return CatchExpression.Eval();
             }
         }
 

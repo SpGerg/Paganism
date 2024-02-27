@@ -1,6 +1,7 @@
 ﻿using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
 
@@ -16,14 +17,14 @@ namespace Paganism.Interpreter.Data
         {
             { "task", new StructureInstance(new StructureDeclarateExpression(null, -1, -1, string.Empty, "task", new StructureMemberExpression[]
                 {
-                    new StructureMemberExpression(null, -1, -1, string.Empty, "task", string.Empty, TypesType.Number, "id", true)
+                    new StructureMemberExpression(null, -1, -1, string.Empty, "task", new TypeValue(TypesType.Number, string.Empty), "id", true)
                 }
             ))
             },
             { "exception", new StructureInstance(new StructureDeclarateExpression(null, -1, -1, string.Empty, "exception", new StructureMemberExpression[]
                 {
-                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", string.Empty, TypesType.String, "name", true),
-                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", string.Empty, TypesType.String, "description", true)
+                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", new TypeValue(TypesType.String, string.Empty), "name", true),
+                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", new TypeValue(TypesType.String, string.Empty), "description", true)
                 }
             ))
             }
