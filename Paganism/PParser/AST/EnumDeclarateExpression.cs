@@ -10,7 +10,7 @@ namespace Paganism.PParser.AST
 {
     public class EnumDeclarateExpression : Expression, IStatement, IDeclaratable
     {
-        public EnumDeclarateExpression(BlockStatementExpression parent, int position, int line, string filepath, string name, EnumMemberExpression[] members, bool isShow = false) : base(parent, position, line, filepath)
+        public EnumDeclarateExpression(ExpressionInfo info, string name, EnumMemberExpression[] members, bool isShow = false) : base(info)
         {
             Name = name;
             Members = members;
@@ -25,12 +25,12 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Interpreter.Data.Enums.Instance.Value.Set(Parent, Name, new EnumInstance(this));
+            Interpreter.Data.Enums.Instance.Value.Set(ExpressionInfo.Parent, Name, new EnumInstance(this));
         }
 
         public void Remove()
         {
-            Interpreter.Data.Enums.Instance.Value.Remove(Parent, Name);
+            Interpreter.Data.Enums.Instance.Value.Remove(ExpressionInfo.Parent, Name);
         }
     }
 }

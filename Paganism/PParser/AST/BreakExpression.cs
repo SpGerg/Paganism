@@ -4,7 +4,7 @@ namespace Paganism.PParser.AST
 {
     public class BreakExpression : Expression, IStatement, IExecutable
     {
-        public BreakExpression(BlockStatementExpression parent, int position, int line, string filepath) : base(parent, line, position, filepath) { }
+        public BreakExpression(ExpressionInfo info) : base(info) { }
 
         public bool IsBreaked { get; private set; }
 

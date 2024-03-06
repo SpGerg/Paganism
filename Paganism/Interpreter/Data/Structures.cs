@@ -1,4 +1,5 @@
 ﻿using Paganism.Interpreter.Data.Instances;
+using Paganism.PParser;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.Values;
@@ -15,16 +16,16 @@ namespace Paganism.Interpreter.Data
 
         protected override IReadOnlyDictionary<string, StructureInstance> Language { get; } = new Dictionary<string, StructureInstance>()
         {
-            { "task", new StructureInstance(new StructureDeclarateExpression(null, -1, -1, string.Empty, "task", new StructureMemberExpression[]
+            { "task", new StructureInstance(new StructureDeclarateExpression(new ExpressionInfo(), "task", new StructureMemberExpression[]
                 {
-                    new StructureMemberExpression(null, -1, -1, string.Empty, "task", new TypeValue(TypesType.Number, string.Empty), "id", true)
+                    new StructureMemberExpression(new ExpressionInfo(), "task", new TypeValue(new ExpressionInfo(), TypesType.Number, string.Empty), "id", true)
                 }
             ))
             },
-            { "exception", new StructureInstance(new StructureDeclarateExpression(null, -1, -1, string.Empty, "exception", new StructureMemberExpression[]
+            { "exception", new StructureInstance(new StructureDeclarateExpression(new ExpressionInfo(), "exception", new StructureMemberExpression[]
                 {
-                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", new TypeValue(TypesType.String, string.Empty), "name", true),
-                    new StructureMemberExpression(null, -1, -1, string.Empty, "exception", new TypeValue(TypesType.String, string.Empty), "description", true)
+                    new StructureMemberExpression(new ExpressionInfo(), "exception", new TypeValue(new ExpressionInfo(), TypesType.String, string.Empty), "name", true),
+                    new StructureMemberExpression(new ExpressionInfo(), "exception", new TypeValue(new ExpressionInfo(), TypesType.String, string.Empty), "description", true)
                 }
             ))
             }

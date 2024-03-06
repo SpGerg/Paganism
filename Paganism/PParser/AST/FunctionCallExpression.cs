@@ -9,7 +9,7 @@ namespace Paganism.PParser.AST
 {
     public class FunctionCallExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public FunctionCallExpression(BlockStatementExpression parent, int line, int position, string filepath, string functionName, bool isAwait, Argument[] arguments) : base(parent, line, position, filepath)
+        public FunctionCallExpression(ExpressionInfo info, string functionName, bool isAwait, Argument[] arguments) : base(info)
         {
             FunctionName = functionName;
             IsAwait = isAwait;
@@ -22,7 +22,7 @@ namespace Paganism.PParser.AST
 
         public Argument[] Arguments { get; }
 
-        public FunctionInstance GetFunction() => Functions.Instance.Value.Get(Parent, FunctionName);
+        public FunctionInstance GetFunction() => Functions.Instance.Value.Get(ExpressionInfo.Parent, FunctionName);
 
         public override Value Eval(params Argument[] arguments)
         {
@@ -30,7 +30,7 @@ namespace Paganism.PParser.AST
 
             if (!function.IsAsync && IsAwait)
             {
-                throw new InterpreterException("You cant use await for not async functions", Line, Position);
+                throw new InterpreterException("You cant use await for not async functions", ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
             if (IsAwait && function.IsAsync)

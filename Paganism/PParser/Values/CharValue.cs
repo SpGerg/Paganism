@@ -1,10 +1,11 @@
-﻿using Paganism.PParser.AST.Enums;
+﻿using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 
 namespace Paganism.PParser.Values
 {
     public class CharValue : Value
     {
-        public CharValue(char value)
+        public CharValue(ExpressionInfo info, char value) : base(info)
         {
             Value = value;
         }

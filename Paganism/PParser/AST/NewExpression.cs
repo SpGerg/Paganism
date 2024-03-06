@@ -10,7 +10,7 @@ namespace Paganism.PParser.AST
 {
     public class NewExpression : EvaluableExpression
     {
-        public NewExpression(BlockStatementExpression parent, int position, int line, string filepath, string name) : base(parent, position, line, filepath)
+        public NewExpression(ExpressionInfo info, string name) : base(info)
         {
             Name = name;
         }
@@ -19,7 +19,7 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            return new StructureValue(Parent, Name);
+            return new StructureValue(ExpressionInfo, ExpressionInfo.Parent, Name);
         }
     }
 }

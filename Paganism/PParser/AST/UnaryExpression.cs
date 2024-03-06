@@ -5,7 +5,7 @@ namespace Paganism.PParser.AST
 {
     public class UnaryExpression : EvaluableExpression
     {
-        public UnaryExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression expression, BinaryOperatorType @operator) : base(parent, line, position, filepath)
+        public UnaryExpression(ExpressionInfo info, EvaluableExpression expression, BinaryOperatorType @operator) : base(info)
         {
             Expression = expression;
             Operator = @operator;
@@ -20,7 +20,7 @@ namespace Paganism.PParser.AST
             return Operator switch
             {
                 BinaryOperatorType.Plus => Expression.Eval(),
-                BinaryOperatorType.Minus => new NumberValue(-Expression.Eval().AsNumber()),
+                BinaryOperatorType.Minus => new NumberValue(ExpressionInfo, - Expression.Eval().AsNumber()),
                 _ => Expression.Eval(),
             };
         }

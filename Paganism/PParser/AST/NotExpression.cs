@@ -6,14 +6,14 @@ namespace Paganism.PParser.AST
     {
         public EvaluableExpression Expression { get; }
 
-        public NotExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression expression) : base(parent, line, position, filepath)
+        public NotExpression(ExpressionInfo info, EvaluableExpression expression) : base(info)
         {
             Expression = expression;
         }
 
         public override Value Eval(params Argument[] arguments)
         {
-            return new BooleanValue(!Expression.Eval().AsBoolean());
+            return new BooleanValue(ExpressionInfo, !Expression.Eval().AsBoolean());
         }
     }
 }

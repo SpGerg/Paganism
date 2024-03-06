@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Paganism.PParser.Values;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Paganism.PParser.AST
 {
     public class EnumMemberExpression : Expression
     {
-        public EnumMemberExpression(BlockStatementExpression parent, int position, int line, string filepath, string name, NumberExpression value, string enumParent) : base(parent, position, line, filepath)
+        public EnumMemberExpression(ExpressionInfo info, string name, NumberValue value, string enumParent) : base(info)
         {
             Name = name;
             Value = value;
@@ -17,7 +18,7 @@ namespace Paganism.PParser.AST
 
         public string Name { get; }
 
-        public NumberExpression Value { get; }
+        public NumberValue Value { get; }
 
         public string Enum { get; }
     }

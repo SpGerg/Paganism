@@ -12,6 +12,7 @@
         Structure = 8,
         Char = 9,
         Type = 10,
-        Enum = 11
+        Enum = 11,
+        Void = 12
     }
 }

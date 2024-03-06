@@ -5,7 +5,7 @@ namespace Paganism.PParser.AST
 {
     public class ReturnExpression : EvaluableExpression, IStatement
     {
-        public ReturnExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression value) : base(parent, line, position, filepath)
+        public ReturnExpression(ExpressionInfo info, EvaluableExpression value) : base(info)
         {
             Value = value;
         }

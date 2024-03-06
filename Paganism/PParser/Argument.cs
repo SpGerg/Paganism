@@ -30,7 +30,7 @@ namespace Paganism.PParser
             }
         }
 
-        public Argument(string name, TypesType requiredValue, EvaluableExpression value = null, bool isRequired = false, bool isArray = false, string typeName = null) : this(name, new TypeValue(requiredValue, typeName), value, isRequired, isArray)
+        public Argument(string name, TypesType requiredValue, EvaluableExpression value = null, bool isRequired = false, bool isArray = false, string typeName = null) : this(name, new TypeValue(new ExpressionInfo(), requiredValue, typeName), value, isRequired, isArray)
         {
         }
 

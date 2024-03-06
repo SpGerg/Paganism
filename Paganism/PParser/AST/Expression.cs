@@ -6,20 +6,16 @@ namespace Paganism.PParser.AST
 {
     public abstract class Expression
     {
-        protected Expression(BlockStatementExpression parent, int position, int line, string filepath)
+        public Expression() 
         {
-            Parent = parent;
-            Position = position;
-            Line = line;
-            Filepath = filepath;
+            ExpressionInfo = new ExpressionInfo();
         }
 
-        public BlockStatementExpression Parent { get; protected set; }
+        protected Expression(ExpressionInfo info)
+        {
+            ExpressionInfo = info;
+        }
 
-        public int Position { get; protected set; }
-
-        public int Line { get; protected set; }
-
-        public string Filepath { get; protected set; }
+        public ExpressionInfo ExpressionInfo { get; }
     }
 }

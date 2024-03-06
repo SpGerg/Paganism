@@ -21,7 +21,7 @@ namespace Paganism.Interpreter.Data
         protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
         {
             { "cs_call", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "cs_call", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "cs_call", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("namespace", TypesType.String, null, true),
                     new("method", TypesType.String, null, true),
@@ -97,7 +97,7 @@ namespace Paganism.Interpreter.Data
                 )
             },
             { "import", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "import", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "import", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("file", TypesType.String)
                 },
@@ -110,6 +110,7 @@ namespace Paganism.Interpreter.Data
                     {
                         baseDir = API.ImportManager.SpecificDirectory;
                     }
+
                     string[] result;
                     string[] files;
                     if (API.ImportManager.PreLoadedFiles.ContainsKey(name))
@@ -119,10 +120,33 @@ namespace Paganism.Interpreter.Data
                             name
                         };
                         result = API.ImportManager.PreLoadedFiles[name];
-                    } else
+                    }
+                    else
                     {
                         files = Directory.GetFileSystemEntries(baseDir, name);
                         result = File.ReadAllLines(files[0]);
+                    }
+
+                    if (name.Contains(".cs"))
+                    {
+                        var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
+                        var value = Value.CreateFromCSharp(type);
+
+                        if (value is FunctionValue functionValue)
+                        {
+                            Instance.Value.Set(null, functionValue.Value.Name, new FunctionInstance(functionValue.Value));
+                        }
+                        else if (value is StructureValue structureValue)
+                        {
+                            Structures.Instance.Value.Set(null, structureValue.Name, new StructureInstance(structureValue.Structure.StructureDeclarateExpression));
+                        }
+
+                        if (value is EnumInstance enumInstance)
+                        {
+                            Enums.Instance.Value.Set(null, enumInstance.Name, enumInstance);
+                        }
+
+                        return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
 
                     var lexer = new Lexer.Lexer(result);
@@ -130,11 +154,11 @@ namespace Paganism.Interpreter.Data
                     var interpreter = new Interpreter(parser.Run());
                     interpreter.Run(false); 
 
-                    return Value.NoneValue;
+                    return new VoidValue(new ExpressionInfo());
                 })
             },
             { "pgm_resize", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_resize", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "pgm_resize", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("array", TypesType.Array),
                     new("size", TypesType.Number)
@@ -150,55 +174,59 @@ namespace Paganism.Interpreter.Data
                         {
                             if (i > array.Elements.Length - 1)
                             {
-                                newElements[i] = Value.NoneValue;
+                                newElements[i] = new NoneValue(arguments[0].Value.ExpressionInfo);
                                 continue;
                             }
 
                             newElements[i] = array.Elements[i];
                         }
 
-                        var newArray = new ArrayValue(newElements);
+                        var argument = arguments[0].Value;
+
+                        var newArray = new ArrayValue(argument.ExpressionInfo, newElements);
 
                         return newArray;
                     }
                 )
             },
             { "pgm_size", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "pgm_size", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "pgm_size", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("array", TypesType.Array)
                 },
                     false,
                     true), (Argument[] arguments) =>
                     {
-                        return new NumberValue((arguments[0].Value.Eval() as ArrayValue).Elements.Length);
+                        var argument = arguments[0].Value;
+
+                        return new NumberValue(argument.ExpressionInfo, (arguments[0].Value.Eval() as ArrayValue).Elements.Length);
                     }
                 )
             },
             { "print", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "print", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "print", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
                     {
                         Console.WriteLine(arguments[0].Value.Eval().AsString());
-                        return Value.NoneValue;
+                        return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 ) 
             },
             { "println", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "println", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "println", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
                     {
                         Console.Write(arguments[0].Value.Eval().AsString());
-                        return Value.NoneValue;
+                        return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 )
             },
             { "read", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "read", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]
+                new FunctionDeclarateExpression(new ExpressionInfo(), "read", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
                     new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
@@ -209,7 +237,7 @@ namespace Paganism.Interpreter.Data
             },
             {
                 "millitime", new FunctionInstance(
-                new FunctionDeclarateExpression(null, -1, -1, string.Empty, "millitime", new BlockStatementExpression(null, 0, 0, string.Empty, null), new Argument[]{}, false, true), (Argument[] arguments) =>
+                new FunctionDeclarateExpression(new ExpressionInfo(), "millitime", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]{}, false, true), (Argument[] arguments) =>
                     {
                         return Value.Create(DateTimeOffset.Now.ToUnixTimeMilliseconds());
                     }

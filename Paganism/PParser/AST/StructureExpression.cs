@@ -2,7 +2,7 @@
 {
     public class StructureExpression : Expression
     {
-        public StructureExpression(BlockStatementExpression parent, int line, int position, string filepath, string value) : base(parent, line, position, filepath)
+        public StructureExpression(ExpressionInfo info, string value) : base(info)
         {
             Value = value;
         }

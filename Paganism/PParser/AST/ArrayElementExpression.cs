@@ -7,7 +7,7 @@ namespace Paganism.PParser.AST
 {
     public class ArrayElementExpression : EvaluableExpression
     {
-        public ArrayElementExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, EvaluableExpression index, ArrayElementExpression left = null) : base(parent, line, position, filepath)
+        public ArrayElementExpression(ExpressionInfo info, string name, EvaluableExpression index, ArrayElementExpression left = null) : base(info)
         {
             Name = name;
             Index = index;
@@ -27,7 +27,7 @@ namespace Paganism.PParser.AST
 
         public KeyValuePair<int, Value> EvalWithKey()
         {
-            var variable = Variables.Instance.Value.Get(Parent, Name);
+            var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name);
 
             if (variable is ArrayValue arrayValue)
             {
@@ -63,7 +63,7 @@ namespace Paganism.PParser.AST
                         throw new InterpreterException($"Index out of range, in array variable with {Name} name");
                     }
 
-                    return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.Value[(int)value]));
+                    return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.ExpressionInfo, stringValue.Value[(int)value]));
                 }
 
                 return new KeyValuePair<int, Value>((int)value, arrayValue.Elements[(int)value]);

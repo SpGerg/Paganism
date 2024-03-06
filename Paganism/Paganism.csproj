@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Paganism</RootNamespace>
     <AssemblyName>Paganism</AssemblyName>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -58,9 +58,7 @@
     <Compile Include="PParser\AST\AwaitExpression.cs" />
     <Compile Include="PParser\AST\BinaryOperatorExpression.cs" />
     <Compile Include="PParser\AST\BlockStatementExpression.cs" />
-    <Compile Include="PParser\AST\BooleanExpression.cs" />
     <Compile Include="PParser\AST\BreakExpression.cs" />
-    <Compile Include="PParser\AST\CharExpression.cs" />
     <Compile Include="PParser\AST\DirectiveExpression.cs" />
     <Compile Include="PParser\AST\EnumDeclarateExpression.cs" />
     <Compile Include="PParser\AST\EnumMemberExpression.cs" />
@@ -69,13 +67,11 @@
     <Compile Include="PParser\AST\IfExpression.cs" />
     <Compile Include="PParser\AST\Interfaces\IDeclaratable.cs" />
     <Compile Include="PParser\AST\NewExpression.cs" />
-    <Compile Include="PParser\AST\NoneExpression.cs" />
     <Compile Include="PParser\AST\NotExpression.cs" />
     <Compile Include="PParser\AST\StructureDeclarateExpression.cs" />
     <Compile Include="PParser\AST\StructureExpression.cs" />
     <Compile Include="PParser\AST\StructureMemberExpression.cs" />
     <Compile Include="PParser\AST\TryCatchExpression.cs" />
-    <Compile Include="PParser\AST\TypeExpression.cs" />
     <Compile Include="PParser\AST\VariableExpression.cs" />
     <Compile Include="PParser\AST\FunctionDeclarateExpression.cs" />
     <Compile Include="PParser\AST\Enums\TypesType.cs" />
@@ -91,11 +87,10 @@
     <Compile Include="PParser\AST\FunctionCallExpression.cs" />
     <Compile Include="PParser\AST\Interfaces\IExecutable.cs" />
     <Compile Include="PParser\AST\Interfaces\IStatement.cs" />
-    <Compile Include="PParser\AST\NumberExpression.cs" />
     <Compile Include="PParser\AST\Enums\BinaryOperatorType.cs" />
     <Compile Include="PParser\AST\ReturnExpression.cs" />
-    <Compile Include="PParser\AST\StringExpression.cs" />
     <Compile Include="PParser\AST\UnaryExpression.cs" />
+    <Compile Include="PParser\ExpressionInfo.cs" />
     <Compile Include="PParser\Parser.cs" />
     <Compile Include="PParser\Values\ArrayValue.cs" />
     <Compile Include="PParser\Values\BooleanValue.cs" />
@@ -108,6 +103,8 @@
     <Compile Include="PParser\Values\TypeValue.cs" />
     <Compile Include="PParser\Values\Value.cs" />
     <Compile Include="PParser\Values\NumberValue.cs" />
+    <Compile Include="PParser\Values\VoidValue.cs" />
+    <Compile Include="PParser\VoidExpression.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interpreter\Data\Structures.cs" />
     <Compile Include="Interpreter\Data\Variables.cs" />

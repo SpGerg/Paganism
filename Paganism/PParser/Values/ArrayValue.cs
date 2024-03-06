@@ -5,12 +5,12 @@ namespace Paganism.PParser.Values
 {
     public class ArrayValue : Value
     {
-        public ArrayValue(Value[] elements)
+        public ArrayValue(ExpressionInfo info, Value[] elements) : base(info)
         {
             Elements = elements;
         }
 
-        public ArrayValue(Expression[] elements)
+        public ArrayValue(ExpressionInfo info, Expression[] elements) : base(info)
         {
             Value[] expressions = new Value[elements.Length];
 

@@ -11,10 +11,10 @@ namespace Paganism.PParser.Values
 {
     public class EnumValue : Value
     {
-        public EnumValue(EnumMemberExpression member)
+        public EnumValue(ExpressionInfo info, EnumMemberExpression member) : base(info)
         {
             Member = member;
-        }
+        }   
 
         public override string Name => "Enum";
 

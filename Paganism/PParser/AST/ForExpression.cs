@@ -5,7 +5,7 @@ namespace Paganism.PParser.AST
 {
     public class ForExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public ForExpression(BlockStatementExpression parent, int line, int position, string filepath, BlockStatementExpression statement, EvaluableExpression expression, BlockStatementExpression action, IStatement variable) : base(parent, line, position, filepath)
+        public ForExpression(ExpressionInfo info, BlockStatementExpression statement, EvaluableExpression expression, BlockStatementExpression action, IStatement variable) : base(info)
         {
             Expression = expression;
             Action = action;
@@ -40,7 +40,7 @@ namespace Paganism.PParser.AST
                 Action.Execute();
             }
 
-            return Value.NoneValue;
+            return new VoidValue(ExpressionInfo);
         }
 
         public void Execute(params Argument[] arguments)

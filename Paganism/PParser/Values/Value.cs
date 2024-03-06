@@ -1,20 +1,22 @@
 ﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Paganism.PParser.Values
 {
     public abstract class Value : EvaluableExpression
     {
-        protected Value() : base(null, 0, 0, string.Empty)
+        public Value(ExpressionInfo info) : base(info)
         {
         }
 
-        public static NoneValue NoneValue { get; } = new NoneValue();
+        public Value() : base(new ExpressionInfo()) { }
 
         public abstract string Name { get; }
 
@@ -26,15 +28,10 @@ namespace Paganism.PParser.Values
         {
             return expression switch
             {
-                StringExpression stringExpression => new StringValue(stringExpression.Value),
-                NumberExpression numberExpression => new NumberValue(numberExpression.Value),
-                BooleanExpression booleanExpression => new BooleanValue(booleanExpression.Value),
-                CharExpression charExpression => new CharValue(charExpression.Value),
                 VariableExpression variableExpression => Create(variableExpression),
-                StructureDeclarateExpression structureDeclarateExpression => new StructureValue(structureDeclarateExpression.Parent, structureDeclarateExpression.Name),
-                FunctionDeclarateExpression functionDeclarateExpression => new FunctionValue(functionDeclarateExpression),
-                TypeExpression typeExpression => new TypeValue(typeExpression.Value, typeExpression.TypeName),
-                _ => NoneValue,
+                StructureDeclarateExpression structureDeclarateExpression => new StructureValue(structureDeclarateExpression.ExpressionInfo, new StructureInstance(structureDeclarateExpression)),
+                FunctionDeclarateExpression functionDeclarateExpression => new FunctionValue(functionDeclarateExpression.ExpressionInfo, functionDeclarateExpression),
+                _ => new NoneValue(expression.ExpressionInfo),
             };
         }
 
@@ -42,51 +39,91 @@ namespace Paganism.PParser.Values
         {
             if (value is null)
             {
-                return NoneValue;
+                return new NoneValue(new ExpressionInfo());
             }
 
-            if (value.GetType() == typeof(string))
+            var @string = Convert.ToString(value);
+
+            if (@string != string.Empty)
             {
-                return new StringValue((string)value);
-            }
-            else if (value.GetType() == typeof(ConsoleKeyInfo))
-            {
-                return new CharValue(((ConsoleKeyInfo)value).KeyChar);
-            }
-            else if (value.GetType() == typeof(char))
-            {
-                return new CharValue((char)value);
-            }
-            else if (value.GetType() == typeof(int))
-            {
-                return new NumberValue((int)value);
-            }
-            else if (value.GetType() == typeof(bool))
-            {
-                return new BooleanValue((bool)value);
-            } 
-            else if (value.GetType() == typeof(byte))
-            {
-                return new NumberValue((byte)value);
-            }
-            else if (value.GetType() == typeof(long))
-            {
-                return new NumberValue((long)value);
-            }
-            else if (value.GetType() == typeof(float))
-            {
-                return new NumberValue((float)value);
-            }
-            else if (value.GetType() == typeof(ulong))
-            {
-                return new NumberValue((ulong)value);
-            }
-            else if (value.GetType() == typeof(double))
-            {
-                return new NumberValue((double)value);
+                return new StringValue(new ExpressionInfo(), @string);
             }
 
-            return NoneValue;
+            var @char = Convert.ToChar(value);
+
+            if (@char is '\0')
+            {
+                return new CharValue(new ExpressionInfo(), @char);
+            }
+
+            var @double = Convert.ToDouble(value);
+
+            if (@double is 0.0)
+            {
+                return new NumberValue(new ExpressionInfo(), @double);
+            }
+
+            var @bool = Convert.ToBoolean(value);
+
+            return new BooleanValue(new ExpressionInfo(), @bool);
+        }
+
+        public static object CreateFromCSharp(Type type)
+        {
+            if (type.IsEnum)
+            {
+                return CreateEnum(type);
+            }
+
+            if (type.IsValueType)
+            {
+                if (IsStructure(type))
+                {
+                    return CreateClassOrStructure(type);
+                }
+                else
+                {
+                    return Create(type);
+                }
+            }
+
+            return CreateClassOrStructure(type);
+        }
+
+        private static Instance CreateEnum(Type type)
+        {
+            var values = type.GetEnumValues();
+
+            var members = new EnumMemberExpression[values.Length];
+
+            System.Collections.IList list = values;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var value = list[i];
+
+                members[i] = new EnumMemberExpression(new ExpressionInfo(), type.GetEnumName(value), new NumberValue(new ExpressionInfo(),
+                    (Create(value) as NumberValue).Value), type.Name);
+            }
+
+            return new EnumInstance(new EnumDeclarateExpression(new ExpressionInfo(), type.Name, members, true));
+        }
+
+        private static Value CreateClassOrStructure(Type type)
+        {
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+            var members = new Dictionary<string, StructureMemberExpression>(fields.Length);
+
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+                var typeFromCSharp = CreateFromCSharp(field.FieldType) as Value;
+
+                members.Add(field.Name, new StructureMemberExpression(new ExpressionInfo(),
+                    type.Name, new TypeValue(new ExpressionInfo(), typeFromCSharp.Type, typeFromCSharp.GetTypeName()), field.Name));
+            }
+
+            return new StructureValue(new ExpressionInfo(), members);
         }
 
         public static Value Create(StructureValue structure, VariableExpression variable)
@@ -101,28 +138,33 @@ namespace Paganism.PParser.Values
             switch (copy)
             {
                 case StringValue stringValue:
-                    return new StringValue(stringValue.Value);
+                    return new StringValue(copy.ExpressionInfo, stringValue.Value);
                 case NumberValue numberValue:
-                    return new NumberValue(numberValue.Value);
+                    return new NumberValue(copy.ExpressionInfo, numberValue.Value);
                 case BooleanValue booleanValue:
-                    return new BooleanValue(booleanValue.Value);
+                    return new BooleanValue(copy.ExpressionInfo, booleanValue.Value);
                 case FunctionValue functionValue:
-                    return new FunctionValue(functionValue.Value);
+                    return new FunctionValue(copy.ExpressionInfo, functionValue.Value);
                 case ArrayValue arrayValue:
-                    return new ArrayValue(arrayValue.Elements);
-                case Values.NoneValue:
-                    return NoneValue;
+                    return new ArrayValue(copy.ExpressionInfo, arrayValue.Elements);
+                case NoneValue noneValue:
+                    return new NoneValue(noneValue.ExpressionInfo);
                 case EnumValue enumValue:
-                    return new EnumValue(enumValue.Member);
+                    return new EnumValue(copy.ExpressionInfo, enumValue.Member);
                 case StructureValue structureValue:
-                    return new StructureValue(structureValue.BlockStatement, structureValue.Structure);
+                    return new StructureValue(copy.ExpressionInfo, structureValue.Structure);
                 case CharValue charValue:
-                    return new CharValue(charValue.Value);
+                    return new CharValue(copy.ExpressionInfo, charValue.Value);
                 case TypeValue typeValue:
-                    return new TypeValue(typeValue.Value, typeValue.TypeName);
+                    return new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName);
             }
 
-            return null;
+            return new VoidValue(new ExpressionInfo());
+        }
+
+        private static bool IsStructure(Type source)
+        {
+            return source.IsValueType && !source.IsPrimitive && !source.IsEnum;
         }
 
         public bool IsType(Value value)
@@ -217,11 +259,11 @@ namespace Paganism.PParser.Values
             switch (type)
             {
                 case TypesType.Number:
-                    return new NumberValue(AsNumber()) as T;
+                    return new NumberValue(ExpressionInfo, AsNumber()) as T;
                 case TypesType.Boolean:
-                    return new BooleanValue(AsBoolean()) as T;
+                    return new BooleanValue(ExpressionInfo, AsBoolean()) as T;
                 case TypesType.String:
-                    return new StringValue(AsString()) as T;
+                    return new StringValue(ExpressionInfo, AsString()) as T;
             }
 
             return this as T;

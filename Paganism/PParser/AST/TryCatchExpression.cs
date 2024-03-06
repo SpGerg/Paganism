@@ -11,7 +11,7 @@ namespace Paganism.PParser.AST
 {
     public class TryCatchExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public TryCatchExpression(BlockStatementExpression parent, int position, int line, string filepath, BlockStatementExpression tryExpression, BlockStatementExpression catchExpression) : base(parent, position, line, filepath)
+        public TryCatchExpression(ExpressionInfo info, BlockStatementExpression tryExpression, BlockStatementExpression catchExpression) : base(info)
         {
             TryExpression = tryExpression;
             CatchExpression = catchExpression;
@@ -31,9 +31,9 @@ namespace Paganism.PParser.AST
             }
             catch (Exception exception)
             {
-                var structure = new StructureValue(Parent, Interpreter.Data.Structures.Instance.Value.Get(null, "exception"));
-                structure.Set("name", new StringValue(exception.GetType().Name), Filepath);
-                structure.Set("description", new StringValue(exception.Message), Filepath);
+                var structure = new StructureValue(ExpressionInfo, Interpreter.Data.Structures.Instance.Value.Get(null, "exception"));
+                structure.Set("name", new StringValue(ExpressionInfo, exception.GetType().Name), ExpressionInfo.Filepath);
+                structure.Set("description", new StringValue(ExpressionInfo, exception.Message), ExpressionInfo.Filepath);
 
                 Variables.Instance.Value.Set(CatchExpression, "exception", structure);
 

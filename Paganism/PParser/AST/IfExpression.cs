@@ -5,7 +5,7 @@ namespace Paganism.PParser.AST
 {
     public class IfExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public IfExpression(BlockStatementExpression parent, int line, int position, string filepath, EvaluableExpression expression, BlockStatementExpression blockStatement, BlockStatementExpression elseBlockStatement) : base(parent, line, position, filepath)
+        public IfExpression(ExpressionInfo info, EvaluableExpression expression, BlockStatementExpression blockStatement, BlockStatementExpression elseBlockStatement) : base(info)
         {
             Expression = expression;
             BlockStatement = blockStatement;

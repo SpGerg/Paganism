@@ -6,7 +6,7 @@ namespace Paganism.PParser.AST
 {
     public class BlockStatementExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public BlockStatementExpression(BlockStatementExpression parent, int line, int position, string filepath, IStatement[] statements, bool isLoop = false, bool isClearing = true) : base(parent, line, position, filepath)
+        public BlockStatementExpression(ExpressionInfo info, IStatement[] statements, bool isLoop = false, bool isClearing = true) : base(info)
         {
             Statements = statements;
             IsLoop = isLoop;
@@ -114,12 +114,12 @@ namespace Paganism.PParser.AST
 
                         if (variable != null)
                         {
-                            Variables.Instance.Value.Set(forExpression.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
+                            Variables.Instance.Value.Set(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
                         }
 
                         var result2 = forExpression.Eval();
 
-                        Variables.Instance.Value.Remove(forExpression.Parent, (variable.Left as VariableExpression).Name);
+                        Variables.Instance.Value.Remove(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name);
 
                         if (result2 is not NoneValue)
                         {

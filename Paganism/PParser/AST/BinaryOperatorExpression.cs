@@ -12,7 +12,7 @@ namespace Paganism.PParser.AST
 {
     public class BinaryOperatorExpression : EvaluableExpression, IStatement
     {
-        public BinaryOperatorExpression(BlockStatementExpression parent, int line, int position, string filepath, BinaryOperatorType type, EvaluableExpression left, EvaluableExpression right) : base(parent, line, position, filepath)
+        public BinaryOperatorExpression(ExpressionInfo info, BinaryOperatorType type, EvaluableExpression left, EvaluableExpression right) : base(info)
         {
             Type = type;
             Left = left;
@@ -29,7 +29,7 @@ namespace Paganism.PParser.AST
         {
             if (binaryOperatorExpression.Left is VariableExpression variableExpression)
             {
-                var left = Variables.Instance.Value.Get(binaryOperatorExpression.Parent, variableExpression.Name) as StructureValue;
+                var left = Variables.Instance.Value.Get(binaryOperatorExpression.ExpressionInfo.Parent, variableExpression.Name) as StructureValue;
 
                 return left;
             }
@@ -49,9 +49,11 @@ namespace Paganism.PParser.AST
                     name = functionCallExpression.FunctionName;
                 }
 
-                if (!structure.Structure.Members[name].Info.IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binary.Filepath)
+                if (!structure.Structure.Members[name].Info.IsShow &&
+                    structure.Structure.StructureDeclarateExpression.ExpressionInfo.Filepath != binary.ExpressionInfo.Filepath)
                 {
-                    throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binary.Line, binary.Position);
+                    throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure",
+                        binary.ExpressionInfo.Line, binary.ExpressionInfo.Position);
                 }
 
                 var member = structure.Values[name];
@@ -101,14 +103,17 @@ namespace Paganism.PParser.AST
 
             var member = structure.Values[name];
 
-            if (!structure.Structure.Members[name].Info.IsShow && structure.Structure.StructureDeclarateExpression.Filepath != binaryOperatorExpression.Filepath)
+            if (!structure.Structure.Members[name].Info.IsShow &&
+                structure.Structure.StructureDeclarateExpression.ExpressionInfo.Filepath != binaryOperatorExpression.ExpressionInfo.Filepath)
             {
-                throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+                throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure",
+                    binaryOperatorExpression.ExpressionInfo.Line, binaryOperatorExpression.ExpressionInfo.Position);
             }
 
             if (structure is null)
             {
-                throw new InterpreterException("Structure is null", binaryOperatorExpression.Line, binaryOperatorExpression.Position);
+                throw new InterpreterException("Structure is null",
+                    binaryOperatorExpression.ExpressionInfo.Line, binaryOperatorExpression.ExpressionInfo.Position);
             }
 
             if ((member is FunctionValue functionValue && functionValue.Value is not null) && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
@@ -158,7 +163,7 @@ namespace Paganism.PParser.AST
         {
             if (Type is BinaryOperatorType.As)
             {
-                return new TypeValue((Right as TypeExpression).Value, (Right as TypeExpression).TypeName);
+                return new TypeValue(ExpressionInfo, (Right as TypeValue).Value, (Right as TypeValue).TypeName);
             }
 
             return Left.GetTypeValue();
@@ -167,13 +172,13 @@ namespace Paganism.PParser.AST
         private Value As(Value left, Value right)
         {
             return right is not TypeValue typeValue
-                ? throw new InterpreterException("Right expression must be a type", Line, Position)
+                ? throw new InterpreterException("Right expression must be a type", ExpressionInfo.Line, ExpressionInfo.Position)
                 : typeValue.Value switch
                 {
-                    TypesType.Any => new StringValue(left.AsString()),
-                    TypesType.Number => new NumberValue(left.AsNumber()),
-                    TypesType.String => new StringValue(left.AsString()),
-                    TypesType.Boolean => new BooleanValue(left.AsBoolean()),
+                    TypesType.Any => new StringValue(ExpressionInfo, left.AsString()),
+                    TypesType.Number => new NumberValue(ExpressionInfo, left.AsNumber()),
+                    TypesType.String => new StringValue(ExpressionInfo, left.AsString()),
+                    TypesType.Boolean => new BooleanValue(ExpressionInfo, left.AsBoolean()),
                     TypesType.Char => AsChar(left, right),
                     TypesType.None => Value.NoneValue,
                     TypesType.Structure => AsStructure(left, typeValue),
@@ -185,7 +190,7 @@ namespace Paganism.PParser.AST
         {
             if (left is not StructureValue structureValue || right.TypeName == string.Empty || right.TypeName is null)
             {
-                throw new InterpreterException($"Cannot cast {left.Type} to Structure", Line, Position);
+                throw new InterpreterException($"Cannot cast {left.Type} to Structure", ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
             foreach (var member in structureValue.Structure.Members)
@@ -210,24 +215,25 @@ namespace Paganism.PParser.AST
                 return structureValue1;
             }
 
-            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", Line, Position);
+            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", ExpressionInfo.Line, ExpressionInfo.Position);
         }
 
         private Value AsChar(Value left, Value right)
         {
-            return (left is StringValue stringValue && stringValue.Value.Length == 1) ? new CharValue(left.AsString()[0]) : throw new InterpreterException("Cannot cast string to char. String must be contains only one character.", Line, Position);
+            return (left is StringValue stringValue && stringValue.Value.Length == 1) ? new CharValue(ExpressionInfo, left.AsString()[0]) : throw new InterpreterException("Cannot cast string to char. String must be contains only one character.",
+                ExpressionInfo.Line, ExpressionInfo.Position);
         }
 
         private Value Point()
         {
-            if (Left is VariableExpression variableExpression && Interpreter.Data.Enums.Instance.Value.TryGet(Parent, variableExpression.Name, out var value))
+            if (Left is VariableExpression variableExpression && Interpreter.Data.Enums.Instance.Value.TryGet(ExpressionInfo.Parent, variableExpression.Name, out var value))
             {
                 if (Right is not VariableExpression variableExpression1)
                 {
-                    throw new InterpreterException("Except enum member name", variableExpression.Line, variableExpression.Position);
+                    throw new InterpreterException("Except enum member name", variableExpression.ExpressionInfo.Line, variableExpression.ExpressionInfo.Position);
                 }
 
-                return new EnumValue(value.Members[variableExpression1.Name]);
+                return new EnumValue(ExpressionInfo, value.Members[variableExpression1.Name]);
             }
 
             if (Left is VariableExpression leftVariableExpression && Right is FunctionCallExpression functionCallExpression)
@@ -269,22 +275,22 @@ namespace Paganism.PParser.AST
 
         private Value More(Value left, Value right)
         {
-            return new BooleanValue(left.AsNumber() > right.AsNumber());
+            return new BooleanValue(ExpressionInfo, left.AsNumber() > right.AsNumber());
         }
 
         private Value Less(Value left, Value right)
         {
-            return new BooleanValue(left.AsNumber() < right.AsNumber());
+            return new BooleanValue(ExpressionInfo, left.AsNumber() < right.AsNumber());
         }
 
         private Value Or(Value left, Value right)
         {
-            return new BooleanValue(left.AsBoolean() || right.AsBoolean());
+            return new BooleanValue(ExpressionInfo, left.AsBoolean() || right.AsBoolean());
         }
 
         private Value And(Value left, Value right)
         {
-            return new BooleanValue(left.AsBoolean() && right.AsBoolean());
+            return new BooleanValue(ExpressionInfo, left.AsBoolean() && right.AsBoolean());
         }
 
         private Value Is(Value left, Value right)
@@ -292,24 +298,24 @@ namespace Paganism.PParser.AST
             if (right is TypeValue typeValue)
             {
                 return left is StructureValue structureValue
-                    ? new BooleanValue(typeValue.TypeName == structureValue.Structure.Name)
-                    : (Value)new BooleanValue(typeValue.Value == left.Type);
+                    ? new BooleanValue(ExpressionInfo, typeValue.TypeName == structureValue.Structure.Name)
+                    : (Value)new BooleanValue(ExpressionInfo, typeValue.Value == left.Type);
             }
 
             return right is NoneValue noneValue
-                ? new BooleanValue(noneValue.Type == left.Type)
+                ? new BooleanValue(ExpressionInfo, noneValue.Type == left.Type)
                 : left.GetType() != right.GetType()
-                ? new BooleanValue(false)
+                ? new BooleanValue(ExpressionInfo, false)
                 : (Value)(left.Type switch
                 {
-                    TypesType.Any => new BooleanValue(left.AsString() == right.AsString()),
-                    TypesType.Number => new BooleanValue(left.AsNumber() == right.AsNumber()),
-                    TypesType.String => new BooleanValue(left.AsString() == right.AsString()),
-                    TypesType.Boolean => new BooleanValue(left.AsBoolean() == right.AsBoolean()),
-                    TypesType.Char => new BooleanValue(left.AsString() == right.AsString()),
-                    TypesType.Enum => new BooleanValue((left as EnumValue).Member == (right as EnumValue).Member),
-                    TypesType.None => new BooleanValue(left.Name == right.Name),
-                    TypesType.Structure => new BooleanValue(left == right),
+                    TypesType.Any => new BooleanValue(ExpressionInfo, left.AsString() == right.AsString()),
+                    TypesType.Number => new BooleanValue(ExpressionInfo, left.AsNumber() == right.AsNumber()),
+                    TypesType.String => new BooleanValue(ExpressionInfo, left.AsString() == right.AsString()),
+                    TypesType.Boolean => new BooleanValue(ExpressionInfo, left.AsBoolean() == right.AsBoolean()),
+                    TypesType.Char => new BooleanValue(ExpressionInfo, left.AsString() == right.AsString()),
+                    TypesType.Enum => new BooleanValue(ExpressionInfo, (left as EnumValue).Member == (right as EnumValue).Member),
+                    TypesType.None => new BooleanValue(ExpressionInfo, left.Name == right.Name),
+                    TypesType.Structure => new BooleanValue(ExpressionInfo, left == right),
                     _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
                 });
         }
@@ -318,8 +324,8 @@ namespace Paganism.PParser.AST
         {
             return left.Type switch
             {
-                TypesType.Any => new NumberValue(left.AsNumber() - right.AsNumber()),
-                TypesType.Number => new NumberValue(left.AsNumber() - right.AsNumber()),
+                TypesType.Any => new NumberValue(ExpressionInfo, left.AsNumber() - right.AsNumber()),
+                TypesType.Number => new NumberValue(ExpressionInfo, left.AsNumber() - right.AsNumber()),
                 _ => throw new InterpreterException($"You cant substraction type {left.Type} and {right.Type}"),
             };
         }
@@ -328,11 +334,11 @@ namespace Paganism.PParser.AST
         {
             return left.Type switch
             {
-                TypesType.Any => new NumberValue(left.AsNumber() + right.AsNumber()),
-                TypesType.Number => new NumberValue(left.AsNumber() + right.AsNumber()),
-                TypesType.String => new StringValue(left.AsString() + right.AsString()),
-                TypesType.Type => new StringValue(left.AsString() + right.AsString()),
-                TypesType.None => new StringValue(left.AsString() + right.AsString()),
+                TypesType.Any => new NumberValue(ExpressionInfo, left.AsNumber() + right.AsNumber()),
+                TypesType.Number => new NumberValue(ExpressionInfo, left.AsNumber() + right.AsNumber()),
+                TypesType.String => new StringValue(ExpressionInfo, left.AsString() + right.AsString()),
+                TypesType.Type => new StringValue(ExpressionInfo, left.AsString() + right.AsString()),
+                TypesType.None => new StringValue(ExpressionInfo, left.AsString() + right.AsString()),
                 _ => throw new InterpreterException($"You cant addition type {left.Type} and {right.Type}"),
             };
         }
@@ -341,8 +347,8 @@ namespace Paganism.PParser.AST
         {
             return left.Type switch
             {
-                TypesType.Any => new NumberValue(left.AsNumber() * right.AsNumber()),
-                TypesType.Number => new NumberValue(left.AsNumber() * right.AsNumber()),
+                TypesType.Any => new NumberValue(ExpressionInfo, left.AsNumber() * right.AsNumber()),
+                TypesType.Number => new NumberValue(ExpressionInfo, left.AsNumber() * right.AsNumber()),
                 _ => throw new InterpreterException($"You cant multiplicative type {left.Type} and {right.Type}"),
             };
         }
@@ -351,9 +357,9 @@ namespace Paganism.PParser.AST
         {
             return left.Type switch
             {
-                TypesType.Any => new NumberValue(left.AsNumber() / right.AsNumber()),
-                TypesType.Number => new NumberValue(left.AsNumber() / right.AsNumber()),
-                TypesType.Boolean => new NumberValue(left.AsNumber() / right.AsNumber()),
+                TypesType.Any => new NumberValue(ExpressionInfo, left.AsNumber() / right.AsNumber()),
+                TypesType.Number => new NumberValue(ExpressionInfo, left.AsNumber() / right.AsNumber()),
+                TypesType.Boolean => new NumberValue(ExpressionInfo, left.AsNumber() / right.AsNumber()),
                 _ => throw new InterpreterException($"You cant division type {left.Type} and {right.Type}"),
             };
         }
@@ -373,44 +379,46 @@ namespace Paganism.PParser.AST
 
             if (Left is VariableExpression variableExpression)
             {
-                if (!Variables.Instance.Value.TryGet(Parent, variableExpression.Name, out var result))
+                if (!Variables.Instance.Value.TryGet(ExpressionInfo.Parent, variableExpression.Name, out var result))
                 {
                     if (variableExpression.Type is null)
                     {
-                        variableExpression = new VariableExpression(variableExpression.Parent, variableExpression.Line, variableExpression.Position, variableExpression.Filepath,
-                            variableExpression.Name, new TypeValue(value.Type, value is TypeValue typeValue ? typeValue.TypeName : string.Empty));
+                        variableExpression = new VariableExpression(ExpressionInfo,
+                            variableExpression.Name, new TypeValue(ExpressionInfo, value.Type, value is TypeValue typeValue ? typeValue.TypeName : string.Empty));
                     }
                 }
                 else
                 {
                     if (value.Type != result.Type)
                     {
-                        throw new InterpreterException($"Except {result.Type} type", variableExpression.Line, variableExpression.Position);
+                        throw new InterpreterException($"Except {result.Type} type",
+                            variableExpression.ExpressionInfo.Line, variableExpression.ExpressionInfo.Position);
                     }
 
                     if (result is StructureValue structureValue1 && value is StructureValue structureValue && structureValue1.Structure.Name != structureValue.Structure.Name)
                     {
-                        throw new InterpreterException($"Except {structureValue1.Structure.Name} structure type", variableExpression.Line, variableExpression.Position);
+                        throw new InterpreterException($"Except {structureValue1.Structure.Name} structure type",
+                            variableExpression.ExpressionInfo.Line, variableExpression.ExpressionInfo.Position);
                     }
                 }
 
                 if (value is FunctionValue)
                 {
-                    Functions.Instance.Value.Set(variableExpression.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
+                    Functions.Instance.Value.Set(variableExpression.ExpressionInfo.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
                 }
 
-                Variables.Instance.Value.Set(variableExpression.Parent, variableExpression.Name, value);
+                Variables.Instance.Value.Set(variableExpression.ExpressionInfo.Parent, variableExpression.Name, value);
             }
             else if (Left is BinaryOperatorExpression binary)
             {
                 var structure = GetStructure(binary);
                 var member = GetMemberWithKeyOfStructure(binary);
 
-                structure.Set(member.Key, value, Filepath);
+                structure.Set(member.Key, value, ExpressionInfo.Filepath);
             }
             else if (Left is ArrayElementExpression arrayElementExpression)
             {
-                var variable2 = Variables.Instance.Value.Get(Parent, arrayElementExpression.Name);
+                var variable2 = Variables.Instance.Value.Get(ExpressionInfo.Parent, arrayElementExpression.Name);
 
                 if (variable2 is not NoneValue)
                 {

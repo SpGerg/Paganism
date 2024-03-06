@@ -4,7 +4,7 @@ namespace Paganism.PParser.AST
 {
     public class ArrayExpression : EvaluableExpression
     {
-        public ArrayExpression(BlockStatementExpression parent, int line, int position, string filepath, Expression[] elements, int length) : base(parent, line, position, filepath)
+        public ArrayExpression(ExpressionInfo info, Expression[] elements, int length) : base(info)
         {
             Elements = elements;
             Length = length;
@@ -16,7 +16,7 @@ namespace Paganism.PParser.AST
 
         public override Value Eval(params Argument[] arguments)
         {
-            return new ArrayValue(Elements);
+            return new ArrayValue(ExpressionInfo, Elements);
         }
     }
 }

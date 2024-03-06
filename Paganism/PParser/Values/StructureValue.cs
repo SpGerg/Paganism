@@ -13,7 +13,7 @@ namespace Paganism.PParser.Values
 {
     public class StructureValue : Value
     {
-        public StructureValue(Dictionary<string, StructureMemberExpression> members)
+        public StructureValue(ExpressionInfo info, Dictionary<string, StructureMemberExpression> members) : base(info)
         {
             Values = new Dictionary<string, Value>();
 
@@ -21,25 +21,23 @@ namespace Paganism.PParser.Values
             {
                 if (member.Value.Info.IsDelegate)
                 {
-                    Values.Add(member.Key, new FunctionValue(null));
+                    Values.Add(member.Key, new FunctionValue(info, null));
                 }
                 else
                 {
-                    Values.Add(member.Key, Value.NoneValue);
+                    Values.Add(member.Key, new NoneValue(new ExpressionInfo()));
                 }
             }
         }
 
-        public StructureValue(BlockStatementExpression expression, StructureInstance structureInstance) : this(structureInstance.Members)
+        public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Members)
         {
             Structure = structureInstance;
-            BlockStatement = expression;
         }
 
-        public StructureValue(BlockStatementExpression expression, string name) : this(Interpreter.Data.Structures.Instance.Value.Get(expression, name).Members)
+        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, Interpreter.Data.Structures.Instance.Value.Get(expression, name).Members)
         {
             Structure = Interpreter.Data.Structures.Instance.Value.Get(expression, name);
-            BlockStatement = expression;
         }
 
         public override string Name => "Structure";
@@ -55,8 +53,6 @@ namespace Paganism.PParser.Values
 
         public StructureInstance Structure { get; }
 
-        public BlockStatementExpression BlockStatement { get; }
-
         public void Set(string key, Value value, string filePath)
         {
             if (!Values.ContainsKey(key))
@@ -66,7 +62,7 @@ namespace Paganism.PParser.Values
 
             var member = Structure.Members[key];
 
-            if (member.Info.IsReadOnly && filePath != member.Filepath)
+            if (member.Info.IsReadOnly && filePath != member.ExpressionInfo.Filepath)
             {
                 throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure");
             }
@@ -93,12 +89,12 @@ namespace Paganism.PParser.Values
             {
                 if (value is not FunctionValue functionValue)
                 {
-                    throw new InterpreterException($"Except function", member.Line, member.Position);
+                    throw new InterpreterException($"Except function", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
                 }
 
                 if (!functionValue.Is(member.Type.Value, member.Type.TypeName))
                 {
-                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", member.Line, member.Position);
+                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
                 }
             }
 

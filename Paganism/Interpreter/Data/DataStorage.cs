@@ -1,5 +1,6 @@
 ﻿using Paganism.Exceptions;
 using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 using System.Collections.Generic;
 
 namespace Paganism.Interpreter.Data
@@ -124,7 +125,7 @@ namespace Paganism.Interpreter.Data
 
             if (!Language.TryGetValue(name, out var result) && !Declarated[expression].TryGetValue(name, out var result1))
             {
-                var value = Get(expression.Parent, name);
+                var value = Get(expression.ExpressionInfo.Parent, name);
 
                 if (value != null)
                 {

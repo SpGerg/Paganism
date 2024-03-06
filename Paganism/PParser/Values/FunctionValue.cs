@@ -7,7 +7,7 @@ namespace Paganism.PParser.Values
 {
     public class FunctionValue : Value
     {
-        public FunctionValue(FunctionDeclarateExpression value)
+        public FunctionValue(ExpressionInfo info, FunctionDeclarateExpression value) : base(info)
         {
             Value = value;
         }

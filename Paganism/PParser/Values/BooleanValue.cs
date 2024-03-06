@@ -1,10 +1,11 @@
-﻿using Paganism.PParser.AST.Enums;
+﻿using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 
 namespace Paganism.PParser.Values
 {
     public class BooleanValue : Value
     {
-        public BooleanValue(bool value)
+        public BooleanValue(ExpressionInfo info, bool value) : base(info)
         {
             Value = value;
         }

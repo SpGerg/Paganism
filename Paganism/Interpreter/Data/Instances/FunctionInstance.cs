@@ -16,7 +16,7 @@ namespace Paganism.Interpreter.Data.Instances
             ReturnType = functionDeclarate.ReturnType;
             IsAsync = functionDeclarate.IsAsync;
             FunctionDeclarateExpression = functionDeclarate;
-            Filepath = functionDeclarate.Filepath;
+            Filepath = functionDeclarate.ExpressionInfo.Filepath;
             Action = FunctionAction;
         }
 

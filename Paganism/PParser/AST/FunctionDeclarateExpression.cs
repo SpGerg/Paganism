@@ -15,7 +15,7 @@ namespace Paganism.PParser.AST
 {
     public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable, IDeclaratable
     {
-        public FunctionDeclarateExpression(BlockStatementExpression parent, int line, int position, string filepath, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, bool isShow = false, TypeValue returnType = null) : base(parent, line, position, filepath)
+        public FunctionDeclarateExpression(ExpressionInfo info, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, bool isShow = false, TypeValue returnType = null) : base(info)
         {
             Name = name;
             Statement = statement;
@@ -27,7 +27,8 @@ namespace Paganism.PParser.AST
 
             if (name.StartsWith("__"))
             {
-                throw new InterpreterException($"Function cant start with '__'", Line, Position);
+                throw new InterpreterException($"Function cant start with '__'",
+                    ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
             if (Statement is null || Statement.Statements is null)
@@ -37,12 +38,14 @@ namespace Paganism.PParser.AST
 
             if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType is not null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
-                throw new InterpreterException($"Function with {Name} name must return value", Line, Position);
+                throw new InterpreterException($"Function with {Name} name must return value",
+                    ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
             if (ReturnType is null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
             {
-                throw new InterpreterException($"Except return value type in function with {Name} name", Line, Position);
+                throw new InterpreterException($"Except return value type in function with {Name} name",
+                    ExpressionInfo.Line, ExpressionInfo.Position);
             }
         }
 
@@ -67,12 +70,12 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Functions.Instance.Value.Set(Parent, Name, new FunctionInstance(this));
+            Functions.Instance.Value.Set(ExpressionInfo.Parent, Name, new FunctionInstance(this));
         }
 
         public void Remove()
         {
-            Functions.Instance.Value.Remove(Parent, Name);
+            Functions.Instance.Value.Remove(ExpressionInfo.Parent, Name);
         }
 
         public Task ExecuteAsync(params Argument[] arguments)
@@ -109,10 +112,11 @@ namespace Paganism.PParser.AST
                 {
                     if (functionArgument.IsRequired)
                     {
-                        throw new InterpreterException($"Argument in {Name} function is required.", Line, Position);
+                        throw new InterpreterException($"Argument in {Name} function is required.",
+                            ExpressionInfo.Line, ExpressionInfo.Position);
                     }
 
-                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneExpression(Parent, Line, Position, Filepath));
+                    var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneValue(ExpressionInfo));
 
                     totalArguments[i] = noneArgument;
                     Variables.Instance.Value.Set(Statement, functionArgument.Name, noneArgument.Value.Eval());
@@ -144,7 +148,7 @@ namespace Paganism.PParser.AST
             {
                 if (argument.Value is FunctionDeclarateExpression functionDeclarateExpression)
                 {
-                    Variables.Instance.Value.Set(Statement, argument.Name, new FunctionValue(functionDeclarateExpression));
+                    Variables.Instance.Value.Set(Statement, argument.Name, new FunctionValue(ExpressionInfo, functionDeclarateExpression));
                     Functions.Instance.Value.Set(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
                 }
                 else
@@ -170,19 +174,19 @@ namespace Paganism.PParser.AST
 
             if (Statement is null)
             {
-                return Value.NoneValue;
+                return new VoidValue(new ExpressionInfo());
             }
 
             if (IsAsync)
             {
                 var task = ExecuteAsync(arguments);
 
-                var structureExpression = new StructureDeclarateExpression(Parent, Line, Position, Filepath, "task", new StructureMemberExpression[1]);
+                var structureExpression = new StructureDeclarateExpression(ExpressionInfo, "task", new StructureMemberExpression[1]);
                 structureExpression.Members[0] = new StructureMemberExpression(
-                    structureExpression.Parent, structureExpression.Line, structureExpression.Position, Filepath, structureExpression.Name, new TypeValue(TypesType.Number, string.Empty), "id", true);
+                    structureExpression.ExpressionInfo, structureExpression.Name, new TypeValue(ExpressionInfo, TypesType.Number, string.Empty), "id", true);
 
                 var structure = Value.Create(structureExpression) as StructureValue;
-                structure.Set("id", new NumberValue(task.Id), Filepath);
+                structure.Set("id", new NumberValue(ExpressionInfo, task.Id), ExpressionInfo.Filepath);
 
                 return structure;
             }

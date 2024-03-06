@@ -1,11 +1,12 @@
-﻿using Paganism.PParser.AST.Enums;
+﻿using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 
 #pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
     public class TypeValue : Value
     {
-        public TypeValue(TypesType value, string typeName)
+        public TypeValue(ExpressionInfo info, TypesType value, string typeName) : base(info)
         {
             Value = value;
             TypeName = typeName is null ? string.Empty : typeName;

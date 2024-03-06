@@ -4,7 +4,7 @@ namespace Paganism.PParser.AST
 {
     public abstract class EvaluableExpression : Expression
     {
-        protected EvaluableExpression(BlockStatementExpression parent, int position, int line, string filepath) : base(parent, position, line, filepath)
+        protected EvaluableExpression(ExpressionInfo info) : base(info)
         {
         }
 
@@ -17,40 +17,40 @@ namespace Paganism.PParser.AST
                 case ArrayElementExpression arrayElementExpression:
                     var value = arrayElementExpression.Eval();
 
-                    return new TypeValue(value.Type, value.GetTypeName());
+                    return new TypeValue(ExpressionInfo, value.Type, value.GetTypeName());
                 case ArrayExpression:
-                    return new TypeValue(Enums.TypesType.Array, string.Empty);
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.Array, string.Empty);
                 case BinaryOperatorExpression binaryOperatorExpression:
                     return binaryOperatorExpression.GetBinaryValueType();
                 case FunctionDeclarateExpression functionDeclarateExpression:
-                    return new TypeValue(functionDeclarateExpression.ReturnType.Value, functionDeclarateExpression.ReturnType.TypeName);
+                    return new TypeValue(ExpressionInfo, functionDeclarateExpression.ReturnType.Value, functionDeclarateExpression.ReturnType.TypeName);
                 case FunctionCallExpression functionCallExpression:
                     var function = functionCallExpression.GetFunction();
 
-                    var type = function.ReturnType is null ? new TypeValue(Enums.TypesType.None, string.Empty) : function.ReturnType;
+                    var type = function.ReturnType is null ? new TypeValue(ExpressionInfo, Enums.TypesType.None, string.Empty) : function.ReturnType;
 
                     return type;
                 case NewExpression newExpression:
-                    return new TypeValue(Enums.TypesType.Structure, newExpression.Name);
-                case NoneExpression:
-                    return new TypeValue(Enums.TypesType.None, string.Empty);
-                case NumberExpression:
-                    return new TypeValue(Enums.TypesType.Number, string.Empty);
-                case StringExpression:
-                    return new TypeValue(Enums.TypesType.String, string.Empty);
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.Structure, newExpression.Name);
+                case NoneValue:
+                    return new TypeValue(ExpressionInfo,Enums.TypesType.None, string.Empty);
+                case NumberValue:
+                    return new TypeValue(ExpressionInfo,Enums.TypesType.Number, string.Empty);
+                case StringValue:
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.String, string.Empty);
                 case NotExpression:
-                    return new TypeValue(Enums.TypesType.Boolean, string.Empty);
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.Boolean, string.Empty);
                 case UnaryExpression:
-                    return new TypeValue(Enums.TypesType.Number, string.Empty);
-                case TypeExpression typeExpression:
-                    return new TypeValue(Enums.TypesType.Type, typeExpression.TypeName);
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.Number, string.Empty);
+                case TypeValue typeValue:
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.Type, typeValue.TypeName);
                 case ReturnExpression returnExpression:
                     var value3 = GetTypeValue(returnExpression.Value);
 
-                    return new TypeValue(value3.Type, value3.TypeName);
+                    return new TypeValue(ExpressionInfo, value3.Type, value3.TypeName);
             }
 
-            return new TypeValue(Enums.TypesType.Any, string.Empty);
+            return new TypeValue(ExpressionInfo, Enums.TypesType.Any, string.Empty);
         }
 
         public TypeValue GetTypeValue()

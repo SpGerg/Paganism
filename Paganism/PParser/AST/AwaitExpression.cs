@@ -7,7 +7,7 @@ namespace Paganism.PParser.AST
 {
     public class AwaitExpression : Expression, IStatement, IExecutable
     {
-        public AwaitExpression(BlockStatementExpression parent, int position, int line, string filepath, Expression expression) : base(parent, position, line, filepath)
+        public AwaitExpression(ExpressionInfo info, Expression expression) : base(info)
         {
             Expression = expression;
         }
@@ -20,7 +20,7 @@ namespace Paganism.PParser.AST
 
             if (!function.IsAwait)
             {
-                throw new InterpreterException("You need async function to use await.", function.Line, function.Position);
+                throw new InterpreterException("You need async function to use await.", ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
             var id = (int)((NumberValue)(function.Eval() as StructureValue).Values["id"]).Value;

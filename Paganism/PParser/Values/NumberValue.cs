@@ -1,10 +1,11 @@
-﻿using Paganism.PParser.AST.Enums;
+﻿using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 
 namespace Paganism.PParser.Values
 {
     public class NumberValue : Value
     {
-        public NumberValue(double value)
+        public NumberValue(ExpressionInfo info, double value) : base(info)
         {
             Value = value;
         }

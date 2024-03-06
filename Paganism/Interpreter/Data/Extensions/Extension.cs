@@ -29,7 +29,7 @@ namespace Paganism.Interpreter.Data.Extensions
                     new("replace", TypesType.String)
                 }, (VariableExpression Original, Argument[] Arguments) =>
                 {
-                    if (!Variables.Instance.Value.TryGet(Original.Parent, Original.Name, out Value result))
+                    if (!Variables.Instance.Value.TryGet(Original.ExpressionInfo.Parent, Original.Name, out Value result))
                     {
                         throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
 
@@ -52,7 +52,7 @@ namespace Paganism.Interpreter.Data.Extensions
                     new("char", TypesType.Char)
                 }, (VariableExpression Original, Argument[] Arguments) =>
                 {
-                    if (!Variables.Instance.Value.TryGet(Original.Parent, Original.Name, out Value result))
+                    if (!Variables.Instance.Value.TryGet(Original.ExpressionInfo.Parent, Original.Name, out Value result))
                     {
                         throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
 
