@@ -196,7 +196,7 @@ namespace Paganism.PParser.AST
 
                 if (result is null)
                 {
-                    return Value.NoneValue;
+                    return new NoneValue(ExpressionInfo);
                 }
 
                 if (!result.Is(ReturnType.Value, ReturnType.TypeName))

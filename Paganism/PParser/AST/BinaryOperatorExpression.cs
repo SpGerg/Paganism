@@ -180,7 +180,7 @@ namespace Paganism.PParser.AST
                     TypesType.String => new StringValue(ExpressionInfo, left.AsString()),
                     TypesType.Boolean => new BooleanValue(ExpressionInfo, left.AsBoolean()),
                     TypesType.Char => AsChar(left, right),
-                    TypesType.None => Value.NoneValue,
+                    TypesType.None => new NoneValue(new ExpressionInfo()),
                     TypesType.Structure => AsStructure(left, typeValue),
                     _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
                 };
