@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
                 case BinaryOperatorExpression binaryOperatorExpression:
                     return binaryOperatorExpression.GetBinaryValueType();
                 case FunctionDeclarateExpression functionDeclarateExpression:
-                    return new TypeValue(ExpressionInfo, functionDeclarateExpression.ReturnType.Value, functionDeclarateExpression.ReturnType.TypeName);
+                    return functionDeclarateExpression.ReturnType;
                 case FunctionCallExpression functionCallExpression:
                     var function = functionCallExpression.GetFunction();
 

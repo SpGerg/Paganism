@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Paganism.PParser
+namespace Paganism.API.Attributes
 {
-    internal class VoidExpression
+    public class PaganismSerializable : Attribute
     {
     }
 }

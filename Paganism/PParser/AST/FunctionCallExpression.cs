@@ -33,19 +33,26 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException("You cant use await for not async functions", ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
-            if (IsAwait && function.IsAsync)
+            try
             {
-                return function.ExecuteAndReturn(Arguments);
+                if (IsAwait && function.IsAsync)
+                {
+                    return function.ExecuteAndReturn(Arguments);
+                }
+
+                var result = function.ExecuteAndReturn(Arguments);
+
+                foreach (var argument in arguments)
+                {
+                    Variables.Instance.Value.Remove(function.Statements, argument.Name);
+                }
+
+                return result;
             }
-
-            var result = function.ExecuteAndReturn(Arguments);
-
-            foreach (var argument in arguments)
+            catch (PaganismException exception)
             {
-                Variables.Instance.Value.Remove(function.Statements, argument.Name);
+                throw new InterpreterException(exception.OriginalMessage, ExpressionInfo.Line, ExpressionInfo.Position);
             }
-
-            return result;
         }
 
         public void Execute(params Argument[] arguments)

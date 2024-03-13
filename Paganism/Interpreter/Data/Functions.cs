@@ -1,4 +1,5 @@
-﻿using Paganism.Exceptions;
+﻿using Paganism.API;
+using Paganism.Exceptions;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser;
 using Paganism.PParser.AST;
@@ -111,6 +112,34 @@ namespace Paganism.Interpreter.Data
                         baseDir = API.ImportManager.SpecificDirectory;
                     }
 
+                    if (name.Contains(".cs"))
+                    {
+                        var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.Name + ".cs" == name);
+                        var types = new List<object>();
+                        var value = PaganismFromCSharp.Create(type, ref types);
+                        types.Add(value);
+
+                        foreach (var paganismType in types)
+                        {
+                            var instance = Instances.Instance.ToInstance(value);
+
+                            if (paganismType is FunctionValue functionValue)
+                            {
+                                Instance.Value.Set(null, functionValue.Value.Name, instance as FunctionInstance);
+                            }
+                            else if (paganismType is StructureValue structureValue)
+                            {
+                                Structures.Instance.Value.Set(null, structureValue.Structure.Name, instance as StructureInstance);
+                            }
+                            else if (paganismType is EnumInstance enumInstance)
+                            {
+                                Enums.Instance.Value.Set(null, enumInstance.Name, enumInstance);
+                            }
+                        }
+
+                        return new VoidValue(arguments[0].Value.ExpressionInfo);
+                    }
+
                     string[] result;
                     string[] files;
                     if (API.ImportManager.PreLoadedFiles.ContainsKey(name))
@@ -125,28 +154,6 @@ namespace Paganism.Interpreter.Data
                     {
                         files = Directory.GetFileSystemEntries(baseDir, name);
                         result = File.ReadAllLines(files[0]);
-                    }
-
-                    if (name.Contains(".cs"))
-                    {
-                        var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
-                        var value = Value.CreateFromCSharp(type);
-
-                        if (value is FunctionValue functionValue)
-                        {
-                            Instance.Value.Set(null, functionValue.Value.Name, new FunctionInstance(functionValue.Value));
-                        }
-                        else if (value is StructureValue structureValue)
-                        {
-                            Structures.Instance.Value.Set(null, structureValue.Name, new StructureInstance(structureValue.Structure.StructureDeclarateExpression));
-                        }
-
-                        if (value is EnumInstance enumInstance)
-                        {
-                            Enums.Instance.Value.Set(null, enumInstance.Name, enumInstance);
-                        }
-
-                        return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
 
                     var lexer = new Lexer.Lexer(result);
@@ -206,7 +213,7 @@ namespace Paganism.Interpreter.Data
             { "print", new FunctionInstance(
                 new FunctionDeclarateExpression(new ExpressionInfo(), "print", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
                 {
-                    new("content", TypesType.String)
+                    new("content", TypesType.String, null, true)
                 }, false, true), (Argument[] arguments) =>
                     {
                         Console.WriteLine(arguments[0].Value.Eval().AsString());

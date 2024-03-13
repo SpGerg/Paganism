@@ -13,9 +13,11 @@ namespace Paganism.PParser.Values
 {
     public class StructureValue : Value
     {
-        public StructureValue(ExpressionInfo info, Dictionary<string, StructureMemberExpression> members) : base(info)
+        public StructureValue(ExpressionInfo info, string name, Dictionary<string, StructureMemberExpression> members) : base(info)
         {
             Values = new Dictionary<string, Value>();
+
+            Structure = new StructureInstance(new StructureDeclarateExpression(ExpressionInfo, name, members.Values.ToArray()));
 
             foreach (var member in members)
             {
@@ -30,12 +32,12 @@ namespace Paganism.PParser.Values
             }
         }
 
-        public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Members)
+        public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Name, structureInstance.Members)
         {
             Structure = structureInstance;
         }
 
-        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, Interpreter.Data.Structures.Instance.Value.Get(expression, name).Members)
+        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, name, Interpreter.Data.Structures.Instance.Value.Get(expression, name).Members)
         {
             Structure = Interpreter.Data.Structures.Instance.Value.Get(expression, name);
         }
@@ -122,13 +124,15 @@ namespace Paganism.PParser.Values
 
             foreach (var item in Structure.Members)
             {
+                var value = Values[item.Key];
+
                 try
                 {
-                    result += $"{item.Key} = {Values[item.Key].AsString()}, ";
+                    result += $"{item.Key} ({(value is NoneValue ? Structure.Members[item.Key].Type.AsString() : value.AsString())}), ";
                 }
                 catch
                 {
-                    result += $"{item.Key} = {Values[item.Key]}, ";
+                    result += $"{item.Key} ({(value is NoneValue ? Structure.Members[item.Key].Type.AsString() : value.AsString())}), ";
                 }
             }
 

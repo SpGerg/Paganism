@@ -1,6 +1,7 @@
 ﻿using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using System;
 
 #pragma warning disable CS0659
 namespace Paganism.PParser.Values
@@ -10,6 +11,12 @@ namespace Paganism.PParser.Values
         public FunctionValue(ExpressionInfo info, FunctionDeclarateExpression value) : base(info)
         {
             Value = value;
+        }
+
+        public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> action) : base(info)
+        {
+            Value = new FunctionDeclarateExpression(new ExpressionInfo(), name, null, arguments, false, true, returnType);
+            Action = action;
         }
 
         public override string Name => "Function";
@@ -22,6 +29,8 @@ namespace Paganism.PParser.Values
         };
 
         public FunctionDeclarateExpression Value { get; set; }
+
+        public Func<Argument[], Value> Action { get; }
 
         public override void Set(object value)
         {

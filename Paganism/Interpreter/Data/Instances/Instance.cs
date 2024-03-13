@@ -8,7 +8,7 @@ namespace Paganism.Interpreter.Data.Instances
     {
         public abstract string InstanceName { get; }
 
-        public Instance Create(Value value)
+        public static Instance Create(Value value)
         {
             switch (value)
             {
@@ -19,6 +19,20 @@ namespace Paganism.Interpreter.Data.Instances
                 case StructureValue structureValue:
                     return new StructureInstance(new PParser.AST.StructureDeclarateExpression(new ExpressionInfo(), 
                         structureValue.Structure.Name, structureValue.Structure.Members.Values.ToArray()));
+            }
+
+            return null;
+        }
+
+        public static Instance ToInstance(object value)
+        {
+            if (value is FunctionValue functionValue)
+            {
+                return new FunctionInstance(functionValue.Value);
+            }
+            else if (value is StructureValue structureValue)
+            {
+                return new StructureInstance(structureValue.Structure.StructureDeclarateExpression);
             }
 
             return null;

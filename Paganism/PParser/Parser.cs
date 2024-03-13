@@ -628,8 +628,8 @@ namespace Paganism.PParser
                 throw new ParserException($"The Extension type {ExtensionFunction} does not exist!");
             }
 
-            string original_name = $"..stringFunc_{name}";
-            FunctionDeclarateExpression DeclarationExpression = new FunctionDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath),
+            var original_name = $"..stringFunc_{name}";
+            var DeclarationExpression = new FunctionDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath),
                 original_name, statement, arguments, isAsync, isShow, returnType);
 
             switch (ExtensionFunction)

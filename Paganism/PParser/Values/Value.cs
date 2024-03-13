@@ -1,4 +1,6 @@
-﻿using Paganism.Exceptions;
+﻿using Paganism.API;
+using Paganism.API.Attributes;
+using Paganism.Exceptions;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
@@ -37,7 +39,9 @@ namespace Paganism.PParser.Values
 
         public static Value Create(object value)
         {
-            if (value is null)
+            var type = value as Type;
+
+            if (type is null || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum)
             {
                 return new NoneValue(new ExpressionInfo());
             }
@@ -66,64 +70,6 @@ namespace Paganism.PParser.Values
             var @bool = Convert.ToBoolean(value);
 
             return new BooleanValue(new ExpressionInfo(), @bool);
-        }
-
-        public static object CreateFromCSharp(Type type)
-        {
-            if (type.IsEnum)
-            {
-                return CreateEnum(type);
-            }
-
-            if (type.IsValueType)
-            {
-                if (IsStructure(type))
-                {
-                    return CreateClassOrStructure(type);
-                }
-                else
-                {
-                    return Create(type);
-                }
-            }
-
-            return CreateClassOrStructure(type);
-        }
-
-        private static Instance CreateEnum(Type type)
-        {
-            var values = type.GetEnumValues();
-
-            var members = new EnumMemberExpression[values.Length];
-
-            System.Collections.IList list = values;
-            for (int i = 0; i < list.Count; i++)
-            {
-                var value = list[i];
-
-                members[i] = new EnumMemberExpression(new ExpressionInfo(), type.GetEnumName(value), new NumberValue(new ExpressionInfo(),
-                    (Create(value) as NumberValue).Value), type.Name);
-            }
-
-            return new EnumInstance(new EnumDeclarateExpression(new ExpressionInfo(), type.Name, members, true));
-        }
-
-        private static Value CreateClassOrStructure(Type type)
-        {
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-            var members = new Dictionary<string, StructureMemberExpression>(fields.Length);
-
-            for (int i = 0; i < fields.Length; i++)
-            {
-                var field = fields[i];
-                var typeFromCSharp = CreateFromCSharp(field.FieldType) as Value;
-
-                members.Add(field.Name, new StructureMemberExpression(new ExpressionInfo(),
-                    type.Name, new TypeValue(new ExpressionInfo(), typeFromCSharp.Type, typeFromCSharp.GetTypeName()), field.Name));
-            }
-
-            return new StructureValue(new ExpressionInfo(), members);
         }
 
         public static Value Create(StructureValue structure, VariableExpression variable)
@@ -160,11 +106,6 @@ namespace Paganism.PParser.Values
             }
 
             return new VoidValue(new ExpressionInfo());
-        }
-
-        private static bool IsStructure(Type source)
-        {
-            return source.IsValueType && !source.IsPrimitive && !source.IsEnum;
         }
 
         public bool IsType(Value value)
@@ -211,7 +152,7 @@ namespace Paganism.PParser.Values
 
             if (this is FunctionValue functionValue)
             {
-                return (functionValue.Value.ReturnType is null && type is TypesType.None)
+                return (functionValue.Value.ReturnType.Type is TypesType.None)
                     ||
                     functionValue.Value.ReturnType.Value == type && functionValue.Value.ReturnType.TypeName == typeName;
             }

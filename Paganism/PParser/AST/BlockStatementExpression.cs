@@ -135,6 +135,7 @@ namespace Paganism.PParser.AST
             {
                 Variables.Instance.Value.Clear(this);
                 Functions.Instance.Value.Clear(this);
+                Interpreter.Data.Enums.Instance.Value.Clear(this);
                 Interpreter.Data.Structures.Instance.Value.Clear(this);
             }
 

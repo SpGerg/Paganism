@@ -36,17 +36,19 @@ namespace Paganism.PParser.AST
                 return;
             }
 
-            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType is not null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
+            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType.Type is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
                 throw new InterpreterException($"Function with {Name} name must return value",
                     ExpressionInfo.Line, ExpressionInfo.Position);
             }
 
-            if (ReturnType is null && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
+            if (ReturnType.Type is TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
             {
                 throw new InterpreterException($"Except return value type in function with {Name} name",
                     ExpressionInfo.Line, ExpressionInfo.Position);
             }
+
+            ReturnType ??= new TypeValue(new ExpressionInfo(), TypesType.None, string.Empty);
         }
 
         public string Name { get; }
@@ -60,8 +62,6 @@ namespace Paganism.PParser.AST
         public Argument[] RequiredArguments { get; }
 
         public TypeValue ReturnType { get; }
-
-        private bool _isChecked { get; set; }
 
         public static readonly Dictionary<string, Type> Types = new()
         {
@@ -125,7 +125,7 @@ namespace Paganism.PParser.AST
 
                 var argument = arguments[i];
 
-                if (!functionArgument.Equals(argument))
+                if (!functionArgument.Equals(argument) && functionArgument.Type.IsCanCast(argument.Type))
                 {
                     throw new InterpreterException($"Except {functionArgument.Type}");
                 }
