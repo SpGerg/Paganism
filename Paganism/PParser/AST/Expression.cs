@@ -8,7 +8,7 @@ namespace Paganism.PParser.AST
     {
         public Expression() 
         {
-            ExpressionInfo = new ExpressionInfo();
+            ExpressionInfo = ExpressionInfo.EmptyInfo;
         }
 
         protected Expression(ExpressionInfo info)

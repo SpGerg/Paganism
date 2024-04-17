@@ -42,7 +42,7 @@ namespace Paganism.Interpreter.Data.Extensions
                         } 
                         else
                         {
-                            return Value.Create(result.AsString().Replace(Arguments[0].Value.Eval().AsString(), Arguments[1].Value.Eval().AsString()));
+                            return Value.Create(result.AsString().Replace(Arguments[0].Value.Evaluate().AsString(), Arguments[1].Value.Evaluate().AsString()));
                         }
                     }
                 })
@@ -65,7 +65,7 @@ namespace Paganism.Interpreter.Data.Extensions
                         } 
                         else
                         {
-                            return Value.Create(result.AsString().Split(char.Parse(Arguments[0].Value.Eval().AsString())));
+                            return Value.Create(result.AsString().Split(char.Parse(Arguments[0].Value.Evaluate().AsString())));
                         }
                     }
                 })

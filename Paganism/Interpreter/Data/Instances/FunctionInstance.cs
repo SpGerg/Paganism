@@ -40,7 +40,7 @@ namespace Paganism.Interpreter.Data.Instances
 
         public Value ExecuteAndReturn(params Argument[] arguments)
         {
-            return FunctionDeclarateExpression.Eval(arguments);
+            return FunctionDeclarateExpression.Evaluate(arguments);
         }
     }
 }

@@ -18,18 +18,18 @@ namespace Paganism.PParser.AST
 
         public BlockStatementExpression ElseBlockStatement { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
-            var result = Expression.Eval().AsBoolean();
+            var result = Expression.Evaluate().AsBoolean();
 
             if (result)
             {
-                return BlockStatement.Eval();
+                return BlockStatement.Evaluate();
             }
 
             if (ElseBlockStatement != null)
             {
-                return ElseBlockStatement.Eval();
+                return ElseBlockStatement.Evaluate();
             }
 
             return null;
@@ -37,7 +37,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            var result = Expression.Eval().AsBoolean();
+            var result = Expression.Evaluate().AsBoolean();
 
             if (result)
             {

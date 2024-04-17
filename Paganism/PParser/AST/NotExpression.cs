@@ -11,9 +11,9 @@ namespace Paganism.PParser.AST
             Expression = expression;
         }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
-            return new BooleanValue(ExpressionInfo, !Expression.Eval().AsBoolean());
+            return new BooleanValue(ExpressionInfo, !Expression.Evaluate().AsBoolean());
         }
     }
 }

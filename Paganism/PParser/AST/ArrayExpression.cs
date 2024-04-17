@@ -14,7 +14,7 @@ namespace Paganism.PParser.AST
 
         public int Length { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             return new ArrayValue(ExpressionInfo, Elements);
         }

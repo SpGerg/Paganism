@@ -15,7 +15,7 @@ namespace Paganism.PParser.Values
 
         public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> action) : base(info)
         {
-            Value = new FunctionDeclarateExpression(new ExpressionInfo(), name, null, arguments, false, true, returnType);
+            Value = new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, name, null, arguments, false, true, returnType);
             Action = action;
         }
 

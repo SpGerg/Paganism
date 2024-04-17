@@ -17,7 +17,7 @@ namespace Paganism.PParser.AST
 
         public string Name { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             return new StructureValue(ExpressionInfo, ExpressionInfo.Parent, Name);
         }

@@ -15,7 +15,7 @@
 
         public static string ReplaceEscapeCodes(string value)
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             for (int i = 0; i < value.Length; i++)
             {

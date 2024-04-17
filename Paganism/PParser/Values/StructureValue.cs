@@ -27,7 +27,7 @@ namespace Paganism.PParser.Values
                 }
                 else
                 {
-                    Values.Add(member.Key, new NoneValue(new ExpressionInfo()));
+                    Values.Add(member.Key, new NoneValue(ExpressionInfo.EmptyInfo));
                 }
             }
         }

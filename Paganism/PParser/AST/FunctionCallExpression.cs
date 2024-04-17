@@ -24,7 +24,7 @@ namespace Paganism.PParser.AST
 
         public FunctionInstance GetFunction() => Functions.Instance.Value.Get(ExpressionInfo.Parent, FunctionName);
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             var function = GetFunction();
 
@@ -57,7 +57,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval();
+            Evaluate();
         }
     }
 }

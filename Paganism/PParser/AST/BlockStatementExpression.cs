@@ -23,10 +23,10 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval(arguments);
+            Evaluate(arguments);
         }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             if (Statements == null)
             {
@@ -49,7 +49,7 @@ namespace Paganism.PParser.AST
                 switch (statement)
                 {
                     case ReturnExpression returnExpression:
-                        result = returnExpression.Value.Eval();
+                        result = returnExpression.Value.Evaluate();
                         IsBreaked = true;
                         break;
                     case BreakExpression breakExpression:
@@ -66,16 +66,16 @@ namespace Paganism.PParser.AST
                         awaitExpression.Execute();
                         break;
                     case AssignExpression assignExpression:
-                        assignExpression.Eval();
+                        assignExpression.Evaluate();
                         break;
                     case BinaryOperatorExpression binaryOperatorExpression:
-                        binaryOperatorExpression.Eval();
+                        binaryOperatorExpression.Evaluate();
                         break;
                     case IDeclaratable declaratable:
                         declaratable.Declarate();
                         break;
                     case TryCatchExpression tryCatchExpression:
-                        var value2 = tryCatchExpression.Eval();
+                        var value2 = tryCatchExpression.Evaluate();
 
                         if (IsLoop && (tryCatchExpression.TryExpression.IsBreaked || tryCatchExpression.CatchExpression.IsBreaked))
                         {
@@ -91,7 +91,7 @@ namespace Paganism.PParser.AST
 
                         break;
                     case IfExpression ifExpression:
-                        var value = ifExpression.Eval();
+                        var value = ifExpression.Evaluate();
 
                         if (IsLoop && (ifExpression.BlockStatement.IsBreaked || ifExpression.ElseBlockStatement.IsBreaked))
                         {
@@ -114,10 +114,10 @@ namespace Paganism.PParser.AST
 
                         if (variable != null)
                         {
-                            Variables.Instance.Value.Set(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name, variable.Right.Eval());
+                            Variables.Instance.Value.Set(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name, variable.Right.Evaluate());
                         }
 
-                        var result2 = forExpression.Eval();
+                        var result2 = forExpression.Evaluate();
 
                         Variables.Instance.Value.Remove(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name);
 

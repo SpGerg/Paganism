@@ -16,7 +16,7 @@ namespace Paganism.API
 {
     public static class PaganismFromCSharp
     {
-        public static object Create(Type type, ref List<object> importedTypes)
+        public static object Create(Type type, ref List<object> importedTypes, bool isAllMembers = false)
         {
             var value = Value.Create(type);
 
@@ -36,47 +36,69 @@ namespace Paganism.API
                 return enumType;
             }
 
-            if ((IsStructure(type) || type.IsClass) && !type.IsValueType)
+            if (IsStructure(type) || type.IsClass)
             {
-                return CreateStructureOrClass(type, importedTypes);
+                return CreateStructureOrClass(type, importedTypes, isAllMembers);
             }
 
             return null;
         }
 
-        public static StructureValue CreateStructureOrClass(Type type, List<object> importedTypes)
+        public static StructureValue CreateStructureOrClass(Type type, List<object> importedTypes, bool isAllMembers = false)
         {
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
+            IEnumerable<FieldInfo> fields;
+            IEnumerable<MethodInfo> methods;
+
+            if (isAllMembers)
+            {
+                fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                var findedMethods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                methods = new List<MethodInfo>();
+
+                foreach (var method in findedMethods)
+                {
+                    var paramaters = method.GetParameters();
+
+                    if (paramaters.Length == 0 || method.GetParameters()[0].ParameterType != typeof(Argument[]))
+                    {
+                        continue;
+                    }
+
+                    methods.Append(method);
+                }
+            }
+            else
+            {
+                fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
                 Where(field => field.GetCustomAttribute<PaganismSerializable>() is not null);
 
-            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
-                Where(method => method.GetCustomAttribute<PaganismSerializable>() is not null &&
-                method.GetParameters()[0].ParameterType.IsArray && method.GetParameters()[0].ParameterType == typeof(Argument[]));
+                methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
+                    Where(method => method.GetCustomAttribute<PaganismSerializable>() is not null &&
+                    method.GetParameters()[0].ParameterType.IsArray && method.GetParameters()[0].ParameterType == typeof(Argument[]));
+            }            
 
             var members = new Dictionary<string, StructureMemberExpression>(fields.Count());
 
-            for (int i = 0; i < fields.Count();i++)
+            foreach (var field in fields)
             {
-                var field = fields.ElementAt(i);
-
                 var csharpType = Create(field.FieldType, ref importedTypes);
 
-                var typeValue = csharpType is Value value ? value.GetTypeValue() : new TypeValue(new ExpressionInfo(), TypesType.Enum, (csharpType as EnumInstance).Name);
+                var typeValue = csharpType is Value value ? value.GetTypeValue() : new TypeValue(ExpressionInfo.EmptyInfo, TypesType.Enum, (csharpType as EnumInstance).Name);
 
                 if (!importedTypes.Contains(csharpType) && csharpType is not Value)
                 {
                     importedTypes.Add(csharpType);
                 }
 
-                members.Add(field.Name, new StructureMemberExpression(new ExpressionInfo(),
-                    type.Name, typeValue, field.Name, 
+                members.Add(field.Name, new StructureMemberExpression(ExpressionInfo.EmptyInfo,
+                    type.Name, typeValue, field.Name,
                     new StructureMemberInfo(false, null, false, true, false, false)));
             }
 
-            for (int i = 0; i < methods.Count();i++)
+            foreach (var method in methods)
             {
-                var method = methods.ElementAt(i);
-
                 var array = method.GetParameters();
 
                 var arguments = new Argument[array.Length];
@@ -87,20 +109,20 @@ namespace Paganism.API
 
                     var createdType = Create(paramater.ParameterType, ref importedTypes);
 
-                    var argumentType = createdType is Value value ? value.GetTypeValue() : new TypeValue(new ExpressionInfo(), TypesType.Enum, (createdType as EnumInstance).Name);
+                    var argumentType = createdType is Value value ? value.GetTypeValue() : new TypeValue(ExpressionInfo.EmptyInfo, TypesType.Enum, (createdType as EnumInstance).Name);
 
                     arguments[j] = new Argument(paramater.Name, argumentType, null, true, paramater.ParameterType.IsArray);
                 }
 
                 var createdReturnType = Create(method.ReturnType, ref importedTypes);
-                var returnType = createdReturnType is Value value2 ? value2.GetTypeValue() : new TypeValue(new ExpressionInfo(), TypesType.Enum, (createdReturnType as EnumInstance).Name);
+                var returnType = createdReturnType is Value value2 ? value2.GetTypeValue() : new TypeValue(ExpressionInfo.EmptyInfo, TypesType.Enum, (createdReturnType as EnumInstance).Name);
 
-                members.Add(method.Name, new StructureMemberExpression(new ExpressionInfo(),
+                members.Add(method.Name, new StructureMemberExpression(ExpressionInfo.EmptyInfo,
                     type.Name, returnType, method.Name,
                     new StructureMemberInfo(true, arguments.ToArray(), true, true, false, false)));
             }
 
-            var structure = new StructureValue(new ExpressionInfo(), type.Name, members);
+            var structure = new StructureValue(ExpressionInfo.EmptyInfo, type.Name, members);
 
             foreach (var method in methods)
             {
@@ -108,7 +130,7 @@ namespace Paganism.API
 
                 var action = (Action) Delegate.CreateDelegate(typeof(Action), (object)type.GetType(), method.Name);
 
-                structure.Values[method.Name] = new FunctionValue(new ExpressionInfo(), method.Name, member.Info.Arguments, member.Type,
+                structure.Values[method.Name] = new FunctionValue(ExpressionInfo.EmptyInfo, method.Name, member.Info.Arguments, member.Type,
                 (Argument[] arguments) =>
                 {
                     var types = new List<object>();
@@ -137,12 +159,12 @@ namespace Paganism.API
                 var value = list[i];
                 var name = type.GetEnumName(value);
 
-                var memberValue = new NumberValue(new ExpressionInfo(), (int)value);
+                var memberValue = new NumberValue(ExpressionInfo.EmptyInfo, (int)value);
 
-                members[i] = new EnumMemberExpression(new ExpressionInfo(), name, memberValue, type.Name);
+                members[i] = new EnumMemberExpression(ExpressionInfo.EmptyInfo, name, memberValue, type.Name);
             }
 
-            return new EnumInstance(new EnumDeclarateExpression(new ExpressionInfo(), type.Name, members, true));
+            return new EnumInstance(new EnumDeclarateExpression(ExpressionInfo.EmptyInfo, type.Name, members, true));
         }
 
         public static bool IsStructure(Type source)

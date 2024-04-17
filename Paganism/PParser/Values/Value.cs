@@ -18,7 +18,7 @@ namespace Paganism.PParser.Values
         {
         }
 
-        public Value() : base(new ExpressionInfo()) { }
+        public Value() : base(ExpressionInfo.EmptyInfo) { }
 
         public abstract string Name { get; }
 
@@ -41,35 +41,33 @@ namespace Paganism.PParser.Values
         {
             var type = value as Type;
 
-            if (type is null || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum)
+            if (type is null || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum || PaganismFromCSharp.IsStructure(type))
             {
-                return new NoneValue(new ExpressionInfo());
+                return new NoneValue(ExpressionInfo.EmptyInfo);
+            }
+
+            if (Interpreter.Data.Structures.Instance.Value.TryGet(null, type.Name, out var structure))
+            {
+                return new StructureValue(ExpressionInfo.EmptyInfo, structure);
             }
 
             var @string = Convert.ToString(value);
 
             if (@string != string.Empty)
             {
-                return new StringValue(new ExpressionInfo(), @string);
-            }
-
-            var @char = Convert.ToChar(value);
-
-            if (@char is '\0')
-            {
-                return new CharValue(new ExpressionInfo(), @char);
+                return new StringValue(ExpressionInfo.EmptyInfo, @string);
             }
 
             var @double = Convert.ToDouble(value);
 
             if (@double is 0.0)
             {
-                return new NumberValue(new ExpressionInfo(), @double);
+                return new NumberValue(ExpressionInfo.EmptyInfo, @double);
             }
 
             var @bool = Convert.ToBoolean(value);
 
-            return new BooleanValue(new ExpressionInfo(), @bool);
+            return new BooleanValue(ExpressionInfo.EmptyInfo, @bool);
         }
 
         public static Value Create(StructureValue structure, VariableExpression variable)
@@ -105,7 +103,7 @@ namespace Paganism.PParser.Values
                     return new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName);
             }
 
-            return new VoidValue(new ExpressionInfo());
+            return new VoidValue(ExpressionInfo.EmptyInfo);
         }
 
         public bool IsType(Value value)
@@ -145,14 +143,14 @@ namespace Paganism.PParser.Values
 
         public bool Is(TypesType type, string typeName)
         {
-            if (this is NoneValue)
+            if (this is NoneValue || type is TypesType.Any)
             {
                 return true;
             }
 
             if (this is FunctionValue functionValue)
             {
-                return (functionValue.Value.ReturnType.Type is TypesType.None)
+                return (functionValue.Value.ReturnType.Value is TypesType.None)
                     ||
                     functionValue.Value.ReturnType.Value == type && functionValue.Value.ReturnType.TypeName == typeName;
             }
@@ -185,7 +183,7 @@ namespace Paganism.PParser.Values
             return string.Empty;
         }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             return this;
         }

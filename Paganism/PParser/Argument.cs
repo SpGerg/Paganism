@@ -19,7 +19,7 @@ namespace Paganism.PParser
                 IsArray = true;
             }
 
-            if (Value is ArrayElementExpression elementExpression && elementExpression.Eval() is ArrayValue)
+            if (Value is ArrayElementExpression elementExpression && elementExpression.Evaluate() is ArrayValue)
             {
                 IsArray = true;
             }
@@ -30,7 +30,8 @@ namespace Paganism.PParser
             }
         }
 
-        public Argument(string name, TypesType requiredValue, EvaluableExpression value = null, bool isRequired = false, bool isArray = false, string typeName = null) : this(name, new TypeValue(new ExpressionInfo(), requiredValue, typeName), value, isRequired, isArray)
+        public Argument(string name, TypesType requiredValue, EvaluableExpression value = null, bool isRequired = false, bool isArray = false, string typeName = null)
+            : this(name, new TypeValue(ExpressionInfo.EmptyInfo, requiredValue, typeName), value, isRequired, isArray)
         {
         }
 

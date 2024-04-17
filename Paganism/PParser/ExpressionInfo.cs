@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser
 {
-    public struct ExpressionInfo
+    public readonly struct ExpressionInfo
     {
         public ExpressionInfo(BlockStatementExpression parent, int line, int position, string filepath)
         {
@@ -24,6 +24,8 @@ namespace Paganism.PParser
             Position = -1;
             Filepath = string.Empty;
         }
+
+        public static ExpressionInfo EmptyInfo { get; } = new ExpressionInfo();
 
         public BlockStatementExpression Parent { get; }
 

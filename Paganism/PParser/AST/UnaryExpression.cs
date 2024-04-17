@@ -15,13 +15,13 @@ namespace Paganism.PParser.AST
 
         public BinaryOperatorType Operator { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             return Operator switch
             {
-                BinaryOperatorType.Plus => Expression.Eval(),
-                BinaryOperatorType.Minus => new NumberValue(ExpressionInfo, - Expression.Eval().AsNumber()),
-                _ => Expression.Eval(),
+                BinaryOperatorType.Plus => Expression.Evaluate(),
+                BinaryOperatorType.Minus => new NumberValue(ExpressionInfo, - Expression.Evaluate().AsNumber()),
+                _ => Expression.Evaluate(),
             };
         }
     }

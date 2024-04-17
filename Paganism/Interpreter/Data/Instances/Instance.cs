@@ -13,11 +13,11 @@ namespace Paganism.Interpreter.Data.Instances
             switch (value)
             {
                 case FunctionValue functionValue:
-                    return new FunctionInstance(new PParser.AST.FunctionDeclarateExpression(new ExpressionInfo(),
+                    return new FunctionInstance(new PParser.AST.FunctionDeclarateExpression(ExpressionInfo.EmptyInfo,
                         functionValue.Name, functionValue.Value.Statement, functionValue.Value.RequiredArguments,
                         functionValue.Value.IsAsync, functionValue.Value.IsShow, functionValue.Value.ReturnType));
                 case StructureValue structureValue:
-                    return new StructureInstance(new PParser.AST.StructureDeclarateExpression(new ExpressionInfo(), 
+                    return new StructureInstance(new PParser.AST.StructureDeclarateExpression(ExpressionInfo.EmptyInfo, 
                         structureValue.Structure.Name, structureValue.Structure.Members.Values.ToArray()));
             }
 

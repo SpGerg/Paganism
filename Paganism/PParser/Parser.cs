@@ -44,7 +44,7 @@ namespace Paganism.PParser
                 expressions.Add(ParseStatement());
             }
 
-            return new BlockStatementExpression(new ExpressionInfo(), expressions.ToArray());
+            return new BlockStatementExpression(ExpressionInfo.EmptyInfo, expressions.ToArray());
         }
 
         private IStatement ParseStatement()

@@ -20,7 +20,7 @@ namespace Paganism.PParser.AST
 
         public EvaluableExpression Index { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             return EvalWithKey().Value;
         }
@@ -31,14 +31,14 @@ namespace Paganism.PParser.AST
 
             if (variable is ArrayValue arrayValue)
             {
-                var value = Index.Eval().AsNumber();
+                var value = Index.Evaluate().AsNumber();
 
                 if (value < 0)
                 {
                     throw new InterpreterException($"Index must be a non-negative, in array variable with {Name} name");
                 }
 
-                if (arrayValue.Elements.Length - 1 < value && Left is not null && Left.Eval() is ArrayValue)
+                if (arrayValue.Elements.Length - 1 < value && Left is not null && Left.Evaluate() is ArrayValue)
                 {
                     throw new InterpreterException($"Index out of range, in array with {Name} name");
                 }
@@ -46,7 +46,7 @@ namespace Paganism.PParser.AST
                 //Breaking bad...
                 if (Left is not null)
                 {
-                    var left = Left.Eval();
+                    var left = Left.Evaluate();
 
                     if (left is ArrayValue arrayValue1)
                     {

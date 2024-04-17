@@ -64,7 +64,7 @@ namespace Paganism.PParser.AST
                 }
                 else if (member is FunctionValue functionValue && binary.Right is FunctionCallExpression functionCallExpression)
                 {
-                    var value = functionValue.Value.Eval(functionCallExpression.Arguments);
+                    var value = functionValue.Value.Evaluate(functionCallExpression.Arguments);
 
                     if (value is not StructureValue structureValue1)
                     {
@@ -118,7 +118,7 @@ namespace Paganism.PParser.AST
 
             if ((member is FunctionValue functionValue && functionValue.Value is not null) && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
             {
-                return new KeyValuePair<string, Value>(name, functionValue.Value.Eval(callExpression.Arguments));
+                return new KeyValuePair<string, Value>(name, functionValue.Value.Evaluate(callExpression.Arguments));
             }
 
             return new KeyValuePair<string, Value>(name, member);
@@ -129,7 +129,7 @@ namespace Paganism.PParser.AST
             return GetMemberWithKeyOfStructure(binaryOperatorExpression).Value;
         }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             if (Type is BinaryOperatorType.Point)
             {
@@ -140,8 +140,8 @@ namespace Paganism.PParser.AST
                 return Assign();
             }
 
-            var left = Left.Eval();
-            var right = Right.Eval();
+            var left = Left.Evaluate();
+            var right = Right.Evaluate();
 
             return Type switch
             {
@@ -180,7 +180,7 @@ namespace Paganism.PParser.AST
                     TypesType.String => new StringValue(ExpressionInfo, left.AsString()),
                     TypesType.Boolean => new BooleanValue(ExpressionInfo, left.AsBoolean()),
                     TypesType.Char => AsChar(left, right),
-                    TypesType.None => new NoneValue(new ExpressionInfo()),
+                    TypesType.None => new NoneValue(ExpressionInfo.EmptyInfo),
                     TypesType.Structure => AsStructure(left, typeValue),
                     _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}"),
                 };
@@ -238,13 +238,15 @@ namespace Paganism.PParser.AST
 
             if (Left is VariableExpression leftVariableExpression && Right is FunctionCallExpression functionCallExpression)
             {
+                //it will be broke somethjing if im delete code?
+                /*
                 Dictionary<string, dynamic> InternalFunctionExtension;
-                switch (leftVariableExpression.Type.Type)
+                switch (leftVariableExpression.Type.Value)
                 {
                     case TypesType.String:
                         InternalFunctionExtension = Extension.StringExtension; break;
                     default:
-                        throw new ExtensionException($"Cannot use any point function for a {leftVariableExpression.Type.Type} variable!");
+                        throw new ExtensionException($"Cannot use any point function for a {leftVariableExpression.Type.Value} variable!");
                 }
 
                 if (InternalFunctionExtension.ContainsKey(functionCallExpression.FunctionName) && Extension.TryGet(InternalFunctionExtension, functionCallExpression.FunctionName, out dynamic ExtensionElement))
@@ -266,6 +268,7 @@ namespace Paganism.PParser.AST
                         return FunctionInstance.ExecuteAndReturn(Arguments.ToArray());
                     }
                 }
+                */
             }
 
             var member = GetMemberWithKeyOfStructure(this);
@@ -374,7 +377,7 @@ namespace Paganism.PParser.AST
             }
             else
             {
-                value = Right.Eval();
+                value = Right.Evaluate();
             }
 
             if (Left is VariableExpression variableExpression)

@@ -22,7 +22,7 @@ namespace Paganism.Interpreter.Data
         protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
         {
             { "cs_call", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "cs_call", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "cs_call", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("namespace", TypesType.String, null, true),
                     new("method", TypesType.String, null, true),
@@ -31,9 +31,9 @@ namespace Paganism.Interpreter.Data
                     false,
                     true), (Argument[] arguments) =>
                     {
-                        if (!FunctionDeclarateExpression.Types.TryGetValue(arguments[0].Value.Eval().AsString(), out Type findedClass))
+                        if (!FunctionDeclarateExpression.Types.TryGetValue(arguments[0].Value.Evaluate().AsString(), out Type findedClass))
                         {
-                            var name = arguments[0].Value.Eval().AsString();
+                            var name = arguments[0].Value.Evaluate().AsString();
 
                             findedClass = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.FullName == name);
 
@@ -43,71 +43,82 @@ namespace Paganism.Interpreter.Data
                             }
                         }
 
-                        if (arguments[2].Value.Eval() is NoneValue)
+                        if (arguments[2].Value.Evaluate() is NoneValue)
                         {
-                            var method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { });
+                            var method = findedClass.GetMethod(arguments[1].Value.Evaluate().AsString(), new Type[] { });
 
                             return Value.Create(method.Invoke(null, new object[] { }));
                         }
                         else
                         {
-                            var paramater = arguments[2].Value.Eval();
+                            var paramater = arguments[2].Value.Evaluate();
 
                             MethodInfo method = null;
 
+                            if (paramater is ArrayValue arrayValue && arrayValue.Elements.Length == 0)
+                            {
+                                method = findedClass.GetMethod(arguments[1].Value.Evaluate().AsString());
+                            }
                             if (paramater is StringValue)
                             {
-                                method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(string) });
+                                method = findedClass.GetMethod(arguments[1].Value.Evaluate().AsString(), new Type[] { typeof(string) });
                             }
                             else if (paramater is CharValue)
                             {
-                                method = findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(char) });
+                                method = findedClass.GetMethod(arguments[1].Value.Evaluate().AsString(), new Type[] { typeof(char) });
                             }
                             else
                             {
                                 method = paramater is BooleanValue
-                                    ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(bool) })
+                                    ? findedClass.GetMethod(arguments[1].Value.Evaluate().AsString(), new Type[] { typeof(bool) })
                                     : paramater is NumberValue
-                                                            ? findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(int) })
-                                                            : findedClass.GetMethod(arguments[1].Value.Eval().AsString(), new Type[] { typeof(object) });
+                                                            ? findedClass.GetMethod(arguments[1].Value.Evaluate().AsString(), new Type[] { typeof(int) })
+                                                            : findedClass.GetMethod(arguments[1].Value.Evaluate().AsString(), new Type[] { typeof(object) });
                             }
 
-                            if (method.GetParameters()[0].ParameterType == typeof(string) || method.GetParameters()[0].ParameterType == typeof(object))
+                            var paramaters = method.GetParameters();
+
+                            if (paramaters.Length == 0)
                             {
-                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
+                                return Value.Create(method.Invoke(null, new object[] { }));
                             }
-                            else if (method.GetParameters()[0].ParameterType == typeof(bool))
+                            else if (paramaters[0].ParameterType == typeof(string) || paramaters[0].ParameterType == typeof(object))
                             {
-                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsBoolean() }));
+                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Evaluate().AsString() }));
                             }
-                            else if (method.GetParameters()[0].ParameterType == typeof(int))
+                            else if (paramaters[0].ParameterType == typeof(bool))
                             {
-                                return Value.Create(method.Invoke(null, new object[] { (int)arguments[2].Value.Eval().AsNumber() }));
+                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Evaluate().AsBoolean() }));
                             }
-                            else if (method.GetParameters()[0].ParameterType == typeof(char))
+                            else if (paramaters[0].ParameterType == typeof(int))
                             {
-                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString()[0] }));
+                                return Value.Create(method.Invoke(null, new object[] { (int)arguments[2].Value.Evaluate().AsNumber() }));
+                            }
+                            else if (paramaters[0].ParameterType == typeof(char))
+                            {
+                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Evaluate().AsString()[0] }));
                             }
                             else
                             {
-                                var g = arguments[2].Value.Eval();
-                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Eval().AsString() }));
+                                var g = arguments[2].Value.Evaluate();
+                                return Value.Create(method.Invoke(null, new object[] { arguments[2].Value.Evaluate().AsString() }));
                             }
                         }
                     }
                 )
             },
             { "import", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "import", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "import", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
-                    new("file", TypesType.String)
+                    new("file", TypesType.String, null, true),
+                    new("is_all_members", TypesType.Boolean, null, false)
                 },
                     false,
                     true)
                 , (Argument[] arguments) => {
-                    var name = arguments[0].Value.Eval().AsString();
+                    var name = arguments[0].Value.Evaluate().AsString();
                     var baseDir = Directory.GetCurrentDirectory();
-                    if (API.ImportManager.SpecificDirectory is not null)
+                    if (ImportManager.SpecificDirectory is not null)
                     {
                         baseDir = API.ImportManager.SpecificDirectory;
                     }
@@ -116,7 +127,18 @@ namespace Paganism.Interpreter.Data
                     {
                         var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.Name + ".cs" == name);
                         var types = new List<object>();
-                        var value = PaganismFromCSharp.Create(type, ref types);
+
+                        object value;
+
+                        if (arguments.Length > 1)
+                        {
+                            value = PaganismFromCSharp.Create(type, ref types, arguments[1].Value.Evaluate().AsBoolean());
+                        }
+                        else
+                        {
+                            value = PaganismFromCSharp.Create(type, ref types);
+                        }
+
                         types.Add(value);
 
                         foreach (var paganismType in types)
@@ -161,11 +183,11 @@ namespace Paganism.Interpreter.Data
                     var interpreter = new Interpreter(parser.Run());
                     interpreter.Run(false); 
 
-                    return new VoidValue(new ExpressionInfo());
+                    return new VoidValue(ExpressionInfo.EmptyInfo);
                 })
             },
             { "pgm_resize", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "pgm_resize", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "pgm_resize", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("array", TypesType.Array),
                     new("size", TypesType.Number)
@@ -173,9 +195,9 @@ namespace Paganism.Interpreter.Data
                     false,
                     true), (Argument[] arguments) =>
                     {
-                        var array = arguments[0].Value.Eval() as ArrayValue;
+                        var array = arguments[0].Value.Evaluate() as ArrayValue;
 
-                        var newElements = new Value[(int)arguments[1].Value.Eval().AsNumber()];
+                        var newElements = new Value[(int)arguments[1].Value.Evaluate().AsNumber()];
 
                         for (int i = 0; i < newElements.Length; i++)
                         {
@@ -197,7 +219,7 @@ namespace Paganism.Interpreter.Data
                 )
             },
             { "pgm_size", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "pgm_size", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "pgm_size", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("array", TypesType.Array)
                 },
@@ -206,34 +228,34 @@ namespace Paganism.Interpreter.Data
                     {
                         var argument = arguments[0].Value;
 
-                        return new NumberValue(argument.ExpressionInfo, (arguments[0].Value.Eval() as ArrayValue).Elements.Length);
+                        return new NumberValue(argument.ExpressionInfo, (arguments[0].Value.Evaluate() as ArrayValue).Elements.Length);
                     }
                 )
             },
             { "print", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "print", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "print", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("content", TypesType.String, null, true)
                 }, false, true), (Argument[] arguments) =>
                     {
-                        Console.WriteLine(arguments[0].Value.Eval().AsString());
+                        Console.WriteLine(arguments[0].Value.Evaluate().AsString());
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 ) 
             },
             { "println", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "println", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "println", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
                     {
-                        Console.Write(arguments[0].Value.Eval().AsString());
+                        Console.Write(arguments[0].Value.Evaluate().AsString());
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 )
             },
             { "read", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "read", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "read", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
@@ -244,7 +266,7 @@ namespace Paganism.Interpreter.Data
             },
             {
                 "millitime", new FunctionInstance(
-                new FunctionDeclarateExpression(new ExpressionInfo(), "millitime", new BlockStatementExpression(new ExpressionInfo(), null), new Argument[]{}, false, true), (Argument[] arguments) =>
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "millitime", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]{}, false, true), (Argument[] arguments) =>
                     {
                         return Value.Create(DateTimeOffset.Now.ToUnixTimeMilliseconds());
                     }

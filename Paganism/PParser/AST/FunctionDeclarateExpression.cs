@@ -25,6 +25,8 @@ namespace Paganism.PParser.AST
             IsShow = isShow;
             ReturnType = returnType;
 
+            ReturnType ??= new TypeValue(ExpressionInfo.EmptyInfo, TypesType.None, string.Empty);
+
             if (name.StartsWith("__"))
             {
                 throw new InterpreterException($"Function cant start with '__'",
@@ -36,7 +38,7 @@ namespace Paganism.PParser.AST
                 return;
             }
 
-            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType.Type is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
+            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType.Value is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
                 throw new InterpreterException($"Function with {Name} name must return value",
                     ExpressionInfo.Line, ExpressionInfo.Position);
@@ -47,9 +49,12 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException($"Except return value type in function with {Name} name",
                     ExpressionInfo.Line, ExpressionInfo.Position);
             }
-
-            ReturnType ??= new TypeValue(new ExpressionInfo(), TypesType.None, string.Empty);
         }
+
+        public static readonly Dictionary<string, Type> Types = new()
+        {
+            { "System.Console", typeof(Console) }
+        };
 
         public string Name { get; }
 
@@ -62,11 +67,6 @@ namespace Paganism.PParser.AST
         public Argument[] RequiredArguments { get; }
 
         public TypeValue ReturnType { get; }
-
-        public static readonly Dictionary<string, Type> Types = new()
-        {
-            { "System.Console", typeof(Console) }
-        };
 
         public void Declarate()
         {
@@ -82,7 +82,7 @@ namespace Paganism.PParser.AST
         {
             var task = Task.Run(() =>
             {
-                Statement.Eval(arguments);
+                Statement.Evaluate(arguments);
             });
 
             task.ContinueWith(_ =>
@@ -97,7 +97,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval(arguments);
+            Evaluate(arguments);
         }
 
         public void CreateArguments(params Argument[] arguments)
@@ -119,7 +119,7 @@ namespace Paganism.PParser.AST
                     var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneValue(ExpressionInfo));
 
                     totalArguments[i] = noneArgument;
-                    Variables.Instance.Value.Set(Statement, functionArgument.Name, noneArgument.Value.Eval());
+                    Variables.Instance.Value.Set(Statement, functionArgument.Name, noneArgument.Value.Evaluate());
                     continue;
                 }
 
@@ -136,11 +136,11 @@ namespace Paganism.PParser.AST
 
                 if (initArgument.Value is FunctionCallExpression function)
                 {
-                    initArgument.Value = function.Eval(function.Arguments);
+                    initArgument.Value = function.Evaluate(function.Arguments);
                 }
                 else if (initArgument.Value is BinaryOperatorExpression operatorExpression)
                 {
-                    initArgument.Value = operatorExpression.Eval();
+                    initArgument.Value = operatorExpression.Evaluate();
                 }
             }
 
@@ -153,12 +153,12 @@ namespace Paganism.PParser.AST
                 }
                 else
                 {
-                    Variables.Instance.Value.Set(Statement, argument.Name, argument.Value.Eval());
+                    Variables.Instance.Value.Set(Statement, argument.Name, argument.Value.Evaluate());
                 }
             }
         }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             CreateArguments(arguments);
 
@@ -174,7 +174,7 @@ namespace Paganism.PParser.AST
 
             if (Statement is null)
             {
-                return new VoidValue(new ExpressionInfo());
+                return new VoidValue(ExpressionInfo.EmptyInfo);
             }
 
             if (IsAsync)
@@ -192,7 +192,7 @@ namespace Paganism.PParser.AST
             }
             else
             {
-                var result = Statement.Eval(arguments);
+                var result = Statement.Evaluate(arguments);
 
                 if (result is null)
                 {

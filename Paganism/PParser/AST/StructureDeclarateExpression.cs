@@ -27,7 +27,7 @@ namespace Paganism.PParser.AST
             Interpreter.Data.Structures.Instance.Value.Remove(ExpressionInfo.Parent, Name);
         }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             return new StructureValue(ExpressionInfo, new StructureInstance(this));
         }

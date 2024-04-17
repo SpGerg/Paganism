@@ -8,14 +8,14 @@ namespace Paganism.PParser.AST
         {
         }
 
-        public abstract Value Eval(params Argument[] arguments);
+        public abstract Value Evaluate(params Argument[] arguments);
 
         private TypeValue GetTypeValue(EvaluableExpression evaluableExpression)
         {
             switch (evaluableExpression)
             {
                 case ArrayElementExpression arrayElementExpression:
-                    var value = arrayElementExpression.Eval();
+                    var value = arrayElementExpression.Evaluate();
 
                     return new TypeValue(ExpressionInfo, value.Type, value.GetTypeName());
                 case ArrayExpression:

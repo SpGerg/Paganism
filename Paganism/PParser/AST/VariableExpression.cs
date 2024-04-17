@@ -17,13 +17,13 @@ namespace Paganism.PParser.AST
 
         public TypeValue Type { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name);
 
             if (variable is null)
             {
-                return new VoidValue(new ExpressionInfo());
+                return new VoidValue(ExpressionInfo.EmptyInfo);
             }
 
             if (variable is NoneValue)

@@ -21,11 +21,11 @@ namespace Paganism.PParser.AST
 
         public BlockStatementExpression CatchExpression { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
             try
             {
-                var result = TryExpression.Eval(arguments);
+                var result = TryExpression.Evaluate(arguments);
 
                 return result;
             }
@@ -37,13 +37,13 @@ namespace Paganism.PParser.AST
 
                 Variables.Instance.Value.Set(CatchExpression, "exception", structure);
 
-                return CatchExpression.Eval();
+                return CatchExpression.Evaluate();
             }
         }
 
         public void Execute(params Argument[] arguments)
         {
-            Eval(arguments);
+            Evaluate(arguments);
         }
     }
 }

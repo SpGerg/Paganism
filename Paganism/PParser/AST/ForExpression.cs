@@ -21,11 +21,11 @@ namespace Paganism.PParser.AST
 
         public BlockStatementExpression Statement { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
-            while (Expression == null || Expression.Eval().AsBoolean())
+            while (Expression == null || Expression.Evaluate().AsBoolean())
             {
-                var result = Statement.Eval();
+                var result = Statement.Evaluate();
 
                 if (result != null)
                 {
@@ -45,7 +45,7 @@ namespace Paganism.PParser.AST
 
         public void Execute(params Argument[] arguments)
         {
-            Eval();
+            Evaluate();
         }
     }
 }

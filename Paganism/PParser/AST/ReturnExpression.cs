@@ -12,9 +12,9 @@ namespace Paganism.PParser.AST
 
         public EvaluableExpression Value { get; }
 
-        public override Value Eval(params Argument[] arguments)
+        public override Value Evaluate(params Argument[] arguments)
         {
-            return Value.Eval(arguments);
+            return Value.Evaluate(arguments);
         }
     }
 }
