@@ -8,15 +8,16 @@ namespace Paganism.PParser.Values
 {
     public class FunctionValue : Value
     {
-        public FunctionValue(ExpressionInfo info, FunctionDeclarateExpression value) : base(info)
+        public FunctionValue(ExpressionInfo info, FunctionDeclarateExpression value, Func<Argument[], Value> func = null) : base(info)
         {
             Value = value;
+            Func = func;
         }
 
-        public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> action) : base(info)
+        public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> func) : base(info)
         {
             Value = new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, name, null, arguments, false, true, returnType);
-            Action = action;
+            Func = func;
         }
 
         public override string Name => "Function";
@@ -30,7 +31,7 @@ namespace Paganism.PParser.Values
 
         public FunctionDeclarateExpression Value { get; set; }
 
-        public Func<Argument[], Value> Action { get; }
+        public Func<Argument[], Value> Func { get; }
 
         public override void Set(object value)
         {

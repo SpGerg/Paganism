@@ -110,8 +110,7 @@ namespace Paganism.Interpreter.Data
             { "import", new FunctionInstance(
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "import", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
-                    new("file", TypesType.String, null, true),
-                    new("is_all_members", TypesType.Boolean, null, false)
+                    new("file", TypesType.String, null, true)
                 },
                     false,
                     true)
@@ -128,16 +127,14 @@ namespace Paganism.Interpreter.Data
                         var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).FirstOrDefault(type => type.Name + ".cs" == name);
                         var types = new List<object>();
 
-                        object value;
+                        if (type is null)
+                        {
+                            var info = arguments[0].Value.ExpressionInfo;
 
-                        if (arguments.Length > 1)
-                        {
-                            value = PaganismFromCSharp.Create(type, ref types, arguments[1].Value.Evaluate().AsBoolean());
+                            throw new InterpreterException($"Unknown type with {name} name", info.Line, info.Position);
                         }
-                        else
-                        {
-                            value = PaganismFromCSharp.Create(type, ref types);
-                        }
+
+                        var value = PaganismFromCSharp.Create(type, ref types);
 
                         types.Add(value);
 
@@ -164,13 +161,13 @@ namespace Paganism.Interpreter.Data
 
                     string[] result;
                     string[] files;
-                    if (API.ImportManager.PreLoadedFiles.ContainsKey(name))
+                    if (ImportManager.PreLoadedFiles.ContainsKey(name))
                     {
                         files = new string[]
                         {
                             name
                         };
-                        result = API.ImportManager.PreLoadedFiles[name];
+                        result = ImportManager.PreLoadedFiles[name];
                     }
                     else
                     {

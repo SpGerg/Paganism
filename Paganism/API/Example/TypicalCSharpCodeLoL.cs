@@ -1,5 +1,6 @@
 ﻿using Paganism.API.Attributes;
 using Paganism.PParser;
+using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Paganism.API.Example
             this.loL = loL;
         }
 
+        public TypicalCSharpCodeLoL() { }
+
         [PaganismSerializable]
         public string someCoolName;
 
@@ -23,9 +26,11 @@ namespace Paganism.API.Example
         public LoL loL;
 
         [PaganismSerializable]
-        public void LoL(Argument[] arguments)
+        public Value LoL(Argument[] arguments)
         {
-            Console.WriteLine("Hello, world");
+            Console.WriteLine(arguments[0].Value.Evaluate().AsString());
+
+            return new VoidValue(ExpressionInfo.EmptyInfo);
         }
     }
 

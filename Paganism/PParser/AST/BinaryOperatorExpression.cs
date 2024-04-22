@@ -116,9 +116,19 @@ namespace Paganism.PParser.AST
                     binaryOperatorExpression.ExpressionInfo.Line, binaryOperatorExpression.ExpressionInfo.Position);
             }
 
-            if ((member is FunctionValue functionValue && functionValue.Value is not null) && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
+            if (member is FunctionValue functionValue && binaryOperatorExpression.Right is FunctionCallExpression callExpression)
             {
-                return new KeyValuePair<string, Value>(name, functionValue.Value.Evaluate(callExpression.Arguments));
+                if (functionValue.Value is not null)
+                {
+                    return new KeyValuePair<string, Value>(name, functionValue.Value.Evaluate(callExpression.Arguments));
+                }
+                else
+                {
+                    if (structure.Structure.Functions.TryGetValue(name, out var value))
+                    {
+                        return new KeyValuePair<string, Value>(name, value.Invoke(callExpression.Arguments));
+                    }               
+                }
             }
 
             return new KeyValuePair<string, Value>(name, member);

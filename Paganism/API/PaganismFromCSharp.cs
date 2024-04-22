@@ -16,7 +16,7 @@ namespace Paganism.API
 {
     public static class PaganismFromCSharp
     {
-        public static object Create(Type type, ref List<object> importedTypes, bool isAllMembers = false)
+        public static object Create(Type type, ref List<object> importedTypes)
         {
             var value = Value.Create(type);
 
@@ -38,46 +38,24 @@ namespace Paganism.API
 
             if (IsStructure(type) || type.IsClass)
             {
-                return CreateStructureOrClass(type, importedTypes, isAllMembers);
+                return CreateStructureOrClass(type, importedTypes);
             }
 
             return null;
         }
 
-        public static StructureValue CreateStructureOrClass(Type type, List<object> importedTypes, bool isAllMembers = false)
+        public static StructureValue CreateStructureOrClass(Type type, List<object> importedTypes)
         {
             IEnumerable<FieldInfo> fields;
             IEnumerable<MethodInfo> methods;
 
-            if (isAllMembers)
-            {
-                fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-                var findedMethods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-                methods = new List<MethodInfo>();
-
-                foreach (var method in findedMethods)
-                {
-                    var paramaters = method.GetParameters();
-
-                    if (paramaters.Length == 0 || method.GetParameters()[0].ParameterType != typeof(Argument[]))
-                    {
-                        continue;
-                    }
-
-                    methods.Append(method);
-                }
-            }
-            else
-            {
-                fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
+            fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
                 Where(field => field.GetCustomAttribute<PaganismSerializable>() is not null);
 
-                methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
-                    Where(method => method.GetCustomAttribute<PaganismSerializable>() is not null &&
-                    method.GetParameters()[0].ParameterType.IsArray && method.GetParameters()[0].ParameterType == typeof(Argument[]));
-            }            
+            methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase).
+                Where(method => method.GetCustomAttribute<PaganismSerializable>() is not null &&
+                method.GetParameters()[0].ParameterType.IsArray && method.GetParameters()[0].ParameterType == typeof(Argument[])
+                && method.ReturnType == typeof(Value));
 
             var members = new Dictionary<string, StructureMemberExpression>(fields.Count());
 
@@ -124,20 +102,19 @@ namespace Paganism.API
 
             var structure = new StructureValue(ExpressionInfo.EmptyInfo, type.Name, members);
 
-            foreach (var method in methods)
+            if (methods.Count() != 0)
             {
-                var member = structure.Structure.Members[method.Name];
+                var instance = Activator.CreateInstance(type);
 
-                var action = (Action) Delegate.CreateDelegate(typeof(Action), (object)type.GetType(), method.Name);
-
-                structure.Values[method.Name] = new FunctionValue(ExpressionInfo.EmptyInfo, method.Name, member.Info.Arguments, member.Type,
-                (Argument[] arguments) =>
+                foreach (var method in methods)
                 {
-                    var types = new List<object>();
+                    var member = structure.Structure.Members[method.Name];
 
-                    return Create(action.DynamicInvoke(arguments) as Type, ref types) as Value;
-                });
-            }
+                    var action = (Func<Argument[], Value>)Delegate.CreateDelegate(typeof(Func<Argument[], Value>), instance, method);
+
+                    structure.Values[method.Name] = new FunctionValue(ExpressionInfo.EmptyInfo, method.Name, member.Info.Arguments, member.Type, action);
+                }
+            } 
 
             return structure; 
         }

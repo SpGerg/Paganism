@@ -2,6 +2,7 @@
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using Paganism.Structures;
+using System;
 
 namespace Paganism.PParser.AST
 {

@@ -1,5 +1,7 @@
 ﻿using Paganism.PParser;
 using Paganism.PParser.Values;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Paganism.Interpreter.Data.Instances
@@ -32,7 +34,24 @@ namespace Paganism.Interpreter.Data.Instances
             }
             else if (value is StructureValue structureValue)
             {
-                return new StructureInstance(structureValue.Structure.StructureDeclarateExpression);
+                var functions = new Dictionary<string, Func<Argument[], Value>>();
+
+                foreach (var member in structureValue.Values)
+                {
+                    if (member.Value is not FunctionValue functionValue2)
+                    {
+                        continue;
+                    }
+
+                    if (functionValue2.Func is null)
+                    {
+                        continue;
+                    }
+
+                    functions.Add(member.Key, functionValue2.Func);
+                }
+
+                return new StructureInstance(structureValue.Structure.StructureDeclarateExpression, functions);
             }
 
             return null;

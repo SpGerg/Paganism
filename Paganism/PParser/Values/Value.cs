@@ -88,7 +88,7 @@ namespace Paganism.PParser.Values
                 case BooleanValue booleanValue:
                     return new BooleanValue(copy.ExpressionInfo, booleanValue.Value);
                 case FunctionValue functionValue:
-                    return new FunctionValue(copy.ExpressionInfo, functionValue.Value);
+                    return new FunctionValue(copy.ExpressionInfo, functionValue.Value, functionValue.Func);
                 case ArrayValue arrayValue:
                     return new ArrayValue(copy.ExpressionInfo, arrayValue.Elements);
                 case NoneValue noneValue:

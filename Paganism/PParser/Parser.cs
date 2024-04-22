@@ -139,15 +139,6 @@ namespace Paganism.PParser
                 : throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position);
         }
 
-        private Token NextToken(int Relative)
-        {
-            if (Position + Relative < Tokens.Length)
-            {
-                return Tokens[Position + Relative];
-            }
-            return null;
-        }
-
         private Expression ParseNew()
         {
             Match(TokenType.New);
