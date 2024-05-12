@@ -7,6 +7,7 @@ using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
+using Paganism.Structures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -319,7 +320,7 @@ namespace Paganism.PParser
             }
 
             var member = new StructureMemberExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), structureName, new TypeValue(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath),
-                Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName, isShow, isReadOnly, isCastable);
+                Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName, new StructureMemberInfo(false, null, isReadOnly, isShow, isCastable, false));
 
             return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position) : member;
         }

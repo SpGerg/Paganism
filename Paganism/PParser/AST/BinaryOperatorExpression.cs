@@ -248,6 +248,7 @@ namespace Paganism.PParser.AST
 
             if (Left is VariableExpression leftVariableExpression && Right is FunctionCallExpression functionCallExpression)
             {
+                //thats part of foxworn code, this is code broken.
                 //it will be broke somethjing if im delete code?
                 /*
                 Dictionary<string, dynamic> InternalFunctionExtension;
