@@ -12,7 +12,7 @@ namespace Paganism.Exceptions
         {
         }
 
-        public PaganismException(string message, string name)
+        protected PaganismException(string message, string name)
             : base($"{name} error: {message} ")
         {
             OriginalMessage = message;
@@ -20,7 +20,7 @@ namespace Paganism.Exceptions
 
 
         public PaganismException(string message, int line, int position, string filepath, string name)
-            : base($"{filepath}, {name} error: {message} Line: {line + 1}, position: {position + 1}")
+            : base($"{filepath}, {name} error: {message + (message.EndsWith(".") ? string.Empty : '.')} Line: {line + 1}, position: {position + 1}")
         {
             OriginalMessage = message;
         }
