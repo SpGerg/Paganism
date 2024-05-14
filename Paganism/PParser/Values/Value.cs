@@ -108,6 +108,11 @@ namespace Paganism.PParser.Values
 
         public bool IsType(Value value)
         {
+            if ((this is FunctionValue && value.Type is not TypesType.Function) || (value is FunctionValue && Type is not TypesType.Function))
+            {
+                return false;
+            }
+
             if (value.Type is TypesType.Any)
             {
                 return true;
@@ -128,14 +133,14 @@ namespace Paganism.PParser.Values
                 return enumValue.Equals(this);
             }
 
-            if (value is TypeValue typeValue)
-            {
-                return typeValue.Equals(this);
-            }
-
             if (value is FunctionValue functionValue)
             {
                 return functionValue.Equals(this);
+            }
+
+            if (value is TypeValue typeValue)
+            {
+                return typeValue.Equals(this);
             }
 
             return true;

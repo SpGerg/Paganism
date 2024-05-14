@@ -69,7 +69,20 @@ namespace Paganism.PParser.Values
                 throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure");
             }
 
-            if (member.Type.Value != TypesType.Any && member.Type.Value != value.Type && (value is TypeValue typeValue && typeValue.Value is not TypesType.None))
+            if (member.Info.IsDelegate)
+            {
+                if (value is not FunctionValue functionValue)
+                {
+                    throw new InterpreterException($"Except function", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
+                }
+
+                if (!functionValue.Is(member.Type.Value, member.Type.TypeName))
+                {
+                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
+                }
+            }
+
+            if (!member.Info.IsDelegate && member.Type.Value != TypesType.Any && member.Type.Value != value.Type)
             {
                 throw new InterpreterException($"Except {member.Type} type");
             }
@@ -84,19 +97,6 @@ namespace Paganism.PParser.Values
                 if (value is EnumValue enumValue && enumValue.Member.Enum != member.Type.TypeName)
                 {
                     throw new InterpreterException($"Except enum '{member.Type}' type");
-                }
-            }
-
-            if (member.Info.IsDelegate)
-            {
-                if (value is not FunctionValue functionValue)
-                {
-                    throw new InterpreterException($"Except function", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
-                }
-
-                if (!functionValue.Is(member.Type.Value, member.Type.TypeName))
-                {
-                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
                 }
             }
 

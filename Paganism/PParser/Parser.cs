@@ -329,8 +329,6 @@ namespace Paganism.PParser
         {
             Match(TokenType.Delegate);
 
-            var current = Current.Type;
-
             var isAsync = Match(TokenType.Async);
 
             var type = ParseType();
@@ -349,11 +347,11 @@ namespace Paganism.PParser
 
             var arguments = ParseFunctionArguments();
 
-            Match(TokenType.Semicolon);
+            var member = new StructureMemberExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), structureName,
+                new TypeValue(type.ExpressionInfo, type.Type is TypesType.Any ? TypesType.None : type.Type, type.TypeName), memberName,
+                new StructureMemberInfo(true, arguments, isReadOnly, isShow, isCastable, isAsync));
 
-            return new StructureMemberExpression(new ExpressionInfo( _parent, Current.Line, Current.Position, Filepath), structureName,
-                new TypeValue(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), current is TokenType.Function ? TypesType.None : Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName,
-                isShow, isReadOnly, isAsync, true, arguments, isCastable);
+            return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position) : member;
         }
 
         private IStatement ParseFor()
