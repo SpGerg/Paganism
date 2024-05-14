@@ -41,6 +41,21 @@ namespace Paganism.PParser.Values
         {
             var type = value as Type;
 
+            if (value is string)
+            {
+                return new StringValue(ExpressionInfo.EmptyInfo, Convert.ToString(value));
+            }
+
+            if (value is double or int or float)
+            {
+                return new NumberValue(ExpressionInfo.EmptyInfo, Convert.ToDouble(value));
+            }
+
+            if (value is bool)
+            {
+                return new BooleanValue(ExpressionInfo.EmptyInfo, Convert.ToBoolean(value));
+            } 
+
             if (type is null || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum || PaganismFromCSharp.IsStructure(type))
             {
                 return new NoneValue(ExpressionInfo.EmptyInfo);
@@ -51,23 +66,7 @@ namespace Paganism.PParser.Values
                 return new StructureValue(ExpressionInfo.EmptyInfo, structure);
             }
 
-            var @string = Convert.ToString(value);
-
-            if (@string != string.Empty)
-            {
-                return new StringValue(ExpressionInfo.EmptyInfo, @string);
-            }
-
-            var @double = Convert.ToDouble(value);
-
-            if (@double is 0.0)
-            {
-                return new NumberValue(ExpressionInfo.EmptyInfo, @double);
-            }
-
-            var @bool = Convert.ToBoolean(value);
-
-            return new BooleanValue(ExpressionInfo.EmptyInfo, @bool);
+            return new NoneValue(ExpressionInfo.EmptyInfo);
         }
 
         public static Value Create(StructureValue structure, VariableExpression variable)
