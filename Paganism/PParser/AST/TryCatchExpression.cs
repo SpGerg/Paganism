@@ -31,7 +31,7 @@ namespace Paganism.PParser.AST
             }
             catch (Exception exception)
             {
-                var structure = new StructureValue(ExpressionInfo, Interpreter.Data.Structures.Instance.Value.Get(null, "exception"));
+                var structure = new StructureValue(ExpressionInfo, Interpreter.Data.Structures.Instance.Value.Get(null, "exception", ExpressionInfo));
                 structure.Set("name", new StringValue(ExpressionInfo, exception.GetType().Name), ExpressionInfo.Filepath);
                 structure.Set("description", new StringValue(ExpressionInfo, exception.Message), ExpressionInfo.Filepath);
 

@@ -22,7 +22,7 @@ namespace Paganism.PParser.AST
 
         public Argument[] Arguments { get; }
 
-        public FunctionInstance GetFunction() => Functions.Instance.Value.Get(ExpressionInfo.Parent, FunctionName);
+        public FunctionInstance GetFunction() => Functions.Instance.Value.Get(ExpressionInfo.Parent, FunctionName, ExpressionInfo);
 
         public override Value Evaluate(params Argument[] arguments)
         {
@@ -30,7 +30,7 @@ namespace Paganism.PParser.AST
 
             if (!function.IsAsync && IsAwait)
             {
-                throw new InterpreterException("You cant use await for not async functions", ExpressionInfo.Line, ExpressionInfo.Position);
+                throw new InterpreterException("You cant use await for not async functions", ExpressionInfo);
             }
 
             try
@@ -51,7 +51,7 @@ namespace Paganism.PParser.AST
             }
             catch (PaganismException exception)
             {
-                throw new InterpreterException(exception.OriginalMessage, ExpressionInfo.Line, ExpressionInfo.Position);
+                throw new InterpreterException(exception.OriginalMessage, ExpressionInfo);
             }
         }
 

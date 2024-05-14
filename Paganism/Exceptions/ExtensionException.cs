@@ -1,4 +1,6 @@
-﻿namespace Paganism.Exceptions
+﻿using Paganism.PParser;
+
+namespace Paganism.Exceptions
 {
     internal class ExtensionException : PaganismException
     {
@@ -11,8 +13,13 @@
         {
         }
 
-        public ExtensionException(string message, int line, int position)
-            : base(message, line, position, "Extension")
+        public ExtensionException(string message, ExpressionInfo expressionInfo)
+            : base(message, expressionInfo.Line, expressionInfo.Position, expressionInfo.Filepath, "Extension")
+        {
+        }
+
+        public ExtensionException(string message, int line, int position, string filepath)
+            : base(message, line, position, filepath, "Extension")
         {
         }
 

@@ -30,7 +30,7 @@ namespace Paganism.PParser.AST
             if (name.StartsWith("__"))
             {
                 throw new InterpreterException($"Function cant start with '__'",
-                    ExpressionInfo.Line, ExpressionInfo.Position);
+                    ExpressionInfo);
             }
 
             if (Statement is null || Statement.Statements is null)
@@ -41,13 +41,13 @@ namespace Paganism.PParser.AST
             if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType.Value is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
                 throw new InterpreterException($"Function with {Name} name must return value",
-                    ExpressionInfo.Line, ExpressionInfo.Position);
+                    ExpressionInfo);
             }
 
             if (ReturnType.Type is TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
             {
                 throw new InterpreterException($"Except return value type in function with {Name} name",
-                    ExpressionInfo.Line, ExpressionInfo.Position);
+                    ExpressionInfo);
             }
         }
 
@@ -113,7 +113,7 @@ namespace Paganism.PParser.AST
                     if (functionArgument.IsRequired)
                     {
                         throw new InterpreterException($"Argument in {Name} function is required.",
-                            ExpressionInfo.Line, ExpressionInfo.Position);
+                            ExpressionInfo);
                     }
 
                     var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneValue(ExpressionInfo));
@@ -127,7 +127,7 @@ namespace Paganism.PParser.AST
 
                 if (!functionArgument.Equals(argument) && functionArgument.Type.IsCanCast(argument.Type))
                 {
-                    throw new InterpreterException($"Except {functionArgument.Type}");
+                    throw new InterpreterException($"Except {functionArgument.Type}", ExpressionInfo);
                 }
 
                 var initArgument = new Argument(functionArgument.Name, functionArgument.Type, argument.Value, functionArgument.IsRequired, functionArgument.IsArray);
@@ -164,7 +164,7 @@ namespace Paganism.PParser.AST
 
             if (Functions.Instance.Value.IsLanguage(Name))
             {
-                var nativeFunction = Functions.Instance.Value.Get(Statement, Name);
+                var nativeFunction = Functions.Instance.Value.Get(Statement, Name, ExpressionInfo);
 
                 if (nativeFunction.Action is not null)
                 {
@@ -201,7 +201,7 @@ namespace Paganism.PParser.AST
 
                 if (!result.Is(ReturnType.Value, ReturnType.TypeName))
                 {
-                    throw new InterpreterException($"Except {ReturnType.AsString()} type");
+                    throw new InterpreterException($"Except {ReturnType.AsString()} type", ExpressionInfo);
                 }
 
                 return result;

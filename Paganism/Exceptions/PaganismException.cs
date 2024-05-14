@@ -11,6 +11,7 @@ namespace Paganism.Exceptions
         public PaganismException()
         {
         }
+
         public PaganismException(string message, string name)
             : base($"{name} error: {message} ")
         {
@@ -18,8 +19,8 @@ namespace Paganism.Exceptions
         }
 
 
-        public PaganismException(string message, int line, int position, string name)
-            : base($"{name} error: {message} Line: {line + 1}, position: {position + 1}")
+        public PaganismException(string message, int line, int position, string filepath, string name)
+            : base($"{filepath}, {name} error: {message} Line: {line + 1}, position: {position + 1}")
         {
             OriginalMessage = message;
         }

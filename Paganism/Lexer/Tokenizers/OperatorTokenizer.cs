@@ -6,13 +6,11 @@ namespace Paganism.Lexer.Tokenizers
 {
     public class OperatorTokenizer : Tokenizer
     {
-        public OperatorTokenizer(string @operator, List<Token> tokens, string savedLine, int position, int line)
+        public OperatorTokenizer(string @operator, List<Token> tokens, string savedLine, Lexer lexer) : base(lexer)
         {
             Operator = @operator;
             Tokens = tokens;
             SavedLine = savedLine;
-            Position = position;
-            Line = line;
         }
 
         public string Operator { get; }
@@ -20,10 +18,6 @@ namespace Paganism.Lexer.Tokenizers
         public List<Token> Tokens { get; }
 
         public string SavedLine { get; }
-
-        public int Position { get; private set; }
-
-        public int Line { get; private set; }
 
         public override Token Tokenize()
         {

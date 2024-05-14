@@ -5,20 +5,12 @@ namespace Paganism.Lexer.Tokenizers
 {
     public class CharTokenizer : Tokenizer
     {
-        public CharTokenizer(string[] text, int position, int line)
+        public CharTokenizer(string[] text, Lexer lexer) : base(lexer)
         {
             Text = text;
-            Line = line;
-            Position = position;
         }
 
         public string[] Text { get; }
-
-        public char Current => Text[Line][Position];
-
-        public int Line { get; private set; }
-
-        public int Position { get; private set; }
 
         public override Token Tokenize()
         {
@@ -29,7 +21,7 @@ namespace Paganism.Lexer.Tokenizers
 
             if (Current == '\'')
             {
-                throw new LexerException($"Char need contains character", startLine, startPosition);
+                throw new LexerException($"Char need contains character", startLine, startPosition, Filepath);
             }
 
             string savedLine = string.Empty;
@@ -46,12 +38,12 @@ namespace Paganism.Lexer.Tokenizers
 
                             if (code == savedLine)
                             {
-                                throw new LexerException($"Unknown identifier '{savedLine[1]}'", startLine, startPosition);
+                                throw new LexerException($"Unknown identifier '{savedLine[1]}'", startLine, startPosition, Filepath);
                             }
                         }
                         else
                         {
-                            throw new LexerException($"Char cant contains more 1 characters", startLine, startPosition);
+                            throw new LexerException($"Char cant contains more 1 characters", startLine, startPosition, Filepath);
                         }
                     }
 
@@ -61,7 +53,7 @@ namespace Paganism.Lexer.Tokenizers
 
                         if (savedLine == "\\")
                         {
-                            throw new LexerException($"After \\ need identifier (\\n, \\t e.t.c)", startLine, startPosition);
+                            throw new LexerException($"After \\ need identifier (\\n, \\t e.t.c)", startLine, startPosition, Filepath);
                         }
 
                         return new Token(Utilities.ReplaceEscapeCodes(savedLine), startPosition, startLine, TokenType.Char);
@@ -74,7 +66,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new LexerException($"Char cant contains more 1 characters", startLine, startPosition);
+            throw new LexerException($"Char cant contains more 1 characters", startLine, startPosition, Filepath);
         }
     }
 }

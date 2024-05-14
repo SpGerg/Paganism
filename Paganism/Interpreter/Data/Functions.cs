@@ -39,7 +39,7 @@ namespace Paganism.Interpreter.Data
 
                             if (findedClass == default)
                             {
-                                throw new InterpreterException($"Method with {name} name not found");
+                                throw new InterpreterException($"Method with {name} name not found", ExpressionInfo.EmptyInfo);
                             }
                         }
 
@@ -131,7 +131,7 @@ namespace Paganism.Interpreter.Data
                         {
                             var info = arguments[0].Value.ExpressionInfo;
 
-                            throw new InterpreterException($"Unknown type with {name} name", info.Line, info.Position);
+                            throw new InterpreterException($"Unknown type with {name} name", info);
                         }
 
                         var value = PaganismFromCSharp.Create(type, ref types);
@@ -175,7 +175,7 @@ namespace Paganism.Interpreter.Data
                         result = File.ReadAllLines(files[0]);
                     }
 
-                    var lexer = new Lexer.Lexer(result);
+                    var lexer = new Lexer.Lexer(result, string.Empty);
                     var parser = new Parser(lexer.Run(), files[0]);
                     var interpreter = new Interpreter(parser.Run());
                     interpreter.Run(false); 

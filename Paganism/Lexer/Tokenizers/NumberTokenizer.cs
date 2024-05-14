@@ -6,20 +6,14 @@ namespace Paganism.Lexer.Tokenizers
 {
     public class NumberTokenizer : Tokenizer
     {
-        public NumberTokenizer(string[] text, int position, int line)
+        public NumberTokenizer(string[] text, Lexer lexer) : base(lexer)
         {
             Text = text;
-            Position = position;
-            Line = line;
         }
 
         public string[] Text { get; }
 
         public char Current => Text[Line][Position];
-
-        public int Position { get; private set; }
-
-        public int Line { get; private set; }
 
         public override Token Tokenize()
         {
@@ -36,7 +30,7 @@ namespace Paganism.Lexer.Tokenizers
                     {
                         if (Current == '.' && savedLine.Contains('.'))
                         {
-                            throw new LexerException($"Two points in number", startLine, startPosition);
+                            throw new LexerException($"Two points in number", startLine, startPosition, Filepath);
                         }
 
                         Position--; //Cuz in next iterate in main lexer loop, lexer skip this non number token
@@ -50,7 +44,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new LexerException($"Number is infinity", startLine, startPosition);
+            throw new LexerException($"Number is infinity", startLine, startPosition, Filepath);
         }
     }
 }

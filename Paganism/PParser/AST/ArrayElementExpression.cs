@@ -27,7 +27,7 @@ namespace Paganism.PParser.AST
 
         public KeyValuePair<int, Value> EvalWithKey()
         {
-            var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name);
+            var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name, ExpressionInfo);
 
             if (variable is ArrayValue arrayValue)
             {
@@ -35,12 +35,12 @@ namespace Paganism.PParser.AST
 
                 if (value < 0)
                 {
-                    throw new InterpreterException($"Index must be a non-negative, in array variable with {Name} name");
+                    throw new InterpreterException($"Index must be a non-negative, in array variable with {Name} name", ExpressionInfo);
                 }
 
                 if (arrayValue.Elements.Length - 1 < value && Left is not null && Left.Evaluate() is ArrayValue)
                 {
-                    throw new InterpreterException($"Index out of range, in array with {Name} name");
+                    throw new InterpreterException($"Index out of range, in array with {Name} name", ExpressionInfo);
                 }
 
                 //Breaking bad...
@@ -60,7 +60,7 @@ namespace Paganism.PParser.AST
 
                     if ((int)value > stringValue.Value.Length - 1)
                     {
-                        throw new InterpreterException($"Index out of range, in array variable with {Name} name");
+                        throw new InterpreterException($"Index out of range, in array variable with {Name} name", ExpressionInfo);
                     }
 
                     return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.ExpressionInfo, stringValue.Value[(int)value]));
@@ -69,7 +69,7 @@ namespace Paganism.PParser.AST
                 return new KeyValuePair<int, Value>((int)value, arrayValue.Elements[(int)value]);
             }
 
-            throw new InterpreterException($"Variable must be array, in array variable with {Name} name");
+            throw new InterpreterException($"Variable must be array, in array variable with {Name} name", ExpressionInfo);
         }
     }
 }

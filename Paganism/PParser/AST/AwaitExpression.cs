@@ -20,7 +20,7 @@ namespace Paganism.PParser.AST
 
             if (!function.IsAwait)
             {
-                throw new InterpreterException("You need async function to use await.", ExpressionInfo.Line, ExpressionInfo.Position);
+                throw new InterpreterException("You need async function to use await.", ExpressionInfo);
             }
 
             var id = (int)((NumberValue)(function.Evaluate() as StructureValue).Values["id"]).Value;

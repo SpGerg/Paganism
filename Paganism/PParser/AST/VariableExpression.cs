@@ -19,7 +19,7 @@ namespace Paganism.PParser.AST
 
         public override Value Evaluate(params Argument[] arguments)
         {
-            var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name);
+            var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name, ExpressionInfo);
 
             if (variable is null)
             {

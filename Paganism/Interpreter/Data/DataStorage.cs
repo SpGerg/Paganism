@@ -1,4 +1,5 @@
 ﻿using Paganism.Exceptions;
+using Paganism.PParser;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System.Collections.Generic;
@@ -81,11 +82,11 @@ namespace Paganism.Interpreter.Data
             return Language.ContainsKey(name);
         }
 
-        public bool TryGet(BlockStatementExpression expression, string name, out T value)
+        public bool TryGet(BlockStatementExpression expression, string name, out T value, ExpressionInfo expressionInfo)
         {
             try
             {
-                value = Get(expression, name);
+                value = Get(expression, name, expressionInfo);
 
                 return true;
             }
@@ -96,7 +97,7 @@ namespace Paganism.Interpreter.Data
             }
         }
 
-        public T Get(BlockStatementExpression expression, string name)
+        public T Get(BlockStatementExpression expression, string name, ExpressionInfo expressionInfo)
         {
             if (Language.ContainsKey(name))
             {
@@ -107,7 +108,7 @@ namespace Paganism.Interpreter.Data
             {
                 if (!GlobalDeclarated.ContainsKey(name))
                 {
-                    throw new InterpreterException($"Unknown {Name} with '{name}' name");
+                    throw new InterpreterException($"Unknown {Name} with '{name}' name", expressionInfo);
                 }
 
                 return GlobalDeclarated[name];
@@ -125,21 +126,21 @@ namespace Paganism.Interpreter.Data
 
             if (!Language.TryGetValue(name, out var result) && !Declarated[expression].TryGetValue(name, out var result1))
             {
-                var value = Get(expression.ExpressionInfo.Parent, name);
+                var value = Get(expression.ExpressionInfo.Parent, name, expressionInfo);
 
                 if (value != null)
                 {
                     return value;
                 }
 
-                throw new InterpreterException($"Unknown {Name} with '{name}' name");
+                throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
             }
 
             var result2 = Declarated[expression].TryGetValue(name, out result1);
 
             if (result is null && !result2)
             {
-                throw new InterpreterException($"Unknown {Name} with '{name}' name");
+                throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
             }
 
             return result2 ? result1 : result;

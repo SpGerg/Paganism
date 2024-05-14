@@ -29,16 +29,16 @@ namespace Paganism.Interpreter.Data.Extensions
                     new("replace", TypesType.String)
                 }, (VariableExpression Original, Argument[] Arguments) =>
                 {
-                    if (!Variables.Instance.Value.TryGet(Original.ExpressionInfo.Parent, Original.Name, out Value result))
+                    if (!Variables.Instance.Value.TryGet(Original.ExpressionInfo.Parent, Original.Name, out Value result, ExpressionInfo.EmptyInfo))
                     {
-                        throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
+                        throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!", Original.ExpressionInfo);
 
                     } 
                     else
                     {
                         if (result is null)
                         {
-                            throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
+                            throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!", Original.ExpressionInfo);
                         } 
                         else
                         {
@@ -52,16 +52,16 @@ namespace Paganism.Interpreter.Data.Extensions
                     new("char", TypesType.Char)
                 }, (VariableExpression Original, Argument[] Arguments) =>
                 {
-                    if (!Variables.Instance.Value.TryGet(Original.ExpressionInfo.Parent, Original.Name, out Value result))
+                    if (!Variables.Instance.Value.TryGet(Original.ExpressionInfo.Parent, Original.Name, out Value result, ExpressionInfo.EmptyInfo))
                     {
-                        throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
+                        throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!", Original.ExpressionInfo);
 
                     } 
                     else
                     {
                         if (result is null)
                         {
-                            throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!");
+                            throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!", Original.ExpressionInfo);
                         } 
                         else
                         {

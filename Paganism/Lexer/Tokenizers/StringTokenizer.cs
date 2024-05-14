@@ -5,20 +5,9 @@ namespace Paganism.Lexer.Tokenizers
 {
     public class StringTokenizer : Tokenizer
     {
-        public StringTokenizer(string[] text, int position, int line)
-        {
-            Text = text;
-            Position = position;
-            Line = line;
-        }
+        public StringTokenizer(string[] text, Lexer lexer) : base(lexer) { Text = text; }
 
         public string[] Text { get; }
-
-        public char Current => Text[Line][Position];
-
-        public int Position { get; private set; }
-
-        public int Line { get; private set; }
 
         public override Token Tokenize()
         {
@@ -46,7 +35,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new LexerException($"String is not ended", startLine, startPosition);
+            throw new LexerException($"String is not ended", startLine, startPosition, Filepath);
         }
     }
 }

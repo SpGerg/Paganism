@@ -40,7 +40,7 @@ namespace PaganismCustomConsole.Commands
 
             try
             {
-                var lexer = new Lexer(File.ReadAllLines(path));
+                var lexer = new Lexer(File.ReadAllLines(path), path);
                 var tokens = lexer.Run();
 
                 var parser = new Parser(tokens, path);

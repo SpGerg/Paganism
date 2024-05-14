@@ -37,9 +37,9 @@ namespace Paganism.PParser.Values
             Structure = structureInstance;
         }
 
-        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, name, Interpreter.Data.Structures.Instance.Value.Get(expression, name).Members)
+        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, name, Interpreter.Data.Structures.Instance.Value.Get(expression, name, info).Members)
         {
-            Structure = Interpreter.Data.Structures.Instance.Value.Get(expression, name);
+            Structure = Interpreter.Data.Structures.Instance.Value.Get(expression, name, ExpressionInfo);
         }
 
         public override string Name => "Structure";
@@ -59,44 +59,44 @@ namespace Paganism.PParser.Values
         {
             if (!Values.ContainsKey(key))
             {
-                throw new InterpreterException($"Unknown member with '{key}' name.");
+                throw new InterpreterException($"Unknown member with '{key}' name.", value.ExpressionInfo);
             }
 
             var member = Structure.Members[key];
 
             if (member.Info.IsReadOnly && filePath != member.ExpressionInfo.Filepath)
             {
-                throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure");
+                throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure", value.ExpressionInfo);
             }
 
             if (member.Info.IsDelegate)
             {
                 if (value is not FunctionValue functionValue)
                 {
-                    throw new InterpreterException($"Except function", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
+                    throw new InterpreterException($"Except function", value.ExpressionInfo);
                 }
 
                 if (!functionValue.Is(member.Type.Value, member.Type.TypeName))
                 {
-                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", member.ExpressionInfo.Line, member.ExpressionInfo.Position);
+                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", value.ExpressionInfo);
                 }
             }
 
             if (!member.Info.IsDelegate && member.Type.Value != TypesType.Any && member.Type.Value != value.Type)
             {
-                throw new InterpreterException($"Except {member.Type} type");
+                throw new InterpreterException($"Except {member.Type} type", value.ExpressionInfo);
             }
 
             if (member.Structure is not null && member.Structure != string.Empty)
             {
                 if (value is StructureValue structureValue1 && structureValue1.Structure.Name != member.Type.TypeName)
                 {
-                    throw new InterpreterException($"Except structure '{member.Type}' type");
+                    throw new InterpreterException($"Except structure '{member.Type}' type", value.ExpressionInfo);
                 }
 
                 if (value is EnumValue enumValue && enumValue.Member.Enum != member.Type.TypeName)
                 {
-                    throw new InterpreterException($"Except enum '{member.Type}' type");
+                    throw new InterpreterException($"Except enum '{member.Type}' type", value.ExpressionInfo);
                 }
             }
 

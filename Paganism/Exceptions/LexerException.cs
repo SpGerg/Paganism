@@ -1,4 +1,6 @@
-﻿namespace Paganism.Exceptions
+﻿using Paganism.PParser;
+
+namespace Paganism.Exceptions
 {
     public class LexerException : PaganismException
     {
@@ -11,8 +13,13 @@
         {
         }
 
-        public LexerException(string message, int line, int position)
-            : base(message, line, position, "Lexer")
+        public LexerException(string message, ExpressionInfo expressionInfo)
+            : base(message, expressionInfo.Line, expressionInfo.Position, expressionInfo.Filepath, "Lexer")
+        {
+        }
+
+        public LexerException(string message, int line, int position, string filepath)
+            : base(message, line, position, filepath, "Lexer")
         {
         }
 

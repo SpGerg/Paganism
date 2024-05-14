@@ -1,18 +1,26 @@
-﻿namespace Paganism.Exceptions
+﻿using Paganism.PParser;
+
+namespace Paganism.Exceptions
 {
     public class InterpreterException : PaganismException
     {
         public InterpreterException()
         {
         }
-        public InterpreterException(string message)
+
+        protected InterpreterException(string message)
             : base(message, "Interpreter")
         {
         }
 
 
-        public InterpreterException(string message, int line, int position)
-            : base(message, line, position, "Interpreter")
+        public InterpreterException(string message, ExpressionInfo expressionInfo)
+            : base(message, expressionInfo.Line, expressionInfo.Position, expressionInfo.Filepath, "Interpreter")
+        {
+        }
+
+        public InterpreterException(string message, int line, int position, string filepath)
+            : base(message, line, position, filepath, "Interpreter")
         {
         }
 

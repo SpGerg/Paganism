@@ -63,7 +63,7 @@ namespace Paganism.PParser
             if (Match(TokenType.Async))
             {
                 return !Match(TokenType.Function)
-                    ? throw new ParserException("Except function keyword.", Current.Line, Current.Position)
+                    ? throw new ParserException("Except function keyword.", Current.Line, Current.Position, Filepath)
                     : (IStatement)ParseFunction(true);
             }
 
@@ -137,7 +137,7 @@ namespace Paganism.PParser
                 ? ParseFunctionOrVariable()
                 : Match(TokenType.Await)
                 ? ParseAwait()
-                : throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position);
+                : throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position, Filepath);
         }
 
         private Expression ParseNew()
@@ -148,7 +148,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except structure name", Current.Line, Current.Position);
+                throw new ParserException("Except structure name", Current.Line, Current.Position, Filepath);
             }
 
             return new NewExpression(new ExpressionInfo(_parent, Current.Position, Current.Line, Filepath), name);
@@ -174,7 +174,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except enum member name", Current.Line, Current.Position);
+                throw new ParserException("Except enum member name", Current.Line, Current.Position, Filepath);
             }
 
             var members = new List<EnumMemberExpression>();
@@ -198,19 +198,19 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except enum member name", Current.Line, Current.Position);
+                throw new ParserException("Except enum member name", Current.Line, Current.Position, Filepath);
             }
 
             if (!Match(TokenType.Assign))
             {
-                throw new ParserException("Except assign operator", Current.Line, Current.Position);
+                throw new ParserException("Except assign operator", Current.Line, Current.Position, Filepath);
             }
 
             var value = ParsePrimary();
 
             if (value is not NumberValue numberValue)
             {
-                throw new ParserException("Except number value", Current.Line, Current.Position);
+                throw new ParserException("Except number value", Current.Line, Current.Position, Filepath);
             }
 
             return new EnumMemberExpression(new ExpressionInfo(_parent, Current.Position, Current.Line, Filepath), name, numberValue, parent);
@@ -249,7 +249,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except structure name.", Current.Line, Current.Position);
+                throw new ParserException("Except structure name.", Current.Line, Current.Position, Filepath);
             }
 
             List<StructureMemberExpression> statements = new();
@@ -316,13 +316,13 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except structure member name.", Current.Line, Current.Position);
+                throw new ParserException("Except structure member name.", Current.Line, Current.Position, Filepath);
             }
 
             var member = new StructureMemberExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), structureName, new TypeValue(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath),
                 Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName, new StructureMemberInfo(false, null, isReadOnly, isShow, isCastable, false));
 
-            return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position) : member;
+            return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath) : member;
         }
 
         private StructureMemberExpression ParseDelegate(string structureName, bool isShow, bool isReadOnly, bool isCastable)
@@ -335,14 +335,14 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Function))
             {
-                throw new ParserException("Except delegate name.", Current.Line, Current.Position);
+                throw new ParserException("Except delegate name.", Current.Line, Current.Position, Filepath);
             }
 
             var memberName = Current.Value;
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except structure member name.", Current.Line, Current.Position);
+                throw new ParserException("Except structure member name.", Current.Line, Current.Position, Filepath);
             }
 
             var arguments = ParseFunctionArguments();
@@ -351,7 +351,7 @@ namespace Paganism.PParser
                 new TypeValue(type.ExpressionInfo, type.Type is TypesType.Any ? TypesType.None : type.Type, type.TypeName), memberName,
                 new StructureMemberInfo(true, arguments, isReadOnly, isShow, isCastable, isAsync));
 
-            return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position) : member;
+            return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath) : member;
         }
 
         private IStatement ParseFor()
@@ -360,7 +360,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.LeftPar))
             {
-                throw new ParserException("Except '('.", Current.Line, Current.Position);
+                throw new ParserException("Except '('.", Current.Line, Current.Position, Filepath);
             }
 
             var statement = new BlockStatementExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), new IStatement[0]);
@@ -377,7 +377,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Semicolon))
             {
-                throw new ParserException("Except ';'.", Current.Line, Current.Position);
+                throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath);
             }
 
             if (!Require(0, TokenType.Semicolon))
@@ -387,7 +387,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Semicolon))
             {
-                throw new ParserException("Except ';'.", Current.Line, Current.Position);
+                throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath);
             }
 
             if (!Require(0, TokenType.Semicolon, TokenType.RightPar))
@@ -397,7 +397,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.RightPar))
             {
-                throw new ParserException("Except ')'.", Current.Line, Current.Position);
+                throw new ParserException("Except ')'.", Current.Line, Current.Position, Filepath);
             }
 
             InLoop = true;
@@ -449,19 +449,19 @@ namespace Paganism.PParser
         {
             if (!Match(TokenType.LeftPar))
             {
-                throw new ParserException("Except (", Current.Line, Current.Position);
+                throw new ParserException("Except (", Current.Line, Current.Position, Filepath);
             }
 
             var expression = ParseBinary();
 
             if (!Match(TokenType.RightPar))
             {
-                throw new ParserException("Except ')'.", Current.Line, Current.Position);
+                throw new ParserException("Except ')'.", Current.Line, Current.Position, Filepath);
             }
 
             if (!Match(TokenType.Then))
             {
-                throw new ParserException("Except 'then'.", Current.Line, Current.Position);
+                throw new ParserException("Except 'then'.", Current.Line, Current.Position, Filepath);
             }
 
             List<IStatement> statements = new();
@@ -549,7 +549,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except function name to call.", Current.Line, Current.Position);
+                throw new ParserException("Except function name to call.", Current.Line, Current.Position, Filepath);
             }
 
             var arguments = new List<Argument>();
@@ -599,7 +599,7 @@ namespace Paganism.PParser
             var name = string.Empty;
             var current = Current;
 
-            name = Match(TokenType.Word) ? current.Value : throw new ParserException("Except function name.", Current.Line, Current.Position);
+            name = Match(TokenType.Word) ? current.Value : throw new ParserException("Except function name.", Current.Line, Current.Position, Filepath);
 
             var arguments = ParseFunctionArguments();
 
@@ -673,7 +673,7 @@ namespace Paganism.PParser
 
                     if (!Match(TokenType.Word))
                     {
-                        throw new ParserException("Except argument name.", Current.Line, Current.Position);
+                        throw new ParserException("Except argument name.", Current.Line, Current.Position, Filepath);
                     }
 
                     if (Match(TokenType.LeftBracket))
@@ -682,7 +682,7 @@ namespace Paganism.PParser
 
                         if (!Match(TokenType.RightBracket))
                         {
-                            throw new ParserException("Except ']'.", Current.Line, Current.Position);
+                            throw new ParserException("Except ']'.", Current.Line, Current.Position, Filepath);
                         }
                     }
 
@@ -715,7 +715,7 @@ namespace Paganism.PParser
 
                 if (!Match(TokenType.RightBracket))
                 {
-                    throw new ParserException("Except ']'.", Current.Line, Current.Position);
+                    throw new ParserException("Except ']'.", Current.Line, Current.Position, Filepath);
                 }
 
                 result = result == null
@@ -965,7 +965,7 @@ namespace Paganism.PParser
             }
             catch
             {
-                return isWithException ? throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position) : null;
+                return isWithException ? throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position, Filepath) : null;
             }
         }
 
