@@ -348,7 +348,7 @@ namespace Paganism.PParser
             var arguments = ParseFunctionArguments();
 
             var member = new StructureMemberExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), structureName,
-                new TypeValue(type.ExpressionInfo, type.Type is TypesType.Any ? TypesType.None : type.Type, type.TypeName), memberName,
+                type, memberName,
                 new StructureMemberInfo(true, arguments, isReadOnly, isShow, isCastable, isAsync));
 
             return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath) : member;
