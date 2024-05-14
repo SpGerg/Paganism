@@ -235,7 +235,7 @@ namespace Paganism.Interpreter.Data
                     new("content", TypesType.String, null, true)
                 }, false, true), (Argument[] arguments) =>
                     {
-                        Console.WriteLine(arguments[0].Value.Evaluate().AsString());
+                        Console.Write(arguments[0].Value.Evaluate().AsString());
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 ) 
@@ -246,7 +246,7 @@ namespace Paganism.Interpreter.Data
                     new("content", TypesType.String)
                 }, false, true), (Argument[] arguments) =>
                     {
-                        Console.Write(arguments[0].Value.Evaluate().AsString());
+                        Console.WriteLine(arguments[0].Value.Evaluate().AsString());
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 )
