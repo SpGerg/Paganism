@@ -9,16 +9,13 @@ namespace Paganism.PParser.AST
 {
     public class FunctionCallExpression : EvaluableExpression, IStatement, IExecutable
     {
-        public FunctionCallExpression(ExpressionInfo info, string functionName, bool isAwait, Argument[] arguments) : base(info)
+        public FunctionCallExpression(ExpressionInfo info, string functionName, Argument[] arguments) : base(info)
         {
             FunctionName = functionName;
-            IsAwait = isAwait;
             Arguments = arguments;
         }
 
         public string FunctionName { get; }
-
-        public bool IsAwait { get; set; }
 
         public Argument[] Arguments { get; }
 
@@ -28,18 +25,8 @@ namespace Paganism.PParser.AST
         {
             var function = GetFunction();
 
-            if (!function.IsAsync && IsAwait)
-            {
-                throw new InterpreterException("You cant use await for not async functions", ExpressionInfo);
-            }
-
             try
             {
-                if (IsAwait && function.IsAsync)
-                {
-                    return function.ExecuteAndReturn(Arguments);
-                }
-
                 var result = function.ExecuteAndReturn(Arguments);
 
                 foreach (var argument in arguments)

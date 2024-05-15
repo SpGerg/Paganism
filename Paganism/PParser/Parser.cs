@@ -69,7 +69,7 @@ namespace Paganism.PParser
 
             if (Match(TokenType.Await))
             {
-                return ParseFunctionCall(true);
+                return ParseAwait();
             }
 
             if (Match(TokenType.Function))
@@ -151,7 +151,7 @@ namespace Paganism.PParser
                 throw new ParserException("Except structure name", Current.Line, Current.Position, Filepath);
             }
 
-            return new NewExpression(new ExpressionInfo(_parent, Current.Position, Current.Line, Filepath), name);
+            return new NewExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name);
         }
 
         private IStatement ParseDirective()
@@ -189,7 +189,7 @@ namespace Paganism.PParser
                 members.Add(ParseEnumMember(name));
             }
 
-            return new EnumDeclarateExpression(new ExpressionInfo(_parent, Current.Position, Current.Line, Filepath), name, members.ToArray());
+            return new EnumDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, members.ToArray());
         }
 
         private EnumMemberExpression ParseEnumMember(string parent)
@@ -213,7 +213,7 @@ namespace Paganism.PParser
                 throw new ParserException("Except number value", Current.Line, Current.Position, Filepath);
             }
 
-            return new EnumMemberExpression(new ExpressionInfo(_parent, Current.Position, Current.Line, Filepath), name, numberValue, parent);
+            return new EnumMemberExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, numberValue, parent);
         }
 
         private IStatement ParseTryCatch()
@@ -227,19 +227,19 @@ namespace Paganism.PParser
 
             ParseExpressions(catchBlock, TokenType.End);
 
-            return new TryCatchExpression(new ExpressionInfo(_parent, Current.Position, Current.Line, Filepath), tryBlock, catchBlock);
+            return new TryCatchExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), tryBlock, catchBlock);
         }
 
         private IStatement ParseAwait()
         {
             var expression = ParsePrimary();
 
-            if (expression is FunctionCallExpression function)
+            if (expression is not FunctionCallExpression functionCallExpression)
             {
-                function.IsAwait = true;
+                throw new InterpreterException("Must be async function", Current.Line, Current.Position, Filepath);
             }
 
-            return new AwaitExpression(new ExpressionInfo(_parent, expression.ExpressionInfo.Line, expression.ExpressionInfo.Position, Filepath), expression);
+            return new AwaitExpression(new ExpressionInfo(_parent, expression.ExpressionInfo.Line, expression.ExpressionInfo.Position, Filepath), functionCallExpression);
         }
 
         private IStatement ParseStructure()
@@ -541,10 +541,8 @@ namespace Paganism.PParser
             return new AssignExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), left, right, isShow);
         }
 
-        private FunctionCallExpression ParseFunctionCall(bool isAwait = false)
+        private FunctionCallExpression ParseFunctionCall()
         {
-            isAwait = Match(TokenType.Await);
-
             var name = Current.Value;
 
             if (!Match(TokenType.Word))
@@ -558,7 +556,7 @@ namespace Paganism.PParser
             {
                 if (Match(TokenType.RightPar))
                 {
-                    return new FunctionCallExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, isAwait, arguments.ToArray());
+                    return new FunctionCallExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, arguments.ToArray());
                 }
 
                 while (!Match(TokenType.RightPar))
@@ -586,7 +584,7 @@ namespace Paganism.PParser
                 }
             }
 
-            return new FunctionCallExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, isAwait, arguments.ToArray());
+            return new FunctionCallExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, arguments.ToArray());
         }
 
         private ReturnExpression ParseReturn()
