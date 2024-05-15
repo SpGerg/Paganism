@@ -90,7 +90,7 @@
     <Compile Include="PParser\AST\FunctionCallExpression.cs" />
     <Compile Include="PParser\AST\Interfaces\IExecutable.cs" />
     <Compile Include="PParser\AST\Interfaces\IStatement.cs" />
-    <Compile Include="PParser\AST\Enums\BinaryOperatorType.cs" />
+    <Compile Include="PParser\AST\Enums\OperatorType.cs" />
     <Compile Include="PParser\AST\ReturnExpression.cs" />
     <Compile Include="PParser\AST\UnaryExpression.cs" />
     <Compile Include="PParser\ExpressionInfo.cs" />

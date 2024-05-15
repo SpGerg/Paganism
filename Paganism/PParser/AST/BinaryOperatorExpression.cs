@@ -12,14 +12,14 @@ namespace Paganism.PParser.AST
 {
     public class BinaryOperatorExpression : EvaluableExpression, IStatement
     {
-        public BinaryOperatorExpression(ExpressionInfo info, BinaryOperatorType type, EvaluableExpression left, EvaluableExpression right) : base(info)
+        public BinaryOperatorExpression(ExpressionInfo info, OperatorType type, EvaluableExpression left, EvaluableExpression right) : base(info)
         {
             Type = type;
             Left = left;
             Right = right;
         }
 
-        public BinaryOperatorType Type { get; }
+        public OperatorType Type { get; }
 
         public EvaluableExpression Left { get; }
 
@@ -141,11 +141,11 @@ namespace Paganism.PParser.AST
 
         public override Value Evaluate(params Argument[] arguments)
         {
-            if (Type is BinaryOperatorType.Point)
+            if (Type is OperatorType.Point)
             {
                 return Point();
             }
-            else if (Type is BinaryOperatorType.Assign)
+            else if (Type is OperatorType.Assign)
             {
                 return Assign();
             }
@@ -155,23 +155,23 @@ namespace Paganism.PParser.AST
 
             return Type switch
             {
-                BinaryOperatorType.Plus => Addition(left, right),
-                BinaryOperatorType.Minus => Minus(left, right),
-                BinaryOperatorType.Multiplicative => Multiplicative(left, right),
-                BinaryOperatorType.Division => Division(left, right),
-                BinaryOperatorType.Is => Is(left, right),
-                BinaryOperatorType.And => And(left, right),
-                BinaryOperatorType.Or => Or(left, right),
-                BinaryOperatorType.Less => Less(left, right),
-                BinaryOperatorType.More => More(left, right),
-                BinaryOperatorType.As => As(left, right),
+                OperatorType.Plus => Addition(left, right),
+                OperatorType.Minus => Minus(left, right),
+                OperatorType.Multiplicative => Multiplicative(left, right),
+                OperatorType.Division => Division(left, right),
+                OperatorType.Is => Is(left, right),
+                OperatorType.And => And(left, right),
+                OperatorType.Or => Or(left, right),
+                OperatorType.Less => Less(left, right),
+                OperatorType.More => More(left, right),
+                OperatorType.As => As(left, right),
                 _ => null,
             };
         }
 
         public TypeValue GetBinaryValueType()
         {
-            if (Type is BinaryOperatorType.As)
+            if (Type is OperatorType.As)
             {
                 return new TypeValue(ExpressionInfo, (Right as TypeValue).Value, (Right as TypeValue).TypeName);
             }

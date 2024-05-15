@@ -52,6 +52,9 @@ namespace Paganism.PParser.AST
                         result = returnExpression.Value.Evaluate();
                         IsBreaked = true;
                         break;
+                    case UnaryExpression unaryExpression:
+                        unaryExpression.Evaluate();
+                        break;
                     case BreakExpression breakExpression:
                         breakExpression.IsLoop = IsLoop;
                         breakExpression.Execute();
