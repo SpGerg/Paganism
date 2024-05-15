@@ -114,12 +114,12 @@ namespace Paganism.PParser.AST
 
                         if (variable != null)
                         {
-                            Variables.Instance.Value.Set(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name, variable.Right.Evaluate());
+                            Variables.Instance.Set(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name, variable.Right.Evaluate());
                         }
 
                         var result2 = forExpression.Evaluate();
 
-                        Variables.Instance.Value.Remove(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name);
+                        Variables.Instance.Remove(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name);
 
                         if (result2 is not NoneValue)
                         {
@@ -133,10 +133,10 @@ namespace Paganism.PParser.AST
 
             if (IsClearing)
             {
-                Variables.Instance.Value.Clear(this);
-                Functions.Instance.Value.Clear(this);
-                Interpreter.Data.Enums.Instance.Value.Clear(this);
-                Interpreter.Data.Structures.Instance.Value.Clear(this);
+                Variables.Instance.Clear(this);
+                Functions.Instance.Clear(this);
+                Interpreter.Data.Enums.Instance.Clear(this);
+                Interpreter.Data.Structures.Instance.Clear(this);
             }
 
             return result;

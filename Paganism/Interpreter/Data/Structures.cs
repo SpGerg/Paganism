@@ -10,9 +10,11 @@ namespace Paganism.Interpreter.Data
 {
     public class Structures : DataStorage<StructureInstance>
     {
-        public static Lazy<Structures> Instance { get; } = new();
-
         public override string Name => "Structure";
+
+        public static Structures Instance => Lazy.Value;
+
+        private static Lazy<Structures> Lazy { get; } = new();
 
         protected override IReadOnlyDictionary<string, StructureInstance> Language { get; } = new Dictionary<string, StructureInstance>()
         {

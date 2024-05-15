@@ -27,7 +27,7 @@ namespace Paganism.PParser.AST
 
         public KeyValuePair<int, Value> EvalWithKey()
         {
-            var variable = Variables.Instance.Value.Get(ExpressionInfo.Parent, Name, ExpressionInfo);
+            var variable = Variables.Instance.Get(ExpressionInfo.Parent, Name, ExpressionInfo);
 
             if (variable is ArrayValue arrayValue)
             {

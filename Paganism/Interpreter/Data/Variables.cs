@@ -5,8 +5,10 @@ namespace Paganism.Interpreter.Data
 {
     public class Variables : DataStorage<Value>
     {
-        public static Lazy<Variables> Instance { get; } = new();
-
         public override string Name => "Variable";
+
+        public static Variables Instance => Lazy.Value;
+
+        private static Lazy<Variables> Lazy { get; } = new();
     }
 }

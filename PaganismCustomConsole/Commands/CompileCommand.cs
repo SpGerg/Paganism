@@ -52,9 +52,9 @@ namespace PaganismCustomConsole.Commands
             catch (Exception ex)
             {
                 Tasks.Clear();
-                Variables.Instance.Value.Clear();
-                Functions.Instance.Value.Clear();
-                Structures.Instance.Value.Clear();
+                Variables.Instance.Clear();
+                Functions.Instance.Clear();
+                Structures.Instance.Clear();
 
                 if (ex is not PaganismException)
                 {
@@ -69,9 +69,9 @@ namespace PaganismCustomConsole.Commands
             while (Tasks.Count() != 0) { }
 
             Tasks.Clear();
-            Variables.Instance.Value.Clear();
-            Functions.Instance.Value.Clear();
-            Structures.Instance.Value.Clear();
+            Variables.Instance.Clear();
+            Functions.Instance.Clear();
+            Structures.Instance.Clear();
 
             response = "Script has been executed.";
             return true;

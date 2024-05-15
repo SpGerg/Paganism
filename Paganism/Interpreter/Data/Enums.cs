@@ -9,8 +9,10 @@ namespace Paganism.Interpreter.Data
 {
     public class Enums : DataStorage<EnumInstance>
     {
-        public static Lazy<Enums> Instance { get; } = new();
-
         public override string Name => "Enum";
+
+        public static Enums Instance => Lazy.Value;
+
+        private static Lazy<Enums> Lazy { get; } = new();
     }
 }

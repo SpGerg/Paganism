@@ -37,9 +37,9 @@ namespace Paganism.PParser.Values
             Structure = structureInstance;
         }
 
-        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, name, Interpreter.Data.Structures.Instance.Value.Get(expression, name, info).Members)
+        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, name, Interpreter.Data.Structures.Instance.Get(expression, name, info).Members)
         {
-            Structure = Interpreter.Data.Structures.Instance.Value.Get(expression, name, ExpressionInfo);
+            Structure = Interpreter.Data.Structures.Instance.Get(expression, name, ExpressionInfo);
         }
 
         public override string Name => "Structure";

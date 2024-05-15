@@ -38,7 +38,7 @@ namespace Paganism.PParser.AST
                 return;
             }
 
-            if (!Functions.Instance.Value.IsLanguage(Name) && ReturnType.Value is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
+            if (!Functions.Instance.IsLanguage(Name) && ReturnType.Value is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
                 throw new InterpreterException($"Function with {Name} name must return value",
                     ExpressionInfo);
@@ -70,12 +70,12 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Functions.Instance.Value.Set(ExpressionInfo.Parent, Name, new FunctionInstance(this));
+            Functions.Instance.Set(ExpressionInfo.Parent, Name, new FunctionInstance(this));
         }
 
         public void Remove()
         {
-            Functions.Instance.Value.Remove(ExpressionInfo.Parent, Name);
+            Functions.Instance.Remove(ExpressionInfo.Parent, Name);
         }
 
         public Task ExecuteAsync(params Argument[] arguments)
@@ -119,7 +119,7 @@ namespace Paganism.PParser.AST
                     var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneValue(ExpressionInfo));
 
                     totalArguments[i] = noneArgument;
-                    Variables.Instance.Value.Set(Statement, functionArgument.Name, noneArgument.Value.Evaluate());
+                    Variables.Instance.Set(Statement, functionArgument.Name, noneArgument.Value.Evaluate());
                     continue;
                 }
 
@@ -148,12 +148,12 @@ namespace Paganism.PParser.AST
             {
                 if (argument.Value is FunctionDeclarateExpression functionDeclarateExpression)
                 {
-                    Variables.Instance.Value.Set(Statement, argument.Name, new FunctionValue(ExpressionInfo, functionDeclarateExpression));
-                    Functions.Instance.Value.Set(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
+                    Variables.Instance.Set(Statement, argument.Name, new FunctionValue(ExpressionInfo, functionDeclarateExpression));
+                    Functions.Instance.Set(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
                 }
                 else
                 {
-                    Variables.Instance.Value.Set(Statement, argument.Name, argument.Value.Evaluate());
+                    Variables.Instance.Set(Statement, argument.Name, argument.Value.Evaluate());
                 }
             }
         }
@@ -162,9 +162,9 @@ namespace Paganism.PParser.AST
         {
             CreateArguments(arguments);
 
-            if (Functions.Instance.Value.IsLanguage(Name))
+            if (Functions.Instance.IsLanguage(Name))
             {
-                var nativeFunction = Functions.Instance.Value.Get(Statement, Name, ExpressionInfo);
+                var nativeFunction = Functions.Instance.Get(Statement, Name, ExpressionInfo);
 
                 if (nativeFunction.Action is not null)
                 {

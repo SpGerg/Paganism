@@ -17,7 +17,9 @@ namespace Paganism.Interpreter.Data
     {
         public override string Name => "Function";
 
-        public static Lazy<Functions> Instance { get; } = new();
+        public static Functions Instance => Lazy.Value;
+
+        private static Lazy<Functions> Lazy { get; } = new();
 
         protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
         {
@@ -144,15 +146,15 @@ namespace Paganism.Interpreter.Data
 
                             if (paganismType is FunctionValue functionValue)
                             {
-                                Instance.Value.Set(null, functionValue.Value.Name, instance as FunctionInstance);
+                                Instance.Set(null, functionValue.Value.Name, instance as FunctionInstance);
                             }
                             else if (paganismType is StructureValue structureValue)
                             {
-                                Structures.Instance.Value.Set(null, structureValue.Structure.Name, instance as StructureInstance);
+                                Structures.Instance.Set(null, structureValue.Structure.Name, instance as StructureInstance);
                             }
                             else if (paganismType is EnumInstance enumInstance)
                             {
-                                Enums.Instance.Value.Set(null, enumInstance.Name, enumInstance);
+                                Enums.Instance.Set(null, enumInstance.Name, enumInstance);
                             }
                         }
 

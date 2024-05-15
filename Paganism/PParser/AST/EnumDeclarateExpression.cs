@@ -25,12 +25,12 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Interpreter.Data.Enums.Instance.Value.Set(ExpressionInfo.Parent, Name, new EnumInstance(this));
+            Interpreter.Data.Enums.Instance.Set(ExpressionInfo.Parent, Name, new EnumInstance(this));
         }
 
         public void Remove()
         {
-            Interpreter.Data.Enums.Instance.Value.Remove(ExpressionInfo.Parent, Name);
+            Interpreter.Data.Enums.Instance.Remove(ExpressionInfo.Parent, Name);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Paganism.PParser.AST
 
         public Argument[] Arguments { get; }
 
-        public FunctionInstance GetFunction() => Functions.Instance.Value.Get(ExpressionInfo.Parent, FunctionName, ExpressionInfo);
+        public FunctionInstance GetFunction() => Functions.Instance.Get(ExpressionInfo.Parent, FunctionName, ExpressionInfo);
 
         public override Value Evaluate(params Argument[] arguments)
         {
@@ -31,7 +31,7 @@ namespace Paganism.PParser.AST
 
                 foreach (var argument in arguments)
                 {
-                    Variables.Instance.Value.Remove(function.Statements, argument.Name);
+                    Variables.Instance.Remove(function.Statements, argument.Name);
                 }
 
                 return result;

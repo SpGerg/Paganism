@@ -21,12 +21,12 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Interpreter.Data.Structures.Instance.Value.Set(ExpressionInfo.Parent, Name, new StructureInstance(this));
+            Interpreter.Data.Structures.Instance.Set(ExpressionInfo.Parent, Name, new StructureInstance(this));
         }
 
         public void Remove()
         {
-            Interpreter.Data.Structures.Instance.Value.Remove(ExpressionInfo.Parent, Name);
+            Interpreter.Data.Structures.Instance.Remove(ExpressionInfo.Parent, Name);
         }
 
         public override Value Evaluate(params Argument[] arguments)
