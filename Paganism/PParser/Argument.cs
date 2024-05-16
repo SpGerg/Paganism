@@ -24,7 +24,7 @@ namespace Paganism.PParser
                 IsArray = true;
             }
 
-            if (value is not null)
+            if (value is not null and not FunctionCallExpression)
             {
                 Type = value.GetTypeValue();
             }
