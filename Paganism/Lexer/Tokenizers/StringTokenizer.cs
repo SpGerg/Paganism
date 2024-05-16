@@ -35,7 +35,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new LexerException($"String is not ended", startLine, startPosition, Filepath);
+            throw new LexerException($"String has not been ended.", startLine, startPosition, Filepath);
         }
     }
 }

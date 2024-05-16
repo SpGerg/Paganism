@@ -21,7 +21,7 @@ namespace Paganism.Lexer.Tokenizers
 
             if (Current == '\'')
             {
-                throw new LexerException($"Char need contains character", startLine, startPosition, Filepath);
+                throw new LexerException($"Char needs to contain a character", startLine, startPosition, Filepath);
             }
 
             string savedLine = string.Empty;
@@ -43,7 +43,7 @@ namespace Paganism.Lexer.Tokenizers
                         }
                         else
                         {
-                            throw new LexerException($"Char cant contains more 1 characters", startLine, startPosition, Filepath);
+                            throw new LexerException($"Char can't contain more than one characters", startLine, startPosition, Filepath);
                         }
                     }
 
@@ -66,7 +66,7 @@ namespace Paganism.Lexer.Tokenizers
                 Line++;
             }
 
-            throw new LexerException($"Char cant contains more 1 characters", startLine, startPosition, Filepath);
+            throw new LexerException($"Char can't contain more than one characters", startLine, startPosition, Filepath);
         }
     }
 }

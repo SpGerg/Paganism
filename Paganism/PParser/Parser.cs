@@ -69,7 +69,7 @@ namespace Paganism.PParser
             {
                 if (!Match(TokenType.Function))
                 {
-                    throw new ParserException("Except function keyword.", Current.Line, Current.Position, Filepath);
+                    throw new ParserException("Exception in function keyword.", Current.Line, Current.Position, Filepath);
                 }
                 else
                 {
