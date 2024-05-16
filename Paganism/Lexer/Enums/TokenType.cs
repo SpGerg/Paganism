@@ -62,6 +62,7 @@
         EnumType,
         Readonly,
         Extension,
-        Sharp
+        Sharp,
+        FunctionType
     }
 }

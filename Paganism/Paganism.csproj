@@ -101,6 +101,7 @@
     <Compile Include="PParser\Values\EnumValue.cs" />
     <Compile Include="PParser\Values\FunctionValue.cs" />
     <Compile Include="PParser\Values\NoneValue.cs" />
+    <Compile Include="PParser\Values\ObjectValue.cs" />
     <Compile Include="PParser\Values\StringValue.cs" />
     <Compile Include="PParser\Values\StructureValue.cs" />
     <Compile Include="PParser\Values\TypeValue.cs" />

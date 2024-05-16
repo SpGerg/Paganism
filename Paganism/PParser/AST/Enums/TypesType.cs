@@ -13,6 +13,7 @@
         Char,
         Type,
         Enum,
-        Void
+        Void,
+        Object
     }
 }

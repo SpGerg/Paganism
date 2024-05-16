@@ -1072,7 +1072,7 @@ namespace Paganism.PParser
 
         private bool IsType(int relativePosition)
         {
-            var result = Require(relativePosition, TokenType.AnyType, TokenType.NumberType, TokenType.StringType, TokenType.BooleanType, TokenType.CharType, TokenType.ObjectType);
+            var result = Require(relativePosition, TokenType.AnyType, TokenType.NumberType, TokenType.StringType, TokenType.BooleanType, TokenType.CharType, TokenType.ObjectType, TokenType.FunctionType);
 
             return !result ? CheckTypeWithName() : true;
         }
@@ -1088,7 +1088,6 @@ namespace Paganism.PParser
             {
                 return true;
             }
-
 
             if (Require(0, TokenType.StructureType) && Require(1, TokenType.Word))
             {

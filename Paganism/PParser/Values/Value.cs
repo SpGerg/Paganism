@@ -100,6 +100,8 @@ namespace Paganism.PParser.Values
                     return new CharValue(copy.ExpressionInfo, charValue.Value);
                 case TypeValue typeValue:
                     return new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName);
+                case ObjectValue objectValue:
+                    return new ObjectValue(copy.ExpressionInfo, objectValue.Value);
             }
 
             return new VoidValue(ExpressionInfo.EmptyInfo);
