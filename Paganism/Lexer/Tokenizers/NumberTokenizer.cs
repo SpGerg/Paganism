@@ -30,7 +30,7 @@ namespace Paganism.Lexer.Tokenizers
                     {
                         if (Current == '.' && savedLine.Contains('.'))
                         {
-                            throw new LexerException($"Two points in number", startLine, startPosition, Filepath);
+                            throw new LexerException($"Two decimal markers in number.", startLine, startPosition, Filepath);
                         }
 
                         Position--; //Cuz in next iterate in main lexer loop, lexer skip this non number token
