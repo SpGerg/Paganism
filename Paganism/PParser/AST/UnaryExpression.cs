@@ -1,6 +1,4 @@
 ﻿using Paganism.Exceptions;
-using Paganism.Interpreter.Data;
-using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
@@ -24,7 +22,7 @@ namespace Paganism.PParser.AST
             return Operator switch
             {
                 OperatorType.Plus => Expression.Evaluate(),
-                OperatorType.Minus => new NumberValue(ExpressionInfo, - Expression.Evaluate().AsNumber()),
+                OperatorType.Minus => new NumberValue(ExpressionInfo, -Expression.Evaluate().AsNumber()),
                 OperatorType.IncrementPrefix => Increment(true),
                 OperatorType.IncrementPostfix => Increment(),
                 OperatorType.DicrementPrefix => Dicrement(true),

@@ -1,12 +1,9 @@
 ﻿using Paganism.Exceptions;
 using Paganism.Interpreter.Data;
-using Paganism.Interpreter.Data.Extensions;
-using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Paganism.PParser.AST
 {

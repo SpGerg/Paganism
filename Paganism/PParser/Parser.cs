@@ -8,7 +8,6 @@ using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using Paganism.Structures;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -175,7 +174,7 @@ namespace Paganism.PParser
             {
                 if (Match(TokenType.Word))
                 {
-                    ExtensionFunction = Tokens[Position-1].Value;
+                    ExtensionFunction = Tokens[Position - 1].Value;
                 }
             }
             return new DirectiveExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath));
@@ -503,7 +502,7 @@ namespace Paganism.PParser
         private IStatement ParseFunctionOrVariableOrEnumOrStructure(bool isShow = false)
         {
             var type = ParseType(true);
-            
+
             bool isAsync = Match(TokenType.Async);
 
             if (type is not null)
@@ -1032,7 +1031,7 @@ namespace Paganism.PParser
             }
             else if (Match(TokenType.Not))
             {
-                return new NotExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), ParseBinary() as EvaluableExpression);
+                return new NotExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), ParseBinary());
             }
             else if (Match(TokenType.New))
             {

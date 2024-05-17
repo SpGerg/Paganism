@@ -1,10 +1,5 @@
 ﻿using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 #pragma warning disable CS0659
 namespace Paganism.PParser.Values
@@ -14,7 +9,7 @@ namespace Paganism.PParser.Values
         public EnumValue(ExpressionInfo info, EnumMemberExpression member) : base(info)
         {
             Member = member;
-        }   
+        }
 
         public override string Name => "Enum";
 

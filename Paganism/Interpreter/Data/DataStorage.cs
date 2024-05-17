@@ -2,9 +2,6 @@
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser;
 using Paganism.PParser.AST;
-using Paganism.PParser.AST.Enums;
-using Paganism.PParser.Values;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Paganism.Interpreter.Data

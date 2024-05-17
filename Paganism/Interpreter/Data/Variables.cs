@@ -1,5 +1,4 @@
 ﻿using Paganism.Interpreter.Data.Instances;
-using Paganism.PParser.Values;
 using System;
 
 namespace Paganism.Interpreter.Data

@@ -4,11 +4,6 @@ using Paganism.PParser.AST.Enums;
 using Paganism.PParser.Values;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.Hosting;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Paganism.Interpreter.Data.Extensions
 {
@@ -23,7 +18,7 @@ namespace Paganism.Interpreter.Data.Extensions
         }
 
         public TypesType Type { get; }
-        
+
         public string Name { get; }
 
         public Argument[] Arguments { get; }
@@ -36,7 +31,8 @@ namespace Paganism.Interpreter.Data.Extensions
 
             foreach (Argument Argument in ArgumentList)
             {
-                if (Data.ContainsKey(Argument.Name)) {
+                if (Data.ContainsKey(Argument.Name))
+                {
                     Data[Argument.Name] = Argument;
                     continue;
                 }

@@ -46,7 +46,7 @@ namespace Paganism.Interpreter.Data.Instances
 
         public string Filepath { get; }
 
-        public Func<Argument[], Value>? Action { get; } 
+        public Func<Argument[], Value>? Action { get; }
 
         public FunctionDeclarateExpression FunctionDeclarateExpression { get; }
 

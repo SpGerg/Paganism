@@ -1,9 +1,9 @@
-﻿using Paganism.PParser.AST.Enums;
-using System.Collections.Generic;
+﻿using Paganism.Exceptions;
 using Paganism.PParser;
 using Paganism.PParser.AST;
+using Paganism.PParser.AST.Enums;
 using Paganism.PParser.Values;
-using Paganism.Exceptions;
+using System.Collections.Generic;
 
 #nullable enable
 namespace Paganism.Interpreter.Data.Extensions
@@ -58,13 +58,13 @@ namespace Paganism.Interpreter.Data.Extensions
                     if (result is VoidValue)
                     {
                         throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!", Original.ExpressionInfo);
-                    } 
+                    }
                     else
                     {
                         if (result is null)
                         {
                             throw new InterpreterException($"Variable {Original.Name} cannot be null while using Variable Extensions!", Original.ExpressionInfo);
-                        } 
+                        }
                         else
                         {
                             return Value.Create(result.AsString().Split(char.Parse(Arguments[0].Value.Evaluate().AsString())));

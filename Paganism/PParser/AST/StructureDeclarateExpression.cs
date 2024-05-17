@@ -1,9 +1,6 @@
-﻿using Paganism.Interpreter.Data;
-using Paganism.Interpreter.Data.Instances;
+﻿using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
-using System;
-using System.Collections.Generic;
 
 namespace Paganism.PParser.AST
 {

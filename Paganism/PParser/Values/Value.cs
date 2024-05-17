@@ -1,14 +1,10 @@
 ﻿using Paganism.API;
-using Paganism.API.Attributes;
 using Paganism.Exceptions;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Paganism.PParser.Values
 {
@@ -54,7 +50,7 @@ namespace Paganism.PParser.Values
             if (value is bool)
             {
                 return new BooleanValue(ExpressionInfo.EmptyInfo, Convert.ToBoolean(value));
-            } 
+            }
 
             if (type is null || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum || PaganismFromCSharp.IsStructure(type))
             {

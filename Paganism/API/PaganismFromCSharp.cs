@@ -9,8 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Paganism.API
 {
@@ -114,9 +112,9 @@ namespace Paganism.API
 
                     structure.Values[method.Name] = new FunctionValue(ExpressionInfo.EmptyInfo, method.Name, member.Info.Arguments, member.Type, action);
                 }
-            } 
+            }
 
-            return structure; 
+            return structure;
         }
 
         public static EnumInstance CreateEnum(Type type)
@@ -164,7 +162,7 @@ namespace Paganism.API
                 case ArrayValue arrayValue:
                     var array = new object[arrayValue.Elements.Length];
 
-                    for (int i = 0; i < array.Length;i++)
+                    for (int i = 0; i < array.Length; i++)
                     {
                         array[i] = ValueToObject(value);
                     }
