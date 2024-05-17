@@ -21,9 +21,11 @@ namespace Paganism.Interpreter.Data
 
         private static Lazy<Functions> Lazy { get; } = new();
 
+        private static InstanceInfo _languageFunctionInfo = new InstanceInfo(true, false, string.Empty);
+
         protected override IReadOnlyDictionary<string, FunctionInstance> Language { get; } = new Dictionary<string, FunctionInstance>()
         {
-            { "cs_call", new FunctionInstance(
+            { "cs_call", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "cs_call", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("namespace", TypesType.String, null, true),
@@ -31,7 +33,7 @@ namespace Paganism.Interpreter.Data
                     new("arguments", TypesType.Any, null, true, true)
                 },
                     false,
-                    true), (Argument[] arguments) =>
+                    _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         if (!FunctionDeclarateExpression.Types.TryGetValue(arguments[0].Value.Evaluate().AsString(), out Type findedClass))
                         {
@@ -109,13 +111,13 @@ namespace Paganism.Interpreter.Data
                     }
                 )
             },
-            { "import", new FunctionInstance(
+            { "import", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "import", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("file", TypesType.String, null, true)
                 },
                     false,
-                    true)
+                    _languageFunctionInfo)
                 , (Argument[] arguments) => {
                     var name = arguments[0].Value.Evaluate().AsString();
                     var baseDir = Directory.GetCurrentDirectory();
@@ -146,15 +148,15 @@ namespace Paganism.Interpreter.Data
 
                             if (paganismType is FunctionValue functionValue)
                             {
-                                Instance.Set(null, functionValue.Value.Name, instance as FunctionInstance);
+                                Instance.Set(ExpressionInfo.EmptyInfo, null, functionValue.Value.Name, instance as FunctionInstance);
                             }
                             else if (paganismType is StructureValue structureValue)
                             {
-                                Structures.Instance.Set(null, structureValue.Structure.Name, instance as StructureInstance);
+                                Structures.Instance.Set(ExpressionInfo.EmptyInfo, null, structureValue.Structure.Name, instance as StructureInstance);
                             }
                             else if (paganismType is EnumInstance enumInstance)
                             {
-                                Enums.Instance.Set(null, enumInstance.Name, enumInstance);
+                                Enums.Instance.Set(ExpressionInfo.EmptyInfo, null, enumInstance.Name, enumInstance);
                             }
                         }
 
@@ -180,19 +182,19 @@ namespace Paganism.Interpreter.Data
                     var lexer = new Lexer.Lexer(result, string.Empty);
                     var parser = new Parser(lexer.Run(), files[0]);
                     var interpreter = new Interpreter(parser.Run());
-                    interpreter.Run(false); 
+                    interpreter.Run(false);
 
                     return new VoidValue(ExpressionInfo.EmptyInfo);
                 })
             },
-            { "pgm_resize", new FunctionInstance(
+            { "pgm_resize", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "pgm_resize", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("array", TypesType.Array),
                     new("size", TypesType.Number)
                 },
                     false,
-                    true), (Argument[] arguments) =>
+                    _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         var array = arguments[0].Value.Evaluate() as ArrayValue;
 
@@ -217,13 +219,13 @@ namespace Paganism.Interpreter.Data
                     }
                 )
             },
-            { "pgm_size", new FunctionInstance(
+            { "pgm_size", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "pgm_size", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("array", TypesType.Array)
                 },
                     false,
-                    true), (Argument[] arguments) =>
+                    _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         var argument = arguments[0].Value;
 
@@ -231,44 +233,44 @@ namespace Paganism.Interpreter.Data
                     }
                 )
             },
-            { "print", new FunctionInstance(
+            { "print", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "print", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("content", TypesType.String, null, true)
-                }, false, true), (Argument[] arguments) =>
+                }, false, _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         Console.Write(arguments[0].Value.Evaluate().AsString());
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
-                ) 
+                )
             },
-            { "println", new FunctionInstance(
+            { "println", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "println", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("content", TypesType.String)
-                }, false, true), (Argument[] arguments) =>
+                }, false, _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         Console.WriteLine(arguments[0].Value.Evaluate().AsString());
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
                 )
             },
-            { "read", new FunctionInstance(
+            { "read", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "read", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]
                 {
                     new("content", TypesType.String)
-                }, false, true), (Argument[] arguments) =>
+                }, false, _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         return Value.Create(Console.ReadLine());
                     }
                 )
             },
-            {
-                "millitime", new FunctionInstance(
-                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "millitime", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]{}, false, true), (Argument[] arguments) =>
-                    {
+            { "millitime", new FunctionInstance(InstanceInfo.Empty,
+                new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "millitime", new BlockStatementExpression(ExpressionInfo.EmptyInfo, null), new Argument[]{},
+                    false, _languageFunctionInfo), (Argument[] arguments) =>
+                {
                         return Value.Create(DateTimeOffset.Now.ToUnixTimeMilliseconds());
-                    }
+                }
                 )
             }
         };

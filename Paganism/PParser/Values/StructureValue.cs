@@ -1,10 +1,7 @@
 ﻿using Paganism.Exceptions;
-using Paganism.Interpreter.Data;
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
-using Paganism.PParser.AST.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,11 +10,11 @@ namespace Paganism.PParser.Values
 {
     public class StructureValue : Value
     {
-        public StructureValue(ExpressionInfo info, string name, Dictionary<string, StructureMemberExpression> members) : base(info)
+        public StructureValue(ExpressionInfo info, string name, Dictionary<string, StructureMemberExpression> members, InstanceInfo instanceInfo) : base(info)
         {
             Values = new Dictionary<string, Value>();
 
-            Structure = new StructureInstance(new StructureDeclarateExpression(ExpressionInfo, name, members.Values.ToArray()));
+            Structure = new StructureInstance(new StructureDeclarateExpression(ExpressionInfo, name, members.Values.ToArray(), instanceInfo));
 
             foreach (var member in members)
             {
@@ -32,14 +29,30 @@ namespace Paganism.PParser.Values
             }
         }
 
-        public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Name, structureInstance.Members)
+        public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Name, structureInstance.Members, structureInstance.StructureDeclarateExpression.Info)
         {
             Structure = structureInstance;
         }
 
-        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : this(info, name, Interpreter.Data.Structures.Instance.Get(expression, name, info).Members)
+        public StructureValue(ExpressionInfo info, BlockStatementExpression expression, string name) : base(info)
         {
             Structure = Interpreter.Data.Structures.Instance.Get(expression, name, ExpressionInfo);
+
+            Values = new Dictionary<string, Value>();
+
+            Structure = new StructureInstance(new StructureDeclarateExpression(ExpressionInfo, name, Structure.Members.Values.ToArray(), Structure.Info));
+
+            foreach (var member in Structure.Members)
+            {
+                if (member.Value.Info.IsDelegate)
+                {
+                    Values.Add(member.Key, new FunctionValue(info, null));
+                }
+                else
+                {
+                    Values.Add(member.Key, new NoneValue(ExpressionInfo.EmptyInfo));
+                }
+            }
         }
 
         public override string Name => "Structure";

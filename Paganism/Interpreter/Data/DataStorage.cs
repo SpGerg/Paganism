@@ -1,12 +1,15 @@
 ﻿using Paganism.Exceptions;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Paganism.Interpreter.Data
 {
-    public abstract class DataStorage<T>
+    public abstract class DataStorage<T> where T : Instance
     {
         public abstract string Name { get; }
 
@@ -16,27 +19,47 @@ namespace Paganism.Interpreter.Data
 
         protected virtual IReadOnlyDictionary<string, T> Language { get; } = new Dictionary<string, T>();
 
-        public void Set(BlockStatementExpression expression, string name, T value)
+        public void Set(ExpressionInfo expressionInfo, BlockStatementExpression expression, string name, T value)
         {
+            Dictionary<string, T> dictionary = null;
+            T instance = null;
+
             if (expression is null)
             {
-                GlobalDeclarated[name] = value;
+                dictionary = GlobalDeclarated;
+
+                if (!dictionary.TryGetValue(name, out instance))
+                {
+                    instance = value;
+
+                    dictionary.Add(name, value);
+                }
+            }
+
+            if (expression is not null && !Declarated.TryGetValue(expression, out dictionary))
+            {
+                dictionary = new Dictionary<string, T>();
+
+                Declarated.Add(expression, dictionary);
+            }
+
+            if (!dictionary.TryGetValue(name, out instance))
+            {
+                dictionary.Add(name, value);
+            }
+
+            if (instance is null)
+            {
+                dictionary[name] = value;
                 return;
             }
 
-            if (!Declarated.TryGetValue(expression, out _))
+            if (instance.Info.IsReadOnly && expressionInfo.Filepath != instance.Info.FilePath)
             {
-                Declarated.Add(expression, new Dictionary<string, T>());
+                throw new InterpreterException($"You cant access to {value.InstanceName} with '{name}' name", expressionInfo);
             }
 
-            if (Declarated[expression].ContainsKey(name))
-            {
-                Declarated[expression][name] = value;
-            }
-            else
-            {
-                Declarated[expression].Add(name, value);
-            }
+            dictionary[name] = value;
         }
 
         public void Remove(BlockStatementExpression expression, string name)
@@ -82,7 +105,7 @@ namespace Paganism.Interpreter.Data
             return Language.ContainsKey(name);
         }
 
-        public bool TryGet(BlockStatementExpression expression, string name, out T value, ExpressionInfo expressionInfo)
+        public bool TryGet(BlockStatementExpression expression, string name, ExpressionInfo expressionInfo, out T value)
         {
             try
             {
@@ -90,9 +113,15 @@ namespace Paganism.Interpreter.Data
 
                 return true;
             }
-            catch
+            catch (InterpreterException exception)
             {
-                value = default;
+                //I will make for every exception, separate exception class. 
+                if (exception.Message.Contains("access"))
+                {
+                    throw exception;
+                }
+
+                value = null;
                 return false;
             }
         }
@@ -104,6 +133,8 @@ namespace Paganism.Interpreter.Data
                 return Language[name];
             }
 
+            Instance finallyResult = null;
+
             if (expression is null)
             {
                 if (!GlobalDeclarated.ContainsKey(name))
@@ -111,17 +142,25 @@ namespace Paganism.Interpreter.Data
                     throw new InterpreterException($"Unknown {Name} with '{name}' name", expressionInfo);
                 }
 
-                return GlobalDeclarated[name];
+                finallyResult = GlobalDeclarated[name];
             }
-
-            if (!Declarated.TryGetValue(expression, out _))
+            else if (!Declarated.TryGetValue(expression, out _))
             {
                 Declarated.Add(expression, new Dictionary<string, T>());
             }
-
-            if (Declarated[expression].TryGetValue(name, out var result3))
+            else if (Declarated[expression].TryGetValue(name, out var result3))
             {
-                return result3;
+                finallyResult = result3;
+            }
+
+            if (finallyResult is not null)
+            {
+                if (!finallyResult.Info.IsShow && finallyResult.Info.FilePath != expressionInfo.Filepath)
+                {
+                    throw new InterpreterException($"You cant access to {finallyResult.InstanceName} with '{name}' name", expressionInfo);
+                }
+
+                return (T)finallyResult;
             }
 
             if (!Language.TryGetValue(name, out var result) && !Declarated[expression].TryGetValue(name, out var result1))
@@ -130,20 +169,32 @@ namespace Paganism.Interpreter.Data
 
                 if (value != null)
                 {
-                    return value;
+                    finallyResult = value;
+                }
+                else
+                {
+                    throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
+                }
+            }
+
+            if (finallyResult is null)
+            {
+                var result2 = Declarated[expression].TryGetValue(name, out result1);
+
+                if (result is null && !result2)
+                {
+                    throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
                 }
 
-                throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
+                finallyResult = result2 ? result1 : result;
             }
 
-            var result2 = Declarated[expression].TryGetValue(name, out result1);
-
-            if (result is null && !result2)
+            if (!finallyResult.Info.IsShow && finallyResult.Info.FilePath != expressionInfo.Filepath)
             {
-                throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
+                throw new InterpreterException($"You cant access to {finallyResult.InstanceName} with '{name}' name", expressionInfo);
             }
 
-            return result2 ? result1 : result;
+            return (T)finallyResult;
         }
     }
 }

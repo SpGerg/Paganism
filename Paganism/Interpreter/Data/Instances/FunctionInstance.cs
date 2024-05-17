@@ -8,7 +8,7 @@ namespace Paganism.Interpreter.Data.Instances
 {
     public class FunctionInstance : Instance
     {
-        public FunctionInstance(FunctionDeclarateExpression functionDeclarate, Func<Argument[], Value>? FunctionAction = null)
+        public FunctionInstance(InstanceInfo instanceInfo, FunctionDeclarateExpression functionDeclarate, Func<Argument[], Value>? FunctionAction = null) : base(instanceInfo)
         {
             Name = functionDeclarate.Name;
             Statements = functionDeclarate.Statement;
@@ -18,6 +18,18 @@ namespace Paganism.Interpreter.Data.Instances
             FunctionDeclarateExpression = functionDeclarate;
             Filepath = functionDeclarate.ExpressionInfo.Filepath;
             Action = FunctionAction;
+        }
+
+        public FunctionInstance(InstanceInfo instanceInfo, FunctionValue functionValue) : base(instanceInfo)
+        {
+            Name = functionValue.Name;
+            Statements = functionValue.Value.Statement;
+            Arguments = functionValue.Value.RequiredArguments;
+            ReturnType = functionValue.Value.ReturnType;
+            IsAsync = functionValue.Value.IsAsync;
+            FunctionDeclarateExpression = functionValue.Value;
+            Filepath = functionValue.ExpressionInfo.Filepath;
+            Action = null;
         }
 
         public override string InstanceName => "Function";

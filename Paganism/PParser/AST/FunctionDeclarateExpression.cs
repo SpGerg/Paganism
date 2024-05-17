@@ -13,16 +13,16 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.AST
 {
-    public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable, IDeclaratable
+    public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable, IDeclaratable, IAccessible
     {
-        public FunctionDeclarateExpression(ExpressionInfo info, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, bool isShow = false, TypeValue returnType = null) : base(info)
+        public FunctionDeclarateExpression(ExpressionInfo info, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, InstanceInfo instanceInfo, TypeValue returnType = null) : base(info)
         {
             Name = name;
             Statement = statement;
             RequiredArguments = requiredArguments;
             RequiredArguments ??= new Argument[0];
             IsAsync = isAsync;
-            IsShow = isShow;
+            Info = instanceInfo;
             ReturnType = returnType;
 
             ReturnType ??= new TypeValue(ExpressionInfo.EmptyInfo, TypesType.None, string.Empty);
@@ -62,15 +62,15 @@ namespace Paganism.PParser.AST
 
         public bool IsAsync { get; }
 
-        public bool IsShow { get; }
-
         public Argument[] RequiredArguments { get; }
 
         public TypeValue ReturnType { get; }
 
+        public InstanceInfo Info { get; }
+
         public void Declarate()
         {
-            Functions.Instance.Set(ExpressionInfo.Parent, Name, new FunctionInstance(this));
+            Functions.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new FunctionInstance(Info, this));
         }
 
         public void Remove()
@@ -119,7 +119,7 @@ namespace Paganism.PParser.AST
                     var noneArgument = new Argument(functionArgument.Name, functionArgument.Type, new NoneValue(ExpressionInfo));
 
                     totalArguments[i] = noneArgument;
-                    Variables.Instance.Set(Statement, functionArgument.Name, noneArgument.Value.Evaluate());
+                    Variables.Instance.Set(ExpressionInfo, Statement, functionArgument.Name, new VariableInstance(InstanceInfo.Empty, noneArgument.Value.Evaluate()));
                     continue;
                 }
 
@@ -148,12 +148,13 @@ namespace Paganism.PParser.AST
             {
                 if (argument.Value is FunctionDeclarateExpression functionDeclarateExpression)
                 {
-                    Variables.Instance.Set(Statement, argument.Name, new FunctionValue(ExpressionInfo, functionDeclarateExpression));
-                    Functions.Instance.Set(Statement, argument.Name, new FunctionInstance(functionDeclarateExpression));
+                    Variables.Instance.Set(ExpressionInfo, Statement, argument.Name, new VariableInstance(functionDeclarateExpression.Info, new FunctionValue(ExpressionInfo, functionDeclarateExpression)));
+
+                    functionDeclarateExpression.Declarate();
                 }
                 else
                 {
-                    Variables.Instance.Set(Statement, argument.Name, argument.Value.Evaluate());
+                    Variables.Instance.Set(Statement.ExpressionInfo, Statement, argument.Name, new VariableInstance(Info, argument.Value.Evaluate()));
                 }
             }
         }
@@ -181,7 +182,7 @@ namespace Paganism.PParser.AST
             {
                 var task = ExecuteAsync(arguments);
 
-                var structureExpression = new StructureDeclarateExpression(ExpressionInfo, "task", new StructureMemberExpression[1]);
+                var structureExpression = new StructureDeclarateExpression(ExpressionInfo, "task", new StructureMemberExpression[1], InstanceInfo.Empty);
                 structureExpression.Members[0] = new StructureMemberExpression(
                     structureExpression.ExpressionInfo, structureExpression.Name, new TypeValue(ExpressionInfo, TypesType.Number, string.Empty), "id", true);
 

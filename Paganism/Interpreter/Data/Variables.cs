@@ -1,9 +1,10 @@
-﻿using Paganism.PParser.Values;
+﻿using Paganism.Interpreter.Data.Instances;
+using Paganism.PParser.Values;
 using System;
 
 namespace Paganism.Interpreter.Data
 {
-    public class Variables : DataStorage<Value>
+    public class Variables : DataStorage<VariableInstance>
     {
         public override string Name => "Variable";
 

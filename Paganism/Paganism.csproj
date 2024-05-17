@@ -45,7 +45,9 @@
     <Compile Include="Interpreter\Data\Instances\EnumInstance.cs" />
     <Compile Include="Interpreter\Data\Instances\Instance.cs" />
     <Compile Include="Interpreter\Data\Instances\FunctionInstance.cs" />
+    <Compile Include="Interpreter\Data\Instances\InstanceInfo.cs" />
     <Compile Include="Interpreter\Data\Instances\StructureInstance.cs" />
+    <Compile Include="Interpreter\Data\Instances\VariableInstance.cs" />
     <Compile Include="Interpreter\Data\Tasks.cs" />
     <Compile Include="Interpreter\Interpreter.cs" />
     <Compile Include="Exceptions\InterpreterException.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="PParser\AST\EvaluableExpression.cs" />
     <Compile Include="PParser\AST\ForExpression.cs" />
     <Compile Include="PParser\AST\IfExpression.cs" />
+    <Compile Include="PParser\AST\Interfaces\IAccessible.cs" />
     <Compile Include="PParser\AST\Interfaces\IDeclaratable.cs" />
     <Compile Include="PParser\AST\NewExpression.cs" />
     <Compile Include="PParser\AST\NotExpression.cs" />

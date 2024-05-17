@@ -1,4 +1,5 @@
 ﻿using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 
@@ -68,9 +69,6 @@ namespace Paganism.PParser.AST
                     case AwaitExpression awaitExpression:
                         awaitExpression.Execute();
                         break;
-                    case AssignExpression assignExpression:
-                        assignExpression.Evaluate();
-                        break;
                     case BinaryOperatorExpression binaryOperatorExpression:
                         binaryOperatorExpression.Evaluate();
                         break;
@@ -117,7 +115,7 @@ namespace Paganism.PParser.AST
 
                         if (variable != null)
                         {
-                            Variables.Instance.Set(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name, variable.Right.Evaluate());
+                            (variable.Left as VariableExpression).Set(ExpressionInfo, variable.Right.Evaluate());
                         }
 
                         var result2 = forExpression.Evaluate();

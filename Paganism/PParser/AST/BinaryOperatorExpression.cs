@@ -29,7 +29,7 @@ namespace Paganism.PParser.AST
         {
             if (binaryOperatorExpression.Left is VariableExpression variableExpression)
             {
-                var left = Variables.Instance.Get(binaryOperatorExpression.ExpressionInfo.Parent, variableExpression.Name, variableExpression.ExpressionInfo) as StructureValue;
+                var left = variableExpression.Evaluate() as StructureValue;
 
                 return left;
             }
@@ -243,7 +243,7 @@ namespace Paganism.PParser.AST
 
         private Value Point()
         {
-            if (Left is VariableExpression variableExpression && Interpreter.Data.Enums.Instance.TryGet(ExpressionInfo.Parent, variableExpression.Name, out var value, variableExpression.ExpressionInfo))
+            if (Left is VariableExpression variableExpression && Interpreter.Data.Enums.Instance.TryGet(ExpressionInfo.Parent, variableExpression.Name, variableExpression.ExpressionInfo, out var value))
             {
                 if (Right is not VariableExpression variableExpression1)
                 {
@@ -400,11 +400,13 @@ namespace Paganism.PParser.AST
 
             if (Left is VariableExpression variableExpression)
             {
-                if (!Variables.Instance.TryGet(ExpressionInfo.Parent, variableExpression.Name, out var result, ExpressionInfo.EmptyInfo))
+                var result = variableExpression.Evaluate();
+
+                if (result is VoidValue)
                 {
                     if (variableExpression.Type is null)
                     {
-                        variableExpression = new VariableExpression(ExpressionInfo,
+                        variableExpression = new VariableExpression(variableExpression.Info, ExpressionInfo,
                             variableExpression.Name, new TypeValue(ExpressionInfo, value.Type, value is TypeValue typeValue ? typeValue.TypeName : string.Empty));
                     }
                 }
@@ -423,12 +425,17 @@ namespace Paganism.PParser.AST
                     }
                 }
 
-                if (value is FunctionValue)
+                if (variableExpression.Info.IsReadOnly && variableExpression.ExpressionInfo.Filepath != ExpressionInfo.Filepath)
                 {
-                    Functions.Instance.Set(variableExpression.ExpressionInfo.Parent, variableExpression.Name, new FunctionInstance(Right as FunctionDeclarateExpression));
+                    throw new InterpreterException($"You cant access to variable with '{variableExpression.Name}' name", ExpressionInfo);
                 }
 
-                Variables.Instance.Set(variableExpression.ExpressionInfo.Parent, variableExpression.Name, value);
+                if (value is IDeclaratable declaratable)
+                {
+                    declaratable.Declarate();
+                }
+
+                variableExpression.Set(ExpressionInfo, value);
             }
             else if (Left is BinaryOperatorExpression binary)
             {
@@ -439,7 +446,7 @@ namespace Paganism.PParser.AST
             }
             else if (Left is ArrayElementExpression arrayElementExpression)
             {
-                var variable2 = Variables.Instance.Get(ExpressionInfo.Parent, arrayElementExpression.Name, arrayElementExpression.ExpressionInfo);
+                var variable2 = Variables.Instance.Get(ExpressionInfo.Parent, arrayElementExpression.Name, arrayElementExpression.ExpressionInfo).Value;
 
                 if (variable2 is not NoneValue)
                 {

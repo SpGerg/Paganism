@@ -21,7 +21,7 @@ namespace Paganism.PParser.AST
         {
             if (_functionInstance is null)
             {
-                _functionInstance = Functions.Instance.Get(ExpressionInfo.Parent, Expression.FunctionName, ExpressionInfo);
+                _functionInstance = Expression.GetFunction();
             }
 
             if (!_functionInstance.IsAsync)

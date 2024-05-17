@@ -73,7 +73,7 @@ namespace Paganism.PParser
                 }
                 else
                 {
-                    return (IStatement)ParseFunction(true);
+                    return ParseFunction(true);
                 }
             }
 
@@ -89,7 +89,7 @@ namespace Paganism.PParser
 
             if (Match(TokenType.Structure))
             {
-                return ParseStructure();
+                return ParseStructure(false);
             }
 
             if (Match(TokenType.Return))
@@ -109,17 +109,17 @@ namespace Paganism.PParser
 
             if (Match(TokenType.Enum))
             {
-                return ParseEnum();
+                return ParseEnum(false);
             }
 
             if (Match(TokenType.Show))
             {
-                return ParseFunctionOrVariable(true);
+                return ParseFunctionOrVariableOrEnumOrStructure(true);
             }
 
             if (Match(TokenType.Hide))
             {
-                return ParseFunctionOrVariable();
+                return ParseFunctionOrVariableOrEnumOrStructure();
             }
 
             if (Match(TokenType.Sharp))
@@ -149,14 +149,10 @@ namespace Paganism.PParser
 
             if (IsType(0))
             {
-                return ParseFunctionOrVariable();
+                return ParseFunctionOrVariableOrEnumOrStructure();
             }
-            else
-            {
-                return Match(TokenType.Await)
-                ? ParseAwait()
-                : throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position, Filepath);
-            }
+
+            throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position, Filepath);
         }
 
         private Expression ParseNew()
@@ -185,7 +181,7 @@ namespace Paganism.PParser
             return new DirectiveExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath));
         }
 
-        private IStatement ParseEnum()
+        private IStatement ParseEnum(bool isShow)
         {
             Match(TokenType.Enum);
 
@@ -208,7 +204,7 @@ namespace Paganism.PParser
                 members.Add(ParseEnumMember(name));
             }
 
-            return new EnumDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, members.ToArray());
+            return new EnumDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, members.ToArray(), new InstanceInfo(isShow, false, Filepath));
         }
 
         private EnumMemberExpression ParseEnumMember(string parent)
@@ -261,7 +257,7 @@ namespace Paganism.PParser
             return new AwaitExpression(new ExpressionInfo(_parent, expression.ExpressionInfo.Line, expression.ExpressionInfo.Position, Filepath), functionCallExpression);
         }
 
-        private IStatement ParseStructure()
+        private IStatement ParseStructure(bool isShow)
         {
             Match(TokenType.Structure);
             var name = Current.Value;
@@ -280,12 +276,21 @@ namespace Paganism.PParser
                 statements.Add(member);
             }
 
-            return new StructureDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, statements.ToArray());
+            return new StructureDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), name, statements.ToArray(), new InstanceInfo(isShow, false, Filepath));
         }
 
-        private TypeValue ParseType()
+        private TypeValue ParseType(bool isReturnNull = false)
         {
-            var type = new TypeValue(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), TypesType.Any, string.Empty);
+            TypeValue type = null;
+
+            if (isReturnNull)
+            {
+                type = null;
+            }
+            else
+            {
+                type = new TypeValue(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), TypesType.Any, string.Empty);
+            }
 
             if (IsType(0))
             {
@@ -495,20 +500,35 @@ namespace Paganism.PParser
                 new BlockStatementExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), null));
         }
 
-        private IStatement ParseFunctionOrVariable(bool isShow = false)
+        private IStatement ParseFunctionOrVariableOrEnumOrStructure(bool isShow = false)
         {
-            var type = ParseType();
+            var type = ParseType(true);
             
             bool isAsync = Match(TokenType.Async);
 
-            if (Match(TokenType.Function))
+            if (type is not null)
             {
-                return ParseFunction(isAsync, isShow, type);
+                if (Match(TokenType.Function))
+                {
+                    return ParseFunction(isAsync, isShow, type);
+                }
+
+                return ParseVariable(isShow, type);
             }
             else
             {
-                return ParseVariable(isShow, type);
+                if (Match(TokenType.Structure))
+                {
+                    return ParseStructure(isShow);
+                }
+
+                if (Match(TokenType.Enum))
+                {
+                    return ParseEnum(isShow);
+                }
             }
+
+            return ParseVariable(isShow);
         }
 
         private IStatement ParseVariable(bool isShow = false, TypeValue type = null)
@@ -518,7 +538,7 @@ namespace Paganism.PParser
                 type = new TypeValue(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), TypesType.Any, string.Empty);
             }
 
-            var current = Current;
+            var isReadOnly = Match(TokenType.Readonly);
 
             var isArray = false;
 
@@ -545,11 +565,9 @@ namespace Paganism.PParser
                 right = ParseBinary();
             }
 
-            var valueType = type;
-
             if (left is VariableExpression variable)
             {
-                left = new VariableExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), variable.Name, type);
+                left = new VariableExpression(new InstanceInfo(isShow, isReadOnly, Filepath), new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), variable.Name, type);
             }
 
             if (right is ArrayExpression array)
@@ -557,7 +575,7 @@ namespace Paganism.PParser
                 right = new ArrayExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), array.Elements, array.Length);
             }
 
-            return new AssignExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), left, right, isShow);
+            return new AssignExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), left, right, isShow, isReadOnly);
         }
 
         private FunctionCallExpression ParseFunctionCall()
@@ -627,7 +645,7 @@ namespace Paganism.PParser
             if (ExtensionFunction == string.Empty)
             {
                 return new FunctionDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath),
-                    name, statement, arguments, isAsync, isShow, returnType);
+                    name, statement, arguments, isAsync, new InstanceInfo(isShow, false, Filepath), returnType);
             }
 
             if (!Extension.AllowedExtensions.Contains(ExtensionFunction))
@@ -637,14 +655,14 @@ namespace Paganism.PParser
 
             var original_name = $"..stringFunc_{name}";
             var DeclarationExpression = new FunctionDeclarateExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath),
-                original_name, statement, arguments, isAsync, isShow, returnType);
+                original_name, statement, arguments, isAsync, new InstanceInfo(isShow, false, Filepath), returnType);
 
             switch (ExtensionFunction)
             {
                 case "StringExtension":
                     if (!Extension.StringExtension.ContainsKey(name))
                     {
-                        Extension.StringExtension.Add(name, new FunctionInstance(DeclarationExpression));
+                        Extension.StringExtension.Add(name, new FunctionInstance(new InstanceInfo(true, false, Filepath), DeclarationExpression));
                     }
                     break;
                 default:
@@ -886,14 +904,14 @@ namespace Paganism.PParser
 
             if (Match(TokenType.Plus) && Match(TokenType.Plus))
             {
-                return new UnaryExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), new VariableExpression(
+                return new UnaryExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), new VariableExpression(new InstanceInfo(false, false, Filepath),
                     expressionInfo, variable, new TypeValue(expressionInfo, TypesType.Number, string.Empty)), OperatorType.IncrementPostfix);
             }
             else
             {
                 if (Match(TokenType.Minus) && Match(TokenType.Minus))
                 {
-                    return new UnaryExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), new VariableExpression(
+                    return new UnaryExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), new VariableExpression(new InstanceInfo(false, false, Filepath),
                     expressionInfo, variable, new TypeValue(expressionInfo, TypesType.Number, string.Empty)), OperatorType.IncrementPostfix);
                 }
             }
@@ -957,17 +975,17 @@ namespace Paganism.PParser
             }
             else if (Match(TokenType.Show))
             {
-                return ParseFunctionOrVariable(true) as Expression;
+                return ParseFunctionOrVariableOrEnumOrStructure(true) as Expression;
             }
             else if (Match(TokenType.Hide))
             {
-                return ParseFunctionOrVariable() as Expression;
+                return ParseFunctionOrVariableOrEnumOrStructure() as Expression;
             }
             else if (IsType(0))
             {
                 if (Require(1, TokenType.Function))
                 {
-                    return ParseFunctionOrVariable() as Expression;
+                    return ParseFunctionOrVariableOrEnumOrStructure() as Expression;
                 }
 
                 var type = ParseType();
@@ -1000,7 +1018,7 @@ namespace Paganism.PParser
             {
                 var type = ParseType();
 
-                return new VariableExpression(new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), current.Value, type);
+                return new VariableExpression(new InstanceInfo(false, false, Filepath), new ExpressionInfo(_parent, Current.Line, Current.Position, Filepath), current.Value, type);
             }
             else if (Match(TokenType.LeftPar))
             {

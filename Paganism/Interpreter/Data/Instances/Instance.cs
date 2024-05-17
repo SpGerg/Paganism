@@ -8,19 +8,26 @@ namespace Paganism.Interpreter.Data.Instances
 {
     public abstract class Instance
     {
+        public Instance(InstanceInfo instanceInfo)
+        {
+            Info = instanceInfo;
+        }
+
         public abstract string InstanceName { get; }
+
+        public InstanceInfo Info { get; }
 
         public static Instance Create(Value value)
         {
             switch (value)
             {
                 case FunctionValue functionValue:
-                    return new FunctionInstance(new PParser.AST.FunctionDeclarateExpression(ExpressionInfo.EmptyInfo,
+                    return new FunctionInstance(functionValue.Value.Info, new PParser.AST.FunctionDeclarateExpression(ExpressionInfo.EmptyInfo,
                         functionValue.Name, functionValue.Value.Statement, functionValue.Value.RequiredArguments,
-                        functionValue.Value.IsAsync, functionValue.Value.IsShow, functionValue.Value.ReturnType));
+                        functionValue.Value.IsAsync, functionValue.Value.Info, functionValue.Value.ReturnType));
                 case StructureValue structureValue:
                     return new StructureInstance(new PParser.AST.StructureDeclarateExpression(ExpressionInfo.EmptyInfo, 
-                        structureValue.Structure.Name, structureValue.Structure.Members.Values.ToArray()));
+                        structureValue.Structure.Name, structureValue.Structure.Members.Values.ToArray(), structureValue.Structure.Info));
             }
 
             return null;
@@ -30,7 +37,7 @@ namespace Paganism.Interpreter.Data.Instances
         {
             if (value is FunctionValue functionValue)
             {
-                return new FunctionInstance(functionValue.Value);
+                return new FunctionInstance(functionValue.Value.Info, functionValue.Value);
             }
             else if (value is StructureValue structureValue)
             {

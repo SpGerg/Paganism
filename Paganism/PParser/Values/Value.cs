@@ -61,9 +61,9 @@ namespace Paganism.PParser.Values
                 return new NoneValue(ExpressionInfo.EmptyInfo);
             }
 
-            if (Interpreter.Data.Structures.Instance.TryGet(null, type.Name, out var structure, ExpressionInfo.EmptyInfo))
+            if (Interpreter.Data.Structures.Instance.TryGet(null, type.Name, ExpressionInfo.EmptyInfo, out var structure))
             {
-                return new StructureValue(ExpressionInfo.EmptyInfo, structure);
+                return new StructureValue(structure.StructureDeclarateExpression.ExpressionInfo, structure);
             }
 
             return new NoneValue(ExpressionInfo.EmptyInfo);

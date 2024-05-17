@@ -9,7 +9,7 @@ namespace Paganism.Interpreter.Data.Instances
 {
     public class EnumInstance : Instance
     {
-        public EnumInstance(EnumDeclarateExpression enumDeclarateExpression)
+        public EnumInstance(InstanceInfo instanceInfo, EnumDeclarateExpression enumDeclarateExpression) : base(instanceInfo)
         {
             Name = enumDeclarateExpression.Name;
 

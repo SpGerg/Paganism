@@ -16,7 +16,7 @@ namespace Paganism.PParser.Values
 
         public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> func) : base(info)
         {
-            Value = new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, name, null, arguments, false, true, returnType);
+            Value = new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, name, null, arguments, false, new InstanceInfo(true, false, info.Filepath), returnType);
             Func = func;
         }
 
@@ -79,7 +79,7 @@ namespace Paganism.PParser.Values
                 return false;
             }
 
-            if (Value.IsShow != functionValue.Value.IsShow)
+            if (Value.Info.IsShow != functionValue.Value.Info.IsShow)
             {
                 return false;
             }

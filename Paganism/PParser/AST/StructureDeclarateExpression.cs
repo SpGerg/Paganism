@@ -7,21 +7,24 @@ using System.Collections.Generic;
 
 namespace Paganism.PParser.AST
 {
-    public class StructureDeclarateExpression : EvaluableExpression, IStatement, IDeclaratable
+    public class StructureDeclarateExpression : EvaluableExpression, IStatement, IDeclaratable, IAccessible
     {
-        public StructureDeclarateExpression(ExpressionInfo info, string name, StructureMemberExpression[] members) : base(info)
+        public StructureDeclarateExpression(ExpressionInfo info, string name, StructureMemberExpression[] members, InstanceInfo instanceInfo) : base(info)
         {
             Name = name;
             Members = members;
+            Info = instanceInfo;
         }
 
         public string Name { get; }
 
         public StructureMemberExpression[] Members { get; }
 
+        public InstanceInfo Info { get; }
+
         public void Declarate()
         {
-            Interpreter.Data.Structures.Instance.Set(ExpressionInfo.Parent, Name, new StructureInstance(this));
+            Interpreter.Data.Structures.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new StructureInstance(this));
         }
 
         public void Remove()

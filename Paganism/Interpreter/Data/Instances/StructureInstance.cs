@@ -8,7 +8,7 @@ namespace Paganism.Interpreter.Data.Instances
 {
     public class StructureInstance : Instance
     {
-        public StructureInstance(StructureDeclarateExpression structureDeclarate, Dictionary<string, Func<Argument[], Value>> functions = null)
+        public StructureInstance(StructureDeclarateExpression structureDeclarate, Dictionary<string, Func<Argument[], Value>> functions = null) : base(structureDeclarate.Info)
         {
             Name = structureDeclarate.Name;
             StructureDeclarateExpression = structureDeclarate;

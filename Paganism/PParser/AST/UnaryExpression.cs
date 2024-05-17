@@ -1,5 +1,6 @@
 ﻿using Paganism.Exceptions;
 using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
@@ -46,7 +47,7 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException("The variable value must be of type Number", ExpressionInfo);
             }
 
-            Variables.Instance.Set(ExpressionInfo.Parent, variableExpression.Name, new NumberValue(ExpressionInfo, value.AsNumber() + 1));
+            variableExpression.Set(ExpressionInfo, new NumberValue(ExpressionInfo, value.AsNumber() + 1));
 
             if (isPrefix)
             {
@@ -72,7 +73,7 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException("The variable value must be of type Number", ExpressionInfo);
             }
 
-            Variables.Instance.Set(ExpressionInfo.Parent, variableExpression.Name, new NumberValue(ExpressionInfo, value.AsNumber() - 1));
+            variableExpression.Set(ExpressionInfo, new NumberValue(ExpressionInfo, value.AsNumber() - 1));
 
             if (isPrefix)
             {

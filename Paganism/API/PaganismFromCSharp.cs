@@ -100,7 +100,7 @@ namespace Paganism.API
                     new StructureMemberInfo(true, arguments.ToArray(), true, true, false, false)));
             }
 
-            var structure = new StructureValue(ExpressionInfo.EmptyInfo, type.Name, members);
+            var structure = new StructureValue(ExpressionInfo.EmptyInfo, type.Name, members, new InstanceInfo(false, false, string.Empty));
 
             if (methods.Count() != 0)
             {
@@ -141,7 +141,9 @@ namespace Paganism.API
                 members[i] = new EnumMemberExpression(ExpressionInfo.EmptyInfo, name, memberValue, type.Name);
             }
 
-            return new EnumInstance(new EnumDeclarateExpression(ExpressionInfo.EmptyInfo, type.Name, members, true));
+            var instanceInfo = new InstanceInfo(true, false, string.Empty);
+
+            return new EnumInstance(instanceInfo, new EnumDeclarateExpression(ExpressionInfo.EmptyInfo, type.Name, members, instanceInfo));
         }
 
         public static bool IsStructure(Type source)

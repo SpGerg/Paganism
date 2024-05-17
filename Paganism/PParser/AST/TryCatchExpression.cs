@@ -1,4 +1,5 @@
 ﻿using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 using System;
@@ -35,7 +36,7 @@ namespace Paganism.PParser.AST
                 structure.Set("name", new StringValue(ExpressionInfo, exception.GetType().Name), ExpressionInfo.Filepath);
                 structure.Set("description", new StringValue(ExpressionInfo, exception.Message), ExpressionInfo.Filepath);
 
-                Variables.Instance.Set(CatchExpression, "exception", structure);
+                Variables.Instance.Set(ExpressionInfo, CatchExpression, "exception", new VariableInstance(InstanceInfo.Empty, structure));
 
                 return CatchExpression.Evaluate();
             }
