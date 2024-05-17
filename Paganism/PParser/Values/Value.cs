@@ -145,7 +145,7 @@ namespace Paganism.PParser.Values
 
         public bool Is(TypeValue typeValue)
         {
-            return Is(typeValue.Value, typeValue.Name);
+            return Is(typeValue.Value, typeValue.TypeName);
         }
 
         public bool Is(TypesType type, string typeName)
@@ -174,9 +174,9 @@ namespace Paganism.PParser.Values
 
             if (this is TypeValue typeValue)
             {
-                return typeValue.Value == Type && typeValue.Name == GetTypeName();
+                return typeValue.Value == type && typeValue.TypeName == typeName;
             }
-
+            
             return Type == type;
         }
 

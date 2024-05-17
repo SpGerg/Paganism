@@ -505,26 +505,19 @@ namespace Paganism.PParser
 
             bool isAsync = Match(TokenType.Async);
 
-            if (type is not null)
+            if (Match(TokenType.Function))
             {
-                if (Match(TokenType.Function))
-                {
-                    return ParseFunction(isAsync, isShow, type);
-                }
-
-                return ParseVariable(isShow, type);
+                return ParseFunction(isAsync, isShow, type);
             }
-            else
-            {
-                if (Match(TokenType.Structure))
-                {
-                    return ParseStructure(isShow);
-                }
 
-                if (Match(TokenType.Enum))
-                {
-                    return ParseEnum(isShow);
-                }
+            if (Match(TokenType.Structure))
+            {
+                return ParseStructure(isShow);
+            }
+
+            if (Match(TokenType.Enum))
+            {
+                return ParseEnum(isShow);
             }
 
             return ParseVariable(isShow);
