@@ -47,7 +47,7 @@ namespace PaganismCustomConsole.API.Features.Commands
 
                 if (index > arguments.Count && Parameters[i].IsRequired)
                 {
-                    throw new ArgumentException($"{(arguments.Array.Length - 1) - i} argument must be exists");
+                    throw new ArgumentException($"{(arguments.Array.Length - 1) - i} argument must exist");
                 }
 
                 var value = arguments.Array[index];

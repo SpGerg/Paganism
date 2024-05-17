@@ -26,7 +26,7 @@ namespace Paganism.PParser.AST
 
             if (!_functionInstance.IsAsync)
             {
-                throw new InterpreterException("Must be async function", ExpressionInfo);
+                throw new InterpreterException("Must be an async function", ExpressionInfo);
             }
 
             var id = (int)((NumberValue)(Expression.Evaluate() as StructureValue).Values["id"]).Value;

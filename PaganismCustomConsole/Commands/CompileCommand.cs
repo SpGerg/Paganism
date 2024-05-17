@@ -34,7 +34,7 @@ namespace PaganismCustomConsole.Commands
 
             if (!File.Exists(path))
             {
-                response = "File is not exists";
+                response = "File does not exist";
                 return false;
             }
 
