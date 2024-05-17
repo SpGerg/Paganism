@@ -41,6 +41,13 @@ namespace Paganism.Lexer
             {
                 while (Position < Text[Line].Length)
                 {
+                    if (Current == '/' && Text[Line].Length > 1 && Text[Line][Position + 1] == '/')
+                    {
+                        Line++;
+                        Position = 0;
+                        continue;
+                    }
+
                     if (Current == '\t')
                     {
                         Position++;
