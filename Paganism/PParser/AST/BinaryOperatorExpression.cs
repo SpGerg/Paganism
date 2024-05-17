@@ -52,7 +52,7 @@ namespace Paganism.PParser.AST
                 if (!structure.Structure.Members[name].Info.IsShow &&
                     structure.Structure.StructureDeclarateExpression.ExpressionInfo.Filepath != binary.ExpressionInfo.Filepath)
                 {
-                    throw new InterpreterException($"You cant access to structure member '{name}' in '{structure.Structure.Name}' structure",
+                    throw new InterpreterException($"You cant access the structure member '{name}' in '{structure.Structure.Name}' structure",
                         binaryOperatorExpression.ExpressionInfo);
                 }
 
