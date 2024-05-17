@@ -34,16 +34,12 @@ namespace Paganism.PParser.AST
                     return new TypeValue(ExpressionInfo, Enums.TypesType.Structure, newExpression.Name);
                 case NoneValue:
                     return new TypeValue(ExpressionInfo, Enums.TypesType.None, string.Empty);
-                case NumberValue:
-                    return new TypeValue(ExpressionInfo, Enums.TypesType.Number, string.Empty);
-                case StringValue:
-                    return new TypeValue(ExpressionInfo, Enums.TypesType.String, string.Empty);
+                case Value value2:
+                    return new TypeValue(ExpressionInfo, value2.Type, value2.GetTypeName());
                 case NotExpression:
                     return new TypeValue(ExpressionInfo, Enums.TypesType.Boolean, string.Empty);
                 case UnaryExpression:
                     return new TypeValue(ExpressionInfo, Enums.TypesType.Number, string.Empty);
-                case TypeValue typeValue:
-                    return new TypeValue(ExpressionInfo, Enums.TypesType.Type, typeValue.TypeName);
                 case ReturnExpression returnExpression:
                     var value3 = GetTypeValue(returnExpression.Value);
 

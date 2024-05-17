@@ -143,6 +143,11 @@ namespace Paganism.PParser.Values
             return true;
         }
 
+        public bool Is(TypeValue typeValue)
+        {
+            return Is(typeValue.Value, typeValue.Name);
+        }
+
         public bool Is(TypesType type, string typeName)
         {
             if (this is NoneValue || type is TypesType.Any)
@@ -165,6 +170,11 @@ namespace Paganism.PParser.Values
             if (this is EnumValue enumValue)
             {
                 return enumValue.Member.Enum == typeName;
+            }
+
+            if (this is TypeValue typeValue)
+            {
+                return typeValue.Value == Type && typeValue.Name == GetTypeName();
             }
 
             return Type == type;

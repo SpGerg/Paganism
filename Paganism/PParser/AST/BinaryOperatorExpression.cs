@@ -399,32 +399,21 @@ namespace Paganism.PParser.AST
             {
                 var result = variableExpression.Evaluate();
 
-                if (result is VoidValue)
+                if (result is not VoidValue)
                 {
-                    if (variableExpression.Type is null)
-                    {
-                        variableExpression = new VariableExpression(variableExpression.Info, ExpressionInfo,
-                            variableExpression.Name, new TypeValue(ExpressionInfo, value.Type, value is TypeValue typeValue ? typeValue.TypeName : string.Empty));
-                    }
-                }
-                else
-                {
-                    if (value.Type != result.Type)
+                    if (!result.Is(value.GetTypeValue()))
                     {
                         throw new InterpreterException($"Except {result.Type} type",
                             variableExpression.ExpressionInfo);
                     }
-
-                    if (result is StructureValue structureValue1 && value is StructureValue structureValue && structureValue1.Structure.Name != structureValue.Structure.Name)
+                }
+                else
+                {
+                    if (variableExpression.Type.Value != TypesType.Any && !variableExpression.Type.Is(value.GetTypeValue()))
                     {
-                        throw new InterpreterException($"Except {structureValue1.Structure.Name} structure type",
+                        throw new InterpreterException($"Except {variableExpression.Type} type",
                             variableExpression.ExpressionInfo);
                     }
-                }
-
-                if (variableExpression.Info.IsReadOnly && variableExpression.ExpressionInfo.Filepath != ExpressionInfo.Filepath)
-                {
-                    throw new InterpreterException($"You cant access to variable with '{variableExpression.Name}' name", ExpressionInfo);
                 }
 
                 if (value is IDeclaratable declaratable)
