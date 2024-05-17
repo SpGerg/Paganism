@@ -29,7 +29,7 @@ namespace Paganism.PParser.AST
 
             if (name.StartsWith("__"))
             {
-                throw new InterpreterException($"Function cant start with '__'",
+                throw new InterpreterException($"Function can't start with '__'",
                     ExpressionInfo);
             }
 
@@ -40,13 +40,13 @@ namespace Paganism.PParser.AST
 
             if (!Functions.Instance.IsLanguage(Name) && ReturnType.Value is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
             {
-                throw new InterpreterException($"Function with {Name} name must return value",
+                throw new InterpreterException($"Function with name: {Name} must return a value",
                     ExpressionInfo);
             }
 
             if (ReturnType.Type is TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
             {
-                throw new InterpreterException($"Except return value type in function with {Name} name",
+                throw new InterpreterException($"Except return value type in function with name: {Name}",
                     ExpressionInfo);
             }
         }

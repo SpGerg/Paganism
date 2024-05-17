@@ -72,7 +72,7 @@ namespace Paganism.PParser.Values
         public static Value Create(StructureValue structure, VariableExpression variable)
         {
             return !structure.Values.ContainsKey(variable.Name)
-                ? throw new InterpreterException($"Unknown structure member with {variable.Name} name, in structure with {structure.Structure.Name} name", variable.ExpressionInfo)
+                ? throw new InterpreterException($"Unknown structure member with name: {variable.Name}, in structure with name: {structure.Structure.Name}", variable.ExpressionInfo)
                 : structure.Values[variable.Name];
         }
 
@@ -218,17 +218,17 @@ namespace Paganism.PParser.Values
 
         public virtual double AsNumber()
         {
-            throw new InterpreterException($"You cant cast {Name} to Number", ExpressionInfo);
+            throw new InterpreterException($"You cant cast a {Name} to a Number", ExpressionInfo);
         }
 
         public virtual bool AsBoolean()
         {
-            throw new InterpreterException($"You cant cast {Name} to Boolean", ExpressionInfo);
+            throw new InterpreterException($"You cant cast a {Name} to a Boolean", ExpressionInfo);
         }
 
         public virtual string AsString()
         {
-            throw new InterpreterException($"You cant cast {Name} to String", ExpressionInfo);
+            throw new InterpreterException($"You cant cast a {Name} to a String", ExpressionInfo);
         }
     }
 }
