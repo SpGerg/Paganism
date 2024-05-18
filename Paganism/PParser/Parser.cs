@@ -597,21 +597,14 @@ namespace Paganism.PParser
                         continue;
                     }
 
-                    if (IsType(0))
-                    {
-                        arguments.Add(new Argument(string.Empty, Lexer.Tokens.TokenTypeToValueType[Current.Type], ParseBinary()));
-                    }
-                    else
-                    {
-                        var argumentName = string.Empty;
+                    var argumentName = string.Empty;
 
-                        if (Require(0, TokenType.Word))
-                        {
-                            argumentName = Current.Value;
-                        }
-
-                        arguments.Add(new Argument(argumentName, TypesType.Any, ParseBinary()));
+                    if (Require(0, TokenType.Word))
+                    {
+                        argumentName = Current.Value;
                     }
+
+                    arguments.Add(new Argument(argumentName, TypesType.Any, ParseBinary()));
                 }
             }
 

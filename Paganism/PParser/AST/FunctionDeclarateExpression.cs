@@ -111,7 +111,7 @@ namespace Paganism.PParser.AST
 
                 var argument = arguments[i];
 
-                if (!functionArgument.Equals(argument) && functionArgument.Type.IsCanCast(argument.Type))
+                if (!functionArgument.Type.Is(argument.Value.GetTypeValue()))
                 {
                     throw new InterpreterException($"Except {functionArgument.Type}", ExpressionInfo);
                 }

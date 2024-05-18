@@ -130,14 +130,14 @@ namespace Paganism.PParser.Values
                 return enumValue.Member.Enum == typeName;
             }
 
-            if (this is TypeValue typeValue)
-            {
-                return (typeValue.Value is TypesType.Object && type is TypesType.Structure) || (typeValue.Value == type && typeValue.TypeName == typeName);
-            }
-
             if (this is NoneValue || type is TypesType.Any)
             {
                 return true;
+            }
+
+            if (this is TypeValue typeValue)
+            {
+                return (typeValue.Value is TypesType.Object && type is TypesType.Structure) || (typeValue.Value == type && typeValue.TypeName == typeName);
             }
 
             return Type == type;
@@ -165,6 +165,11 @@ namespace Paganism.PParser.Values
 
         public bool IsCanCast(Value value)
         {
+            if (value is TypeValue typeValue)
+            {
+                return typeValue.Value is TypesType.Any;
+            }
+
             return value.CanCastTypes.Contains(Type);
         }
 
