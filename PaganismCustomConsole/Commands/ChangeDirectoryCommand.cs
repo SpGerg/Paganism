@@ -2,6 +2,7 @@
 using PaganismCustomConsole.API.Features.Commands;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace PaganismCustomConsole.Commands
 {
@@ -17,9 +18,25 @@ namespace PaganismCustomConsole.Commands
 
         public override string[] Aliases => new string[] { "cd" };
 
+        public override CommandParameter[] Parameters { get; } = new CommandParameter[]
+        {
+            new CommandParameter("path", "path", true)
+        };
+
         public override bool Execute(Dictionary<string, string> arguments, out string response)
         {
-            throw new NotImplementedException();
+            var path = arguments["path"];
+
+            if (!Directory.Exists(path))
+            {
+                response = $"Directory {path} doesnt exists";
+                return false;
+            }
+
+            CustomConsole.CurrentDirectory = arguments["path"];
+
+            response = string.Empty;
+            return true;
         }
     }
 }
