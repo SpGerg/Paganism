@@ -73,7 +73,7 @@ namespace PaganismCustomConsole.Commands
             Functions.Instance.Clear();
             Structures.Instance.Clear();
 
-            response = "Script has been executed.";
+            response = "\nScript has been executed.";
             return true;
         }
     }
