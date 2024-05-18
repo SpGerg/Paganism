@@ -137,7 +137,9 @@ namespace Paganism.PParser.Values
 
             if (this is TypeValue typeValue)
             {
-                return (typeValue.Value is TypesType.Object && type is TypesType.Structure) || (typeValue.Value == type && typeValue.TypeName == typeName);
+                return typeValue.Value is TypesType.Any ||
+                    (typeValue.Value is TypesType.Object && type is TypesType.Structure) ||
+                    (typeValue.Value == type && typeValue.TypeName == typeName);
             }
 
             return Type == type;
