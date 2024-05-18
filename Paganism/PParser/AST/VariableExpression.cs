@@ -42,9 +42,20 @@ namespace Paganism.PParser.AST
             return variable;
         }
 
+
+        public Value GetVariableType()
+        {
+            if (!Variables.Instance.TryGet(ExpressionInfo.Parent, Name, ExpressionInfo, out var variableInstance))
+            {
+                return new VoidValue(ExpressionInfo);
+            }
+
+            return variableInstance.Type;
+        }
+
         public void Set(ExpressionInfo expressionInfo, Value value)
         {
-            Variables.Instance.Set(expressionInfo, ExpressionInfo.Parent, Name, new VariableInstance(Info, value));
+            Variables.Instance.Set(expressionInfo, ExpressionInfo.Parent, Name, new VariableInstance(Info, value, Type));
         }
 
         public void Remove()

@@ -397,7 +397,7 @@ namespace Paganism.PParser.AST
 
             if (Left is VariableExpression variableExpression)
             {
-                var result = variableExpression.Evaluate();
+                var result = variableExpression.GetVariableType();
 
                 if (result is not VoidValue)
                 {
@@ -409,7 +409,7 @@ namespace Paganism.PParser.AST
                 }
                 else
                 {
-                    if (variableExpression.Type.Value != TypesType.Any && !variableExpression.Type.Is(value.GetTypeValue()))
+                    if (variableExpression.Type.Value is not TypesType.Any && !variableExpression.Type.Is(value.GetTypeValue()))
                     {
                         throw new InterpreterException($"Except {variableExpression.Type} type",
                             variableExpression.ExpressionInfo);

@@ -9,7 +9,7 @@ namespace Paganism.Interpreter.Data.Instances
             Value = value;
             Type = typeValue;
 
-            if (Value is not null)
+            if (Value is not null && typeValue is null)
             {
                 Type = Value.GetTypeValue();
             }

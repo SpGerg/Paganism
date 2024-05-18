@@ -130,7 +130,7 @@ namespace Paganism.PParser.Values
                 return enumValue.Member.Enum == typeName;
             }
 
-            if (this is NoneValue || type is TypesType.Any)
+            if (this is NoneValue or VoidValue || type is TypesType.Any)
             {
                 return true;
             }
