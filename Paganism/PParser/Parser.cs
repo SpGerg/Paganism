@@ -354,18 +354,20 @@ namespace Paganism.PParser
 
             var isAsync = Match(TokenType.Async);
 
-            var type = ParseType();
+            var type = ParseType(true);
+
+            type ??= new TypeValue(CreateExpressionInfo(), TypesType.Void, string.Empty);
 
             if (!Match(TokenType.Function))
             {
-                throw new ParserException("Except delegate name.", Current.Line, Current.Position, Filepath);
+                throw new ParserException("Except function keyword", Current.Line, Current.Position, Filepath);
             }
 
             var memberName = Current.Value;
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except structure member name.", Current.Line, Current.Position, Filepath);
+                throw new ParserException("Except structure member name", Current.Line, Current.Position, Filepath);
             }
 
             var arguments = ParseFunctionArguments();
@@ -1084,7 +1086,7 @@ namespace Paganism.PParser
         {
             var result = Require(relativePosition, TokenType.AnyType, TokenType.NumberType, TokenType.StringType, TokenType.BooleanType, TokenType.CharType, TokenType.ObjectType, TokenType.FunctionType);
 
-            return !result ? CheckTypeWithName() : true;
+            return result || CheckTypeWithName();
         }
 
         private bool CheckTypeWithName()

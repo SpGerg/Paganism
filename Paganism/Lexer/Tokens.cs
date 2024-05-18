@@ -107,7 +107,7 @@ namespace Paganism.Lexer
             { TokenType.EnumType, TypesType.Enum },
             { TokenType.Enum, TypesType.Enum },
             { TokenType.Word, TypesType.Structure },
-            { TokenType.ObjectType, TypesType.Structure },
+            { TokenType.ObjectType, TypesType.Object },
             { TokenType.FunctionType, TypesType.Function }
         };
     }

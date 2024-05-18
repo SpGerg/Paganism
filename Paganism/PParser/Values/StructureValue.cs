@@ -82,35 +82,9 @@ namespace Paganism.PParser.Values
                 throw new InterpreterException($"You cant access to structure member '{key}' in '{Structure.Name}' structure", value.ExpressionInfo);
             }
 
-            if (member.Info.IsDelegate)
+            if (!member.Type.Is(value.GetTypeValue()))
             {
-                if (value is not FunctionValue functionValue)
-                {
-                    throw new InterpreterException($"Except function", value.ExpressionInfo);
-                }
-
-                if (!functionValue.Is(member.Type.Value, member.Type.TypeName))
-                {
-                    throw new InterpreterException($"Except member {member.Name}, {member.Type}", value.ExpressionInfo);
-                }
-            }
-
-            if (!member.Info.IsDelegate && member.Type.Value != TypesType.Any && member.Type.Value != value.Type)
-            {
-                throw new InterpreterException($"Except {member.Type} type", value.ExpressionInfo);
-            }
-
-            if (member.Structure is not null && member.Structure != string.Empty)
-            {
-                if (value is StructureValue structureValue1 && structureValue1.Structure.Name != member.Type.TypeName)
-                {
-                    throw new InterpreterException($"Except structure '{member.Type}' type", value.ExpressionInfo);
-                }
-
-                if (value is EnumValue enumValue && enumValue.Member.Enum != member.Type.TypeName)
-                {
-                    throw new InterpreterException($"Except enum '{member.Type}' type", value.ExpressionInfo);
-                }
+                throw new InterpreterException($"Except '{member.Type}' type", value.ExpressionInfo);
             }
 
             if (Values.TryGetValue(key, out var result))

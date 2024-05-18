@@ -103,46 +103,6 @@ namespace Paganism.PParser.Values
             return new VoidValue(ExpressionInfo.EmptyInfo);
         }
 
-        public bool IsType(Value value)
-        {
-            if ((this is FunctionValue && value.Type is not TypesType.Function) || (value is FunctionValue && Type is not TypesType.Function))
-            {
-                return false;
-            }
-
-            if (value.Type is TypesType.Any)
-            {
-                return true;
-            }
-
-            if (value.Type != Type && value.Type != TypesType.Type)
-            {
-                return false;
-            }
-
-            if (value is StructureValue structureValue)
-            {
-                return structureValue.Equals(this);
-            }
-
-            if (value is EnumValue enumValue)
-            {
-                return enumValue.Equals(this);
-            }
-
-            if (value is FunctionValue functionValue)
-            {
-                return functionValue.Equals(this);
-            }
-
-            if (value is TypeValue typeValue)
-            {
-                return typeValue.Equals(this);
-            }
-
-            return true;
-        }
-
         public bool Is(TypeValue typeValue)
         {
             return Is(typeValue.Value, typeValue.TypeName);
@@ -150,21 +110,19 @@ namespace Paganism.PParser.Values
 
         public bool Is(TypesType type, string typeName)
         {
-            if (this is NoneValue || type is TypesType.Any)
-            {
-                return true;
-            }
-
             if (this is FunctionValue functionValue)
             {
-                return (functionValue.Value.ReturnType.Value is TypesType.None)
-                    ||
-                    functionValue.Value.ReturnType.Value == type && functionValue.Value.ReturnType.TypeName == typeName;
+                return functionValue.Value.ReturnType.Is(type, typeName);
+            }
+
+            if (this is ObjectValue)
+            {
+                return type is TypesType.Structure;
             }
 
             if (this is StructureValue structureValue)
             {
-                return structureValue.Structure.Name == typeName;
+                return type is TypesType.Object || structureValue.Structure.Name == typeName;
             }
 
             if (this is EnumValue enumValue)
@@ -174,9 +132,14 @@ namespace Paganism.PParser.Values
 
             if (this is TypeValue typeValue)
             {
-                return typeValue.Value == type && typeValue.TypeName == typeName;
+                return (typeValue.Value is TypesType.Object && type is TypesType.Structure) || (typeValue.Value == type && typeValue.TypeName == typeName);
             }
-            
+
+            if (this is NoneValue || type is TypesType.Any)
+            {
+                return true;
+            }
+
             return Type == type;
         }
 

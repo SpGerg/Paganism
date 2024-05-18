@@ -74,7 +74,7 @@ namespace Paganism.PParser.Values
                 return false;
             }
 
-            if (Value.ReturnType.IsType(functionValue.Value.ReturnType))
+            if (Value.ReturnType.Is(functionValue.Value.ReturnType))
             {
                 return false;
             }
@@ -99,7 +99,7 @@ namespace Paganism.PParser.Values
                 var argument = Value.RequiredArguments[i];
                 var functionArgument = functionValue.Value.RequiredArguments[i];
 
-                if (argument.Type.IsType(functionArgument.Type))
+                if (argument.Type.Is(functionArgument.Type))
                 {
                     return false;
                 }

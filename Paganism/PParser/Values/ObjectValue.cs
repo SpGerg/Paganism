@@ -14,5 +14,13 @@ namespace Paganism.PParser.Values
         public override TypesType Type => TypesType.Object;
 
         public StructureValue Value { get; set; }
+
+        public override TypesType[] CanCastTypes { get; } = new TypesType[]
+        {
+            TypesType.Structure,
+            TypesType.String
+        };
+
+        public override string AsString() => Value.AsString();
     }
 }

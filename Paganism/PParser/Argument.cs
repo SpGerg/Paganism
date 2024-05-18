@@ -54,7 +54,7 @@ namespace Paganism.PParser
 
             if (obj is Argument argument)
             {
-                return Type.IsType(argument.Type) && IsArray == argument.IsArray;
+                return Type.Is(argument.Type) && IsArray == argument.IsArray;
             }
 
             return base.Equals(obj);

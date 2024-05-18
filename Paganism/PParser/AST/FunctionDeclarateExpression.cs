@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
             Info = instanceInfo;
             ReturnType = returnType;
 
-            ReturnType ??= new TypeValue(ExpressionInfo.EmptyInfo, TypesType.None, string.Empty);
+            ReturnType ??= new TypeValue(ExpressionInfo.EmptyInfo, TypesType.Void, string.Empty);
 
             if (name.StartsWith("__"))
             {
@@ -34,18 +34,6 @@ namespace Paganism.PParser.AST
             if (Statement is null || Statement.Statements is null)
             {
                 return;
-            }
-
-            if (!Functions.Instance.IsLanguage(Name) && ReturnType.Value is not TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) == default)
-            {
-                throw new InterpreterException($"Function with name: {Name} must return a value",
-                    ExpressionInfo);
-            }
-
-            if (ReturnType.Type is TypesType.None && Statement.Statements.FirstOrDefault(statementInBlock => statementInBlock is ReturnExpression) != default)
-            {
-                throw new InterpreterException($"Except return value type in function with name: {Name}",
-                    ExpressionInfo);
             }
         }
 
@@ -192,6 +180,16 @@ namespace Paganism.PParser.AST
             else
             {
                 var result = Statement.Evaluate(arguments);
+
+                if (result is not null and not VoidValue && ReturnType.Value is TypesType.Void)
+                {
+                    throw new InterpreterException($"Function with {Name} name, must have return type value", ExpressionInfo);
+                }
+
+                if (result is null or VoidValue && ReturnType.Value is not TypesType.Void)
+                {
+                    throw new InterpreterException($"Function with {Name} name, must return value", ExpressionInfo);
+                }
 
                 if (result is null)
                 {
