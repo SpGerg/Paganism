@@ -397,7 +397,7 @@ namespace Paganism.PParser
 
             if (!Require(0, TokenType.Semicolon))
             {
-                variable = ParseVariable(false, ParseType());
+                variable = ParseVariable(false, ParseType(true));
             }
 
             if (!Match(TokenType.Semicolon))
@@ -503,7 +503,7 @@ namespace Paganism.PParser
 
         private IStatement ParseFunctionOrVariableOrEnumOrStructure(bool isShow = false)
         {
-            var type = ParseType(true);
+            var type = ParseType();
 
             bool isAsync = Match(TokenType.Async);
 
@@ -522,16 +522,11 @@ namespace Paganism.PParser
                 return ParseEnum(isShow);
             }
 
-            return ParseVariable(isShow);
+            return ParseVariable(isShow, type);
         }
 
         private IStatement ParseVariable(bool isShow = false, TypeValue type = null)
         {
-            if (type is null)
-            {
-                type = new TypeValue(CreateExpressionInfo(), TypesType.Any, string.Empty);
-            }
-
             var isReadOnly = Match(TokenType.Readonly);
 
             var isArray = false;

@@ -403,13 +403,13 @@ namespace Paganism.PParser.AST
                 {
                     if (!result.Is(value.GetTypeValue()))
                     {
-                        throw new InterpreterException($"Except {result.Type} type",
+                        throw new InterpreterException($"Except {result} type",
                             variableExpression.ExpressionInfo);
                     }
                 }
                 else
                 {
-                    if (variableExpression.Type.Value is not TypesType.Any && !variableExpression.Type.Is(value.GetTypeValue()))
+                    if (variableExpression.Type is not null && !variableExpression.Type.Is(value.GetTypeValue()))
                     {
                         throw new InterpreterException($"Except {variableExpression.Type} type",
                             variableExpression.ExpressionInfo);
