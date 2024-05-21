@@ -27,6 +27,18 @@ namespace Paganism.PParser.Values
                     Values.Add(member.Key, new NoneValue(ExpressionInfo.EmptyInfo));
                 }
             }
+
+            Values.Add("toString", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "toString",
+                null, new Argument[0], false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.String, string.Empty))));
+
+            Values.Add("getHashCode", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "getHashCode",
+                null, new Argument[0], false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.Number, string.Empty))));
+
+            Values.Add("equals", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "equals",
+                null, new Argument[] { new Argument("target", TypesType.Any, null, true) }, false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.Boolean, string.Empty))));
         }
 
         public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Name, structureInstance.Members, structureInstance.StructureDeclarateExpression.Info)
@@ -53,6 +65,18 @@ namespace Paganism.PParser.Values
                     Values.Add(member.Key, new NoneValue(ExpressionInfo.EmptyInfo));
                 }
             }
+
+            Values.Add("toString", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "toString",
+                null, new Argument[0], false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.String, string.Empty))));
+
+            Values.Add("getHashCode", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "getHashCode",
+                null, new Argument[0], false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.Number, string.Empty))));
+
+            Values.Add("equals", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "equals",
+                null, new Argument[] { new Argument("target", TypesType.Any, null, true) }, false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.Boolean, string.Empty))));
         }
 
         public override string Name => "Structure";
