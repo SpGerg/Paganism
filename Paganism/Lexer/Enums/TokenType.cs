@@ -36,7 +36,7 @@
         Or,
         Then,
         Less,
-        More,
+        Greater,
         For,
         Not,
         Break,

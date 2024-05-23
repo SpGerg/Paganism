@@ -26,6 +26,11 @@ namespace Paganism.PParser.Values
 
         public override string AsString()
         {
+            if (this is FunctionTypeValue functionType)
+            {
+                return functionType.AsString();
+            }
+
             return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value})";
         }
 

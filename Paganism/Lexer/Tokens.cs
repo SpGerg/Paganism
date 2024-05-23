@@ -54,6 +54,7 @@ namespace Paganism.Lexer
             { "catch", TokenType.Catch },
             { "enum", TokenType.Enum },
             { "new", TokenType.New },
+            { "array", TokenType.ArrayType },
             { "enum_type", TokenType.EnumType },
             { "readonly", TokenType.Readonly },
             { "extension", TokenType.Extension },
@@ -76,17 +77,9 @@ namespace Paganism.Lexer
             { ",", TokenType.Comma },
             { "=", TokenType.Assign },
             { "<", TokenType.Less },
-            { ">", TokenType.More },
+            { ">", TokenType.Greater },
             { ".", TokenType.Point },
             { "#", TokenType.Sharp }
-        };
-
-        public static IReadOnlyDictionary<TypesType, TokenType> ValueTypeToTokenType { get; } = new Dictionary<TypesType, TokenType>()
-        {
-            { TypesType.String, TokenType.StringType },
-            { TypesType.Number, TokenType.NumberType },
-            { TypesType.Boolean, TokenType.BooleanType },
-            { TypesType.Any, TokenType.AnyType }
         };
 
         public static IReadOnlyDictionary<TokenType, TypesType> TokenTypeToValueType { get; } = new Dictionary<TokenType, TypesType>()
@@ -108,7 +101,8 @@ namespace Paganism.Lexer
             { TokenType.Enum, TypesType.Enum },
             { TokenType.Word, TypesType.Structure },
             { TokenType.ObjectType, TypesType.Object },
-            { TokenType.FunctionType, TypesType.Function }
+            { TokenType.FunctionType, TypesType.Function },
+            { TokenType.ArrayType, TypesType.Array }
         };
     }
 }

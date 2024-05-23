@@ -52,7 +52,7 @@ namespace Paganism.PParser.Values
             var result = $"{Name} (Function): ";
             result += "[";
 
-            foreach (var argument in Value.RequiredArguments)
+            foreach (var argument in Value.Arguments)
             {
                 result += $"[{argument.Name}: {argument.Type}], ";
             }
@@ -89,27 +89,27 @@ namespace Paganism.PParser.Values
                 return false;
             }
 
-            if (Value.RequiredArguments.Length != functionValue.Value.RequiredArguments.Length)
+            if (Value.Arguments.Length != functionValue.Value.Arguments.Length)
             {
                 return false;
             }
 
-            for (int i = 0; i < Value.RequiredArguments.Length; i++)
+            for (int i = 0; i < Value.Arguments.Length; i++)
             {
-                var argument = Value.RequiredArguments[i];
-                var functionArgument = functionValue.Value.RequiredArguments[i];
+                var argument = Value.Arguments[i];
+                var functionArgument = functionValue.Value.Arguments[i];
 
                 if (argument.Type.Is(functionArgument.Type))
                 {
                     return false;
                 }
 
-                if (argument.IsArray != functionValue.Value.RequiredArguments[i].IsArray)
+                if (argument.IsArray != functionValue.Value.Arguments[i].IsArray)
                 {
                     return false;
                 }
 
-                if (argument.IsRequired != functionValue.Value.RequiredArguments[i].IsRequired)
+                if (argument.IsRequired != functionValue.Value.Arguments[i].IsRequired)
                 {
                     return false;
                 }

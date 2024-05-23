@@ -13,12 +13,12 @@ namespace Paganism.PParser.AST
 {
     public class FunctionDeclarateExpression : EvaluableExpression, IStatement, IExecutable, IDeclaratable, IAccessible
     {
-        public FunctionDeclarateExpression(ExpressionInfo info, string name, BlockStatementExpression statement, Argument[] requiredArguments, bool isAsync, InstanceInfo instanceInfo, TypeValue returnType = null) : base(info)
+        public FunctionDeclarateExpression(ExpressionInfo info, string name, BlockStatementExpression statement, Argument[] arguments, bool isAsync, InstanceInfo instanceInfo, TypeValue returnType = null) : base(info)
         {
             Name = name;
             Statement = statement;
-            RequiredArguments = requiredArguments;
-            RequiredArguments ??= new Argument[0];
+            Arguments = arguments;
+            Arguments ??= new Argument[0];
             IsAsync = isAsync;
             Info = instanceInfo;
             ReturnType = returnType;
@@ -48,7 +48,7 @@ namespace Paganism.PParser.AST
 
         public bool IsAsync { get; }
 
-        public Argument[] RequiredArguments { get; }
+        public Argument[] Arguments { get; }
 
         public TypeValue ReturnType { get; }
 
@@ -57,6 +57,11 @@ namespace Paganism.PParser.AST
         public void Declarate()
         {
             Functions.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new FunctionInstance(Info, this));
+        }
+
+        public void Declarate(string name)
+        {
+            Functions.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new FunctionInstance(Info, this));
         }
 
         public void Remove()
@@ -88,11 +93,11 @@ namespace Paganism.PParser.AST
 
         public void CreateArguments(params Argument[] arguments)
         {
-            Argument[] totalArguments = new Argument[RequiredArguments.Length];
+            Argument[] totalArguments = new Argument[Arguments.Length];
 
-            for (int i = 0; i < RequiredArguments.Length; i++)
+            for (int i = 0; i < Arguments.Length; i++)
             {
-                var functionArgument = RequiredArguments[i];
+                var functionArgument = Arguments[i];
 
                 if (i > arguments.Length - 1)
                 {
@@ -136,7 +141,7 @@ namespace Paganism.PParser.AST
                 {
                     Variables.Instance.Set(ExpressionInfo, Statement, argument.Name, new VariableInstance(functionDeclarateExpression.Info, new FunctionValue(ExpressionInfo, functionDeclarateExpression)));
 
-                    functionDeclarateExpression.Declarate();
+                    functionDeclarateExpression.Declarate(argument.Name);
                 }
                 else
                 {
@@ -196,7 +201,7 @@ namespace Paganism.PParser.AST
                     return new VoidValue(ExpressionInfo);
                 }
 
-                if (!result.Is(ReturnType.Value, ReturnType.TypeName))
+                if (!result.Is(ReturnType))
                 {
                     throw new InterpreterException($"Except {ReturnType.AsString()} type", ExpressionInfo);
                 }

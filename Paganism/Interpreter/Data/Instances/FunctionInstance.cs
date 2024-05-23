@@ -12,7 +12,7 @@ namespace Paganism.Interpreter.Data.Instances
         {
             Name = functionDeclarate.Name;
             Statements = functionDeclarate.Statement;
-            Arguments = functionDeclarate.RequiredArguments;
+            Arguments = functionDeclarate.Arguments;
             ReturnType = functionDeclarate.ReturnType;
             IsAsync = functionDeclarate.IsAsync;
             FunctionDeclarateExpression = functionDeclarate;
@@ -24,7 +24,7 @@ namespace Paganism.Interpreter.Data.Instances
         {
             Name = functionValue.Name;
             Statements = functionValue.Value.Statement;
-            Arguments = functionValue.Value.RequiredArguments;
+            Arguments = functionValue.Value.Arguments;
             ReturnType = functionValue.Value.ReturnType;
             IsAsync = functionValue.Value.IsAsync;
             FunctionDeclarateExpression = functionValue.Value;

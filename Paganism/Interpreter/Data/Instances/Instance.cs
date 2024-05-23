@@ -23,7 +23,7 @@ namespace Paganism.Interpreter.Data.Instances
             {
                 case FunctionValue functionValue:
                     return new FunctionInstance(functionValue.Value.Info, new PParser.AST.FunctionDeclarateExpression(ExpressionInfo.EmptyInfo,
-                        functionValue.Name, functionValue.Value.Statement, functionValue.Value.RequiredArguments,
+                        functionValue.Name, functionValue.Value.Statement, functionValue.Value.Arguments,
                         functionValue.Value.IsAsync, functionValue.Value.Info, functionValue.Value.ReturnType));
                 case StructureValue structureValue:
                     return new StructureInstance(new PParser.AST.StructureDeclarateExpression(ExpressionInfo.EmptyInfo,

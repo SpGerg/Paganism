@@ -278,6 +278,28 @@ namespace Paganism.PParser
             return new StructureDeclarateExpression(CreateExpressionInfo(), name, statements.ToArray(), new InstanceInfo(isShow, false, Filepath));
         }
 
+        private FunctionTypeValue ParseFunctionType()
+        {
+            Match(TokenType.FunctionType);
+
+            var expressionInfo = CreateExpressionInfo();
+            TypeValue returnType;
+
+            if (!Match(TokenType.Less))
+            {
+                returnType = new TypeValue(expressionInfo, TypesType.Void, string.Empty);
+            }
+            else
+            {
+                returnType = ParseType();
+                Match(TokenType.Greater);
+            }
+
+            var arguments = ParseFunctionArguments();
+
+            return new FunctionTypeValue(expressionInfo, returnType, arguments);
+        }
+
         private TypeValue ParseType(bool isReturnNull = false)
         {
             TypeValue type = null;
@@ -306,6 +328,10 @@ namespace Paganism.PParser
                     Position++;
 
                     return type;
+                }
+                else if (Require(0, TokenType.FunctionType))
+                {
+                    return ParseFunctionType();
                 }
                 else
                 {
@@ -658,59 +684,36 @@ namespace Paganism.PParser
         {
             var arguments = new List<Argument>();
 
-            if (Match(TokenType.LeftPar))
+            Match(TokenType.LeftPar);
+
+            while (!Match(TokenType.RightPar))
             {
-                while (!Match(TokenType.RightPar))
+                if (Match(TokenType.Comma))
                 {
-                    if (Match(TokenType.Comma))
-                    {
-                        continue;
-                    }
-
-                    var isRequired = Match(TokenType.Required);
-
-                    Token type = Current;
-                    var structureName = string.Empty;
-                    var previousCurrent = Current;
-                    var isArray = false;
-
-                    if (IsType(0))
-                    {
-                        type = previousCurrent;
-
-                        if (type.Type is TokenType.StructureType)
-                        {
-                            structureName = Current.Value;
-                        }
-
-                        Position++;
-                    }
-
-                    previousCurrent = Current;
-
-                    if (!Match(TokenType.Word))
-                    {
-                        throw new ParserException("Except argument name.", Current.Line, Current.Position, Filepath);
-                    }
-
-                    if (Match(TokenType.LeftBracket))
-                    {
-                        isArray = true;
-
-                        if (!Match(TokenType.RightBracket))
-                        {
-                            throw new ParserException("Except ']'.", Current.Line, Current.Position, Filepath);
-                        }
-                    }
-
-                    if (previousCurrent == type)
-                    {
-                        arguments.Add(new Argument(previousCurrent.Value, TypesType.Any, null, isRequired, isArray, structureName));
-                        continue;
-                    }
-
-                    arguments.Add(new Argument(previousCurrent.Value, Lexer.Tokens.TokenTypeToValueType[type.Type], null, isRequired, isArray, structureName));
+                    continue;
                 }
+
+                var name = Current;
+
+                var isRequired = Match(TokenType.Required);
+
+                TypeValue type = new(CreateExpressionInfo(), TypesType.Any, string.Empty);
+
+                if (IsType(0))
+                {
+                    type = ParseType();
+
+                    name = Current;
+                }
+
+                Match(TokenType.RightPar);
+
+                if (!Match(TokenType.Word))
+                {
+                    throw new ParserException("Except argument name.", Current.Line, Current.Position, Filepath);
+                }
+
+                arguments.Add(new Argument(name.Value, type, null, isRequired, type.Value is TypesType.Array));
             }
 
             return arguments.ToArray();
@@ -825,7 +828,7 @@ namespace Paganism.PParser
                     continue;
                 }
 
-                if (Match(TokenType.More))
+                if (Match(TokenType.Greater))
                 {
                     result = new BinaryOperatorExpression(CreateExpressionInfo(),
                         OperatorType.More, result as EvaluableExpression, ParseBinary(true));
@@ -1072,7 +1075,15 @@ namespace Paganism.PParser
 
         private bool IsType(int relativePosition)
         {
-            var result = Require(relativePosition, TokenType.AnyType, TokenType.NumberType, TokenType.StringType, TokenType.BooleanType, TokenType.CharType, TokenType.ObjectType, TokenType.FunctionType);
+            var result = Require(relativePosition,
+                TokenType.AnyType,
+                TokenType.NumberType,
+                TokenType.StringType,
+                TokenType.BooleanType,
+                TokenType.CharType,
+                TokenType.ObjectType,
+                TokenType.FunctionType,
+                TokenType.ArrayType);
 
             return result || CheckTypeWithName();
         }

@@ -102,6 +102,7 @@
     <Compile Include="PParser\Values\BooleanValue.cs" />
     <Compile Include="PParser\Values\CharValue.cs" />
     <Compile Include="PParser\Values\EnumValue.cs" />
+    <Compile Include="PParser\Values\FunctionTypeValue.cs" />
     <Compile Include="PParser\Values\FunctionValue.cs" />
     <Compile Include="PParser\Values\NoneValue.cs" />
     <Compile Include="PParser\Values\ObjectValue.cs" />

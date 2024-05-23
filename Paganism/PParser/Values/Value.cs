@@ -94,6 +94,8 @@ namespace Paganism.PParser.Values
                     return new StructureValue(copy.ExpressionInfo, structureValue.Structure);
                 case CharValue charValue:
                     return new CharValue(copy.ExpressionInfo, charValue.Value);
+                case FunctionTypeValue functionTypeValue:
+                    return new FunctionTypeValue(copy.ExpressionInfo, functionTypeValue.Value, functionTypeValue.TypeName, functionTypeValue.Arguments);
                 case TypeValue typeValue:
                     return new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName);
                 case ObjectValue objectValue:
@@ -103,34 +105,44 @@ namespace Paganism.PParser.Values
             return new VoidValue(ExpressionInfo.EmptyInfo);
         }
 
-        public bool Is(TypeValue typeValue)
+        public bool Is(TypeValue type)
         {
-            return Is(typeValue.Value, typeValue.TypeName);
-        }
+            if (this is FunctionTypeValue functionType)
+            {
+                if (type is not FunctionTypeValue functionTypeValue)
+                {
+                    return false;
+                }
 
-        public bool Is(TypesType type, string typeName)
-        {
+                return functionType.ReturnType.Is(functionTypeValue.ReturnType) && functionType.IsArguments(functionTypeValue.Arguments);
+            }
+
             if (this is FunctionValue functionValue)
             {
-                return functionValue.Value.ReturnType.Is(type, typeName);
+                return functionValue.Value.ReturnType.Is(type);
+            }
+
+            if (this is ArrayValue)
+            {
+                return type.Value is TypesType.Array;
             }
 
             if (this is ObjectValue)
             {
-                return type is TypesType.Structure;
+                return type.Value is TypesType.Structure;
             }
 
             if (this is StructureValue structureValue)
             {
-                return type is TypesType.Object || structureValue.Structure.Name == typeName;
+                return type.Value is TypesType.Object || structureValue.Structure.Name == type.TypeName;
             }
 
             if (this is EnumValue enumValue)
             {
-                return enumValue.Member.Enum == typeName;
+                return enumValue.Member.Enum == type.TypeName;
             }
 
-            if (this is NoneValue or VoidValue || type is TypesType.Any)
+            if (this is NoneValue or VoidValue || type.Value is TypesType.Any)
             {
                 return true;
             }
@@ -138,11 +150,11 @@ namespace Paganism.PParser.Values
             if (this is TypeValue typeValue)
             {
                 return typeValue.Value is TypesType.Any ||
-                    (typeValue.Value is TypesType.Object && type is TypesType.Structure) ||
-                    (typeValue.Value == type && typeValue.TypeName == typeName);
+                    (typeValue.Value is TypesType.Object && type.Value is TypesType.Structure) ||
+                    (typeValue.Value == type.Value && typeValue.TypeName == type.TypeName);
             }
 
-            return Type == type;
+            return Type == type.Value;
         }
 
         public string GetTypeName()
