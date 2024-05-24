@@ -95,7 +95,7 @@ namespace Paganism.PParser.Values
                 case CharValue charValue:
                     return new CharValue(copy.ExpressionInfo, charValue.Value);
                 case FunctionTypeValue functionTypeValue:
-                    return new FunctionTypeValue(copy.ExpressionInfo, functionTypeValue.Value, functionTypeValue.TypeName, functionTypeValue.Arguments);
+                    return new FunctionTypeValue(copy.ExpressionInfo, functionTypeValue.Value, functionTypeValue.TypeName, functionTypeValue.Arguments, functionTypeValue.IsAsync);
                 case TypeValue typeValue:
                     return new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName);
                 case ObjectValue objectValue:
@@ -114,7 +114,7 @@ namespace Paganism.PParser.Values
                     return false;
                 }
 
-                return functionType.ReturnType.Is(functionTypeValue.ReturnType) && functionType.IsArguments(functionTypeValue.Arguments);
+                return functionType.ReturnType.Is(functionTypeValue.ReturnType) && functionType.IsArguments(functionTypeValue.Arguments) && functionType.IsAsync == functionTypeValue.IsAsync;
             }
 
             if (this is FunctionValue functionValue)

@@ -18,7 +18,7 @@ namespace Paganism.PParser.Values
 
             foreach (var member in members)
             {
-                if (member.Value.Info.IsDelegate)
+                if (member.Value.Type is FunctionTypeValue)
                 {
                     Values.Add(member.Key, new FunctionValue(info, null));
                 }
@@ -68,7 +68,7 @@ namespace Paganism.PParser.Values
 
             foreach (var member in Structure.Members)
             {
-                if (member.Value.Info.IsDelegate)
+                if (member.Value.Type is FunctionTypeValue)
                 {
                     Values.Add(member.Key, new FunctionValue(info, null));
                 }

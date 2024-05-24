@@ -10,16 +10,19 @@ namespace Paganism.PParser.Values
 {
     public class FunctionTypeValue : TypeValue
     {
-        public FunctionTypeValue(ExpressionInfo info, TypesType value, string typeName, Argument[] arguments) : base(info, value, typeName)
+        public FunctionTypeValue(ExpressionInfo info, TypesType value, string typeName, Argument[] arguments, bool isAsync) : base(info, value, typeName)
         {
             Arguments = arguments;
 
             ReturnType = new TypeValue(info, value, typeName);
+            IsAsync = isAsync;
         }
 
-        public FunctionTypeValue(ExpressionInfo info, TypeValue typeValue, Argument[] arguments) : this(info, typeValue.Value, typeValue.TypeName, arguments) { }
+        public FunctionTypeValue(ExpressionInfo info, TypeValue typeValue, Argument[] arguments, bool isAsync) : this(info, typeValue.Value, typeValue.TypeName, arguments, isAsync) { }
 
-        public FunctionTypeValue(ExpressionInfo info, FunctionDeclarateExpression functionDeclarateExpression) : this(info, functionDeclarateExpression.ReturnType, functionDeclarateExpression.Arguments) { }
+        public FunctionTypeValue(ExpressionInfo info, FunctionDeclarateExpression functionDeclarateExpression, bool isAsync) : this(info, functionDeclarateExpression.ReturnType, functionDeclarateExpression.Arguments, isAsync) { }
+
+        public bool IsAsync { get; }
 
         public TypeValue ReturnType { get; }
 
@@ -57,7 +60,7 @@ namespace Paganism.PParser.Values
 
         public new string AsString()
         {
-            var message = $"Function ({ReturnType}) (";
+            var message = $"Function ({(IsAsync ? "async" : "not async")}) ({ReturnType}) (";
 
             foreach (var argument in Arguments)
             {

@@ -66,14 +66,7 @@ namespace Paganism.PParser
 
             if (Match(TokenType.Async))
             {
-                if (!Match(TokenType.Function))
-                {
-                    throw new ParserException("Exception in function keyword.", Current.Line, Current.Position, Filepath);
-                }
-                else
-                {
-                    return ParseFunction(true);
-                }
+                return ParseFunction(true, returnType: ParseType());
             }
 
             if (Match(TokenType.Await))
@@ -246,14 +239,19 @@ namespace Paganism.PParser
 
         private IStatement ParseAwait()
         {
-            var expression = ParsePrimary();
+            var expression = ParseBinary();
 
-            if (expression is not FunctionCallExpression functionCallExpression)
+            if (expression is not BinaryOperatorExpression && expression is not FunctionCallExpression)
             {
-                throw new InterpreterException("Must be async function", Current.Line, Current.Position, Filepath);
+                throw new ParserException("Must be async function", CreateExpressionInfo());
             }
 
-            return new AwaitExpression(new ExpressionInfo(_parent, expression.ExpressionInfo.Line, expression.ExpressionInfo.Position, Filepath), functionCallExpression);
+            if (expression is BinaryOperatorExpression binaryOperatorExpression && binaryOperatorExpression.Right is not FunctionCallExpression)
+            {
+                throw new ParserException("Must be async function", CreateExpressionInfo());
+            }
+
+            return new AwaitExpression(new ExpressionInfo(_parent, expression.ExpressionInfo.Line, expression.ExpressionInfo.Position, Filepath), expression);
         }
 
         private IStatement ParseStructure(bool isShow)
@@ -263,7 +261,7 @@ namespace Paganism.PParser
 
             if (!Match(TokenType.Word))
             {
-                throw new ParserException("Except structure name.", Current.Line, Current.Position, Filepath);
+                throw new ParserException("Except structure name.", CreateExpressionInfo());
             }
 
             List<StructureMemberExpression> statements = new();
@@ -280,6 +278,7 @@ namespace Paganism.PParser
 
         private FunctionTypeValue ParseFunctionType()
         {
+            var isAsync = false;
             Match(TokenType.FunctionType);
 
             var expressionInfo = CreateExpressionInfo();
@@ -288,16 +287,25 @@ namespace Paganism.PParser
             if (!Match(TokenType.Less))
             {
                 returnType = new TypeValue(expressionInfo, TypesType.Void, string.Empty);
+                isAsync = false;
             }
             else
             {
+                isAsync = Match(TokenType.Async);
+
+                if (isAsync && !Match(TokenType.Comma))
+                {
+                    throw new ParserException("Except comma", CreateExpressionInfo());
+                }
+
                 returnType = ParseType();
+
                 Match(TokenType.Greater);
             }
 
             var arguments = ParseFunctionArguments();
 
-            return new FunctionTypeValue(expressionInfo, returnType, arguments);
+            return new FunctionTypeValue(expressionInfo, returnType, arguments, isAsync);
         }
 
         private TypeValue ParseType(bool isReturnNull = false)
@@ -352,13 +360,6 @@ namespace Paganism.PParser
 
             var current = Current.Type;
 
-            if (Require(0, TokenType.Delegate))
-            {
-                var member2 = ParseDelegate(structureName, isShow, isReadOnly, isCastable);
-
-                return member2;
-            }
-
             var type = ParseType();
 
             var memberName = Current.Value;
@@ -368,39 +369,7 @@ namespace Paganism.PParser
                 throw new ParserException("Except structure member name.", Current.Line, Current.Position, Filepath);
             }
 
-            var member = new StructureMemberExpression(CreateExpressionInfo(), structureName, new TypeValue(CreateExpressionInfo(),
-                Lexer.Tokens.TokenTypeToValueType[current], type.TypeName), memberName, new StructureMemberInfo(false, null, isReadOnly, isShow, isCastable, false));
-
-            return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath) : member;
-        }
-
-        private StructureMemberExpression ParseDelegate(string structureName, bool isShow, bool isReadOnly, bool isCastable)
-        {
-            Match(TokenType.Delegate);
-
-            var isAsync = Match(TokenType.Async);
-
-            var type = ParseType(true);
-
-            type ??= new TypeValue(CreateExpressionInfo(), TypesType.Void, string.Empty);
-
-            if (!Match(TokenType.Function))
-            {
-                throw new ParserException("Except function keyword", Current.Line, Current.Position, Filepath);
-            }
-
-            var memberName = Current.Value;
-
-            if (!Match(TokenType.Word))
-            {
-                throw new ParserException("Except structure member name", Current.Line, Current.Position, Filepath);
-            }
-
-            var arguments = ParseFunctionArguments();
-
-            var member = new StructureMemberExpression(CreateExpressionInfo(), structureName,
-                type, memberName,
-                new StructureMemberInfo(true, arguments, isReadOnly, isShow, isCastable, isAsync));
+            var member = new StructureMemberExpression(CreateExpressionInfo(), structureName, type, memberName, new StructureMemberInfo(isReadOnly, isShow, isCastable, false));
 
             return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath) : member;
         }
@@ -639,6 +608,8 @@ namespace Paganism.PParser
 
         private FunctionDeclarateExpression ParseFunction(bool isAsync = false, bool isShow = false, TypeValue returnType = null)
         {
+            Match(TokenType.Function);
+
             var name = string.Empty;
             var current = Current;
 

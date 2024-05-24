@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
                 case BinaryOperatorExpression binaryOperatorExpression:
                     return binaryOperatorExpression.GetBinaryValueType();
                 case FunctionDeclarateExpression functionDeclarateExpression:
-                    return new FunctionTypeValue(functionDeclarateExpression.ExpressionInfo, functionDeclarateExpression);
+                    return new FunctionTypeValue(functionDeclarateExpression.ExpressionInfo, functionDeclarateExpression, functionDeclarateExpression.IsAsync);
                 case FunctionCallExpression functionCallExpression:
                     var function = functionCallExpression.GetFunction();
 
@@ -32,7 +32,15 @@ namespace Paganism.PParser.AST
                     return type;
                 case NewExpression newExpression:
                     return new TypeValue(ExpressionInfo, Enums.TypesType.Structure, newExpression.Name);
+                case TypeValue typeValue:
+                    return typeValue;
                 case Value value2:
+
+                    if (value2 is FunctionValue functionValue)
+                    {
+                        return new FunctionTypeValue(functionValue.ExpressionInfo, functionValue.Value.ReturnType, functionValue.Value.Arguments, functionValue.Value.IsAsync);
+                    }
+
                     return new TypeValue(ExpressionInfo, value2.Type, value2.GetTypeName());
                 case NotExpression:
                     return new TypeValue(ExpressionInfo, Enums.TypesType.Boolean, string.Empty);

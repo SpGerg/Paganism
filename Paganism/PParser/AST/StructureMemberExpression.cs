@@ -11,7 +11,7 @@ namespace Paganism.PParser.AST
             Structure = structure;
             Type = typeValue;
             Name = name;
-            Info = new StructureMemberInfo(isDelegate, arguments, isReadOnly, isShow, isCastable, isAsync);
+            Info = new StructureMemberInfo(isReadOnly, isShow, isCastable, isAsync);
         }
 
         public StructureMemberExpression(ExpressionInfo expressionInfo, string structure, TypeValue typeValue, string name,
