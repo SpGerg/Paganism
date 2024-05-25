@@ -19,18 +19,15 @@ namespace Paganism.Interpreter.Data.Instances
 
         public static Instance Create(Value value)
         {
-            switch (value)
+            return value switch
             {
-                case FunctionValue functionValue:
-                    return new FunctionInstance(functionValue.Value.Info, new PParser.AST.FunctionDeclarateExpression(ExpressionInfo.EmptyInfo,
-                        functionValue.Name, functionValue.Value.Statement, functionValue.Value.Arguments,
-                        functionValue.Value.IsAsync, functionValue.Value.Info, functionValue.Value.ReturnType));
-                case StructureValue structureValue:
-                    return new StructureInstance(new PParser.AST.StructureDeclarateExpression(ExpressionInfo.EmptyInfo,
-                        structureValue.Structure.Name, structureValue.Structure.Members.Values.ToArray(), structureValue.Structure.Info));
-            }
-
-            return null;
+                FunctionValue functionValue => new FunctionInstance(functionValue.Value.Info, new PParser.AST.FunctionDeclarateExpression(ExpressionInfo.EmptyInfo,
+                                        functionValue.Name, functionValue.Value.Statement, functionValue.Value.Arguments,
+                                        functionValue.Value.IsAsync, functionValue.Value.Info, functionValue.Value.ReturnType)),
+                StructureValue structureValue => new StructureInstance(new PParser.AST.StructureDeclarateExpression(ExpressionInfo.EmptyInfo,
+                                        structureValue.Structure.Name, structureValue.Structure.Members.Values.ToArray(), structureValue.Structure.Info)),
+                _ => null,
+            };
         }
 
         public static Instance ToInstance(object value)
