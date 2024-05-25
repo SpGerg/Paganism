@@ -25,44 +25,32 @@ namespace PaganismCustomConsole.API.Features.Commands
 
         public bool Execute(ArraySegment<string> arguments, out string response)
         {
-            if (arguments.Count - 1 < Parameters.Length)
-            {
-                var stringBuilder = new StringBuilder();
-                stringBuilder.AppendLine("Command paramaters: ");
-
-                foreach (var parameter in Parameters)
-                {
-                    stringBuilder.AppendLine($"{parameter.Name}: {parameter.Description} " + (parameter.Type is null ? string.Empty : parameter.Type.Name));
-                }
-
-                response = stringBuilder.ToString();
-                return false;
-            }
-
             var result = new Dictionary<string, string>();
 
             for (int i = 0; i < Parameters.Length; i++)
             {
-                var index = (arguments.Array.Length - 1) - i;
-
-                if (index > arguments.Count && Parameters[i].IsRequired)
+                var parameter = Parameters[i];
+                //arguments.Count - 2, cuz first argument it is command name
+                if (i > arguments.Count - 2)
                 {
-                    throw new ArgumentException($"{(arguments.Array.Length - 1) - i} argument must exist");
-                }
-
-                var value = arguments.Array[index];
-
-                if (Parameters[i].Type != null)
-                {
-                    var type = Parameters[i].Type;
-
-                    if (!TryParse(type, value))
+                    if (parameter.IsRequired)
                     {
-                        throw new ArgumentException($"{(arguments.Array.Length - 1) - i} argument must be {type.Name}");
+                        throw new ArgumentException($"Except {Parameters[i].Name} argument");
+                    }
+                    else
+                    {
+                        continue;
                     }
                 }
 
-                result.Add(Parameters[i].Name, value);
+                var argument = arguments.Array[i + 1];
+
+                if (!TryParse(parameter.Type, argument))
+                {
+                    throw new ArgumentException($"Except {parameter.Type} type in {parameter.Name} argument");
+                }
+
+                result.Add(parameter.Name, argument);
             }
 
             return Execute(result, out response);
@@ -70,6 +58,11 @@ namespace PaganismCustomConsole.API.Features.Commands
 
         private bool TryParse(Type type, string value)
         {
+            if (type is null)
+            {
+                return true;
+            }
+
             if (type == typeof(int))
             {
                 return int.TryParse(value, out _);

@@ -22,7 +22,8 @@ namespace PaganismCustomConsole.API.Features
                 new CompileCommand(this),
                 new ChangeDirectoryCommand(this),
                 new CreditsCommand(this),
-                new InfoCommand(this)
+                new InfoCommand(this),
+                new HelpCommand(this)
             };
 
             IsDebug = isDebug;
@@ -42,14 +43,22 @@ namespace PaganismCustomConsole.API.Features
 
                 var executeCommand = Commands.FirstOrDefault(command => command.Command == arguments[0] || command.Aliases.Contains(arguments[0]));
 
-                if (executeCommand == default)
+                if (executeCommand is null)
                 {
                     Console.WriteLine($"Unknown command with name {line}");
                 }
                 else
                 {
-                    executeCommand.Execute(new ArraySegment<string>(arguments), out string response);
-                    Console.WriteLine(response);
+                    try
+                    {
+                        executeCommand.Execute(new ArraySegment<string>(arguments), out var response);
+
+                        Console.WriteLine(response);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
                 }
 
                 Console.WriteLine();
