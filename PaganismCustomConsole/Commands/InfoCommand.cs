@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace PaganismCustomConsole.Commands
 {
-    public class CreditsCommand : CommandBase
+    public class InfoCommand : CommandBase
     {
-        public CreditsCommand(CustomConsole customConsole) : base(customConsole)
+        public InfoCommand(CustomConsole customConsole) : base(customConsole)
         {
         }
 
-        public override string Command => "credits";
+        public override string Command => "info";
 
-        public override string Description => "Show credits";
+        public override string Description => "Show info";
 
         public override string[] Aliases { get; } = new string[0];
 
@@ -24,11 +24,12 @@ namespace PaganismCustomConsole.Commands
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine("- ImIsaacTbh");
-            stringBuilder.AppendLine("- FoxWorn");
+            stringBuilder.AppendLine("Paganism - A dynamically typed scripting programming language created by the Uncomplicated Custom Servers team.");
+            stringBuilder.AppendLine("https://discord.gg/VEXKQ8G8");
+            stringBuilder.AppendLine("https://github.com/UncomplicatedCustomServer");
 
             response = stringBuilder.ToString();
-            return true;
+            return false;
         }
     }
 }

@@ -54,6 +54,7 @@
     <Compile Include="API\Features\Commands\CommandBase.cs" />
     <Compile Include="API\Features\Commands\Structs\CommandParameter.cs" />
     <Compile Include="Commands\CreditsCommand.cs" />
+    <Compile Include="Commands\InfoCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

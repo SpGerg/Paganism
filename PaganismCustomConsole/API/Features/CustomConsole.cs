@@ -21,7 +21,8 @@ namespace PaganismCustomConsole.API.Features
             {
                 new CompileCommand(this),
                 new ChangeDirectoryCommand(this),
-                new CreditsCommand(this)
+                new CreditsCommand(this),
+                new InfoCommand(this)
             };
 
             IsDebug = isDebug;
