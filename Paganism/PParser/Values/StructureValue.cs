@@ -2,8 +2,10 @@
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.Structures;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 #pragma warning disable CS0659
 namespace Paganism.PParser.Values
@@ -28,29 +30,58 @@ namespace Paganism.PParser.Values
                 }
             }
 
-            Values.Add("toString", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "toString",
-                null, new Argument[0], false, InstanceInfo.Empty,
-                new TypeValue(ExpressionInfo, TypesType.String, string.Empty)),
-                (Argument[] arguments) =>
-                {
-                    return new StringValue(ExpressionInfo, AsString());
-                }));
+            AddStandartFunctions();
+        }
 
-            Values.Add("getHashCode", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "getHashCode",
-                null, new Argument[0], false, InstanceInfo.Empty,
-                new TypeValue(ExpressionInfo, TypesType.Number, string.Empty)),
-                (Argument[] arguments) =>
-                {
-                    return new NumberValue(ExpressionInfo, GetHashCode());
-                }));
+        public StructureValue(ExpressionInfo info, Value value) : base(info)
+        {
+            Values = new Dictionary<string, Value>();
 
-            Values.Add("equals", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "equals",
-                null, new Argument[] { new Argument("target", TypesType.Any, null, true) }, false, InstanceInfo.Empty,
-                new TypeValue(ExpressionInfo, TypesType.Boolean, string.Empty)),
-                (Argument[] arguments) =>
-                {
-                    return new BooleanValue(ExpressionInfo, Is(arguments[0].Value.GetTypeValue()));
-                }));
+            var members = new List<StructureMemberExpression>();
+
+            var memberInfo = new StructureMemberInfo(false, true, false, false);
+
+            var name = string.Empty;
+
+            switch (value)
+            {
+                case StructureValue structureValue:
+                    var membersValues = new List<Value>();
+                    var membersNames = new List<StringValue>();
+                    var membersTypes = new List<TypeValue>();
+                    name = structureValue.Structure.Name;
+
+                    var arrayType = new TypeValue(value.ExpressionInfo, TypesType.Array, string.Empty);
+
+                    foreach (var member in structureValue.Values)
+                    {
+                        membersValues.Add(member.Value);
+                        membersNames.Add(new StringValue(value.ExpressionInfo, member.Key));
+                        membersTypes.Add(member.Value.GetTypeValue());
+                    }
+
+                    members.Add(new StructureMemberExpression(value.ExpressionInfo, value.Name,
+                        arrayType, "members_names", memberInfo));
+                    members.Add(new StructureMemberExpression(value.ExpressionInfo, value.Name,
+                        arrayType, "members_values", memberInfo));
+                    members.Add(new StructureMemberExpression(value.ExpressionInfo, value.Name,
+                       arrayType, "members_types", memberInfo));
+
+                    Values.Add("members_names", new ArrayValue(value.ExpressionInfo, membersNames.ToArray()));
+                    Values.Add("members_values", new ArrayValue(value.ExpressionInfo, membersValues.ToArray()));
+                    Values.Add("members_types", new ArrayValue(value.ExpressionInfo, membersTypes.ToArray()));
+                    break;
+                case FunctionValue functionValue:
+                    GetFunction(functionValue.GetTypeValue() as FunctionTypeValue, value.ExpressionInfo,
+                        functionValue.Name, members);
+                    break;
+                case FunctionTypeValue functionTypeValue:
+                    GetFunction(functionTypeValue, value.ExpressionInfo, "Function", members);
+                    break;
+            }
+
+            Structure = new StructureInstance(
+                new StructureDeclarateExpression(value.ExpressionInfo, name, members.ToArray(), InstanceInfo.Empty));
         }
 
         public StructureValue(ExpressionInfo info, StructureInstance structureInstance) : this(info, structureInstance.Name, structureInstance.Members, structureInstance.StructureDeclarateExpression.Info)
@@ -78,29 +109,7 @@ namespace Paganism.PParser.Values
                 }
             }
 
-            Values.Add("toString", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "toString",
-                null, new Argument[0], false, InstanceInfo.Empty,
-                new TypeValue(ExpressionInfo, TypesType.String, string.Empty)),
-                (Argument[] arguments) =>
-                {
-                    return new StringValue(ExpressionInfo, AsString());
-                }));
-
-            Values.Add("getHashCode", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "getHashCode",
-                null, new Argument[0], false, InstanceInfo.Empty,
-                new TypeValue(ExpressionInfo, TypesType.Number, string.Empty)),
-                (Argument[] arguments) =>
-                {
-                    return new NumberValue(ExpressionInfo, GetHashCode());
-                }));
-
-            Values.Add("equals", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "equals",
-                null, new Argument[] { new Argument("target", TypesType.Any, null, true) }, false, InstanceInfo.Empty,
-                new TypeValue(ExpressionInfo, TypesType.Boolean, string.Empty)),
-                (Argument[] arguments) =>
-                {
-                    return new BooleanValue(ExpressionInfo, Is(arguments[0].Value.GetTypeValue()));
-                }));
+            AddStandartFunctions();
         }
 
         public override string Name => "Structure";
@@ -189,6 +198,62 @@ namespace Paganism.PParser.Values
             }
 
             return true;
+        }
+
+        private void GetFunction(FunctionTypeValue functionTypeValue, ExpressionInfo expressionInfo, string name, List<StructureMemberExpression> structureMembers)
+        {
+            var argumentsTypes = new List<TypeValue>();
+            var argumentsNames = new List<StringValue>();
+
+            var memberInfo = new StructureMemberInfo(false, true, false, false);
+
+            foreach (var argument in functionTypeValue.Arguments)
+            {
+                argumentsTypes.Add(argument.Type);
+                argumentsNames.Add(new StringValue(expressionInfo, argument.Name));
+
+                structureMembers.Add(new StructureMemberExpression(expressionInfo, name,
+                    argument.Type, "arguments_names", memberInfo));
+                structureMembers.Add(new StructureMemberExpression(expressionInfo, name,
+                    argument.Type, "arguments_types", memberInfo));
+            }
+
+            structureMembers.Add(new StructureMemberExpression(expressionInfo, name,
+                    new TypeValue(expressionInfo, TypesType.Boolean, string.Empty), "is_async", memberInfo));
+            structureMembers.Add(new StructureMemberExpression(expressionInfo, name,
+                    functionTypeValue.ReturnType, "return_type", memberInfo));
+
+            Values.Add("is_async", new BooleanValue(expressionInfo, functionTypeValue.IsAsync));
+            Values.Add("arguments_names", new ArrayValue(expressionInfo, argumentsNames.ToArray()));
+            Values.Add("arguments_types", new ArrayValue(expressionInfo, argumentsTypes.ToArray()));
+            Values.Add("return_type", functionTypeValue.ReturnType);
+        }
+
+        private void AddStandartFunctions()
+        {
+            Values.Add("toString", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "toString",
+                null, new Argument[0], false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.String, string.Empty)),
+                (Argument[] arguments) =>
+                {
+                    return new StringValue(ExpressionInfo, AsString());
+                }));
+
+            Values.Add("getHashCode", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "getHashCode",
+                null, new Argument[0], false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.Number, string.Empty)),
+                (Argument[] arguments) =>
+                {
+                    return new NumberValue(ExpressionInfo, GetHashCode());
+                }));
+
+            Values.Add("equals", new FunctionValue(ExpressionInfo, new FunctionDeclarateExpression(ExpressionInfo, "equals",
+                null, new Argument[] { new Argument("target", TypesType.Any, null, true) }, false, InstanceInfo.Empty,
+                new TypeValue(ExpressionInfo, TypesType.Boolean, string.Empty)),
+                (Argument[] arguments) =>
+                {
+                    return new BooleanValue(ExpressionInfo, Is(arguments[0].Value.GetTypeValue()));
+                }));
         }
     }
 }
