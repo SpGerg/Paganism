@@ -747,7 +747,7 @@ namespace Paganism.PParser
 
         private EvaluableExpression ParseBinary(bool isIgnoreOrAndAnd = false)
         {
-            Expression result = null;
+            Expression result;
 
             if (Require(0, TokenType.Word) && Require(1, TokenType.Plus, TokenType.Minus))
             {
