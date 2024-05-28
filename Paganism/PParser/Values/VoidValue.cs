@@ -11,5 +11,10 @@ namespace Paganism.PParser.Values
         public override string Name => "Void";
 
         public override TypesType Type => TypesType.Void;
+
+        public override bool Equals(object obj)
+        {
+            return obj is null;
+        }
     }
 }

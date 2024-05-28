@@ -46,17 +46,7 @@ namespace Paganism.PParser.Values
                 return false;
             }
 
-            if (typeValue.Value != Value)
-            {
-                return false;
-            }
-
-            if (typeValue.TypeName != TypeName)
-            {
-                return false;
-            }
-
-            return true;
+            return Is(typeValue);
         }
     }
 }
