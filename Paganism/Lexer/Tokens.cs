@@ -59,7 +59,8 @@ namespace Paganism.Lexer
             { "readonly", TokenType.Readonly },
             { "extension", TokenType.Extension },
             { "function_type", TokenType.FunctionType },
-            { "fnt", TokenType.FunctionType }
+            { "fnt", TokenType.FunctionType },
+            { "while", TokenType.While },
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()

@@ -64,6 +64,11 @@ namespace Paganism.PParser
                 return ParseFor();
             }
 
+            if (Match(TokenType.While))
+            {
+                return ParseWhile();
+            }
+
             if (Match(TokenType.Async))
             {
                 return ParseFunction(true, returnType: ParseType());
@@ -145,6 +150,41 @@ namespace Paganism.PParser
             }
 
             throw new ParserException($"Unknown expression {Current.Value}.", Current.Line, Current.Position, Filepath);
+        }
+
+        private IStatement ParseWhile()
+        {
+            Match(TokenType.While);
+
+            if (!Match(TokenType.LeftPar))
+            {
+                throw new ParserException("Except (", CreateExpressionInfo());
+            }
+
+            var expression = ParseBinary();
+
+            if (!Match(TokenType.RightPar))
+            {
+                throw new ParserException("Except )", CreateExpressionInfo());
+            }
+
+            var statements = new List<IStatement>();
+            IStatement[] elseStatements = null;
+
+            while (!Match(TokenType.End, TokenType.Else))
+            {
+                statements.Add(ParseStatement());
+            }
+
+            if (Require(-1, TokenType.Else))
+            {
+                elseStatements = ParseExpressions();
+            }
+
+            return new WhileExpression(CreateExpressionInfo(), 
+                new BlockStatementExpression(CreateExpressionInfo(), statements.ToArray(), true),
+                new BlockStatementExpression(CreateExpressionInfo(), elseStatements), 
+                expression);
         }
 
         private Expression ParseNew()

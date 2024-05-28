@@ -23,7 +23,7 @@ namespace Paganism.PParser.AST
 
         public override Value Evaluate(params Argument[] arguments)
         {
-            while (Expression == null || Expression.Evaluate().AsBoolean())
+            while (Expression is null || Expression.Evaluate().AsBoolean())
             {
                 var result = Statement.Evaluate();
 

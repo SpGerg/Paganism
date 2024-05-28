@@ -55,6 +55,9 @@ namespace Paganism.PParser.AST
                     case UnaryExpression unaryExpression:
                         unaryExpression.Evaluate();
                         break;
+                    case WhileExpression whileExpression:
+                        whileExpression.Execute();
+                        break;
                     case BreakExpression breakExpression:
                         breakExpression.IsLoop = IsLoop;
                         breakExpression.Execute();

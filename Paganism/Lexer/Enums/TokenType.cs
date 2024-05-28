@@ -63,6 +63,7 @@
         Readonly,
         Extension,
         Sharp,
-        FunctionType
+        FunctionType,
+        While
     }
 }
