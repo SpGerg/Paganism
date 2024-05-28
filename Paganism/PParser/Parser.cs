@@ -482,16 +482,22 @@ namespace Paganism.PParser
                 throw new ParserException("Except 'then'.", Current.Line, Current.Position, Filepath);
             }
 
-            List<IStatement> statements = new();
+            var ifStatements = new List<IStatement>();
+            IStatement[] elseStatements = null;
 
-            while (!Match(TokenType.End))
+            while (!Match(TokenType.End, TokenType.Else))
             {
-                statements.Add(ParseStatement());
+                ifStatements.Add(ParseStatement());
+            }
+
+            if (Require(-1, TokenType.Else))
+            {
+                elseStatements = ParseExpressions();
             }
 
             return new IfExpression(CreateExpressionInfo(), expression,
-                new BlockStatementExpression(CreateExpressionInfo(), statements.ToArray(), InLoop),
-                new BlockStatementExpression(CreateExpressionInfo(), null));
+                new BlockStatementExpression(CreateExpressionInfo(), ifStatements.ToArray(), InLoop),
+                new BlockStatementExpression(CreateExpressionInfo(), elseStatements));
         }
 
         private IStatement ParseFunctionOrVariableOrEnumOrStructure(bool isShow = false)
