@@ -358,8 +358,6 @@ namespace Paganism.PParser
             var isReadOnly = Match(TokenType.Readonly);
             var isCastable = Match(TokenType.Castable);
 
-            var current = Current.Type;
-
             var type = ParseType();
 
             var memberName = Current.Value;
@@ -369,7 +367,7 @@ namespace Paganism.PParser
                 throw new ParserException("Except structure member name.", Current.Line, Current.Position, Filepath);
             }
 
-            var member = new StructureMemberExpression(CreateExpressionInfo(), structureName, type, memberName, new StructureMemberInfo(isReadOnly, isShow, isCastable, false));
+            var member = new StructureMemberExpression(CreateExpressionInfo(), structureName, type, memberName, new StructureMemberInfo(isReadOnly, isShow, isCastable));
 
             return !Match(TokenType.Semicolon) ? throw new ParserException("Except ';'.", Current.Line, Current.Position, Filepath) : member;
         }

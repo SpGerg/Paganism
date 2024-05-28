@@ -39,7 +39,7 @@ namespace Paganism.PParser.Values
 
             var members = new List<StructureMemberExpression>();
 
-            var memberInfo = new StructureMemberInfo(false, true, false, false);
+            var memberInfo = new StructureMemberInfo(false, true, false);
 
             var name = string.Empty;
 
@@ -205,7 +205,7 @@ namespace Paganism.PParser.Values
             var argumentsTypes = new List<TypeValue>();
             var argumentsNames = new List<StringValue>();
 
-            var memberInfo = new StructureMemberInfo(false, true, false, false);
+            var memberInfo = new StructureMemberInfo(false, true, false);
 
             foreach (var argument in functionTypeValue.Arguments)
             {

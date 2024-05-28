@@ -70,7 +70,7 @@ namespace Paganism.API
 
                 members.Add(field.Name, new StructureMemberExpression(ExpressionInfo.EmptyInfo,
                     type.Name, typeValue, field.Name,
-                    new StructureMemberInfo(false, true, false, false)));
+                    new StructureMemberInfo(false, true, false)));
             }
 
             foreach (var method in methods)
@@ -95,7 +95,7 @@ namespace Paganism.API
 
                 members.Add(method.Name, new StructureMemberExpression(ExpressionInfo.EmptyInfo,
                     type.Name, returnType, method.Name,
-                    new StructureMemberInfo(true, true, false, false)));
+                    new StructureMemberInfo(true, true, false)));
             }
 
             var structure = new StructureValue(ExpressionInfo.EmptyInfo, type.Name, members, new InstanceInfo(false, false, string.Empty));

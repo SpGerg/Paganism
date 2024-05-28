@@ -6,12 +6,12 @@ namespace Paganism.PParser.AST
 {
     public class StructureMemberExpression : Expression, IStatement
     {
-        public StructureMemberExpression(ExpressionInfo info, string structure, TypeValue typeValue, string name, bool isShow = false, bool isReadOnly = false, bool isAsync = false, bool isDelegate = false, Argument[] arguments = null, bool isCastable = false) : base(info)
+        public StructureMemberExpression(ExpressionInfo info, string structure, TypeValue typeValue, string name, bool isShow = false, bool isReadOnly = false, bool isCastable = false) : base(info)
         {
             Structure = structure;
             Type = typeValue;
             Name = name;
-            Info = new StructureMemberInfo(isReadOnly, isShow, isCastable, isAsync);
+            Info = new StructureMemberInfo(isReadOnly, isShow, isCastable);
         }
 
         public StructureMemberExpression(ExpressionInfo expressionInfo, string structure, TypeValue typeValue, string name,
