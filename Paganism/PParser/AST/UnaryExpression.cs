@@ -17,8 +17,19 @@ namespace Paganism.PParser.AST
 
         public OperatorType Operator { get; }
 
+        private VariableExpression _variableExpression;
+
         public override Value Evaluate(params Argument[] arguments)
         {
+            if (Expression is not VariableExpression variableExpression)
+            {
+                throw new InterpreterException("Must be a variable", ExpressionInfo);
+            }
+            else
+            {
+                _variableExpression = variableExpression;
+            }
+
             return Operator switch
             {
                 OperatorType.Plus => Expression.Evaluate(),
@@ -33,53 +44,43 @@ namespace Paganism.PParser.AST
 
         private Value Increment(bool isPrefix = false)
         {
-            if (Expression is not VariableExpression variableExpression)
-            {
-                throw new InterpreterException("Must be a variable", ExpressionInfo);
-            }
-
-            var value = variableExpression.Evaluate();
+            var value = _variableExpression.Evaluate();
 
             if (value is not NumberValue)
             {
                 throw new InterpreterException("The variable value must be of type Number", ExpressionInfo);
             }
 
-            variableExpression.Set(ExpressionInfo, new NumberValue(ExpressionInfo, value.AsNumber() + 1));
+            _variableExpression.Set(ExpressionInfo, new NumberValue(ExpressionInfo, value.AsNumber() + 1));
 
             if (isPrefix)
             {
-                return new NumberValue(ExpressionInfo, value.AsNumber());
+                return new NumberValue(ExpressionInfo, value.AsNumber() + 1);
             }
             else
             {
-                return new NumberValue(ExpressionInfo, value.AsNumber() + 1);
+                return new NumberValue(ExpressionInfo, value.AsNumber());
             }
         }
 
         private Value Dicrement(bool isPrefix = false)
         {
-            if (Expression is not VariableExpression variableExpression)
-            {
-                throw new InterpreterException("Must be a variable", ExpressionInfo);
-            }
-
-            var value = variableExpression.Evaluate();
+            var value = _variableExpression.Evaluate();
 
             if (value is not NumberValue)
             {
                 throw new InterpreterException("The variable value must be of type Number", ExpressionInfo);
             }
 
-            variableExpression.Set(ExpressionInfo, new NumberValue(ExpressionInfo, value.AsNumber() - 1));
+            _variableExpression.Set(ExpressionInfo, new NumberValue(ExpressionInfo, value.AsNumber() - 1));
 
             if (isPrefix)
             {
-                return new NumberValue(ExpressionInfo, value.AsNumber());
+                return new NumberValue(ExpressionInfo, value.AsNumber() - 1);
             }
             else
             {
-                return new NumberValue(ExpressionInfo, value.AsNumber() - 1);
+                return new NumberValue(ExpressionInfo, value.AsNumber());
             }
         }
     }

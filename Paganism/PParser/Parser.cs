@@ -123,7 +123,7 @@ namespace Paganism.PParser
             {
                 if (Require(1, TokenType.Plus, TokenType.Minus) && Require(2, TokenType.Plus, TokenType.Minus))
                 {
-                    return ParseUnaryPostfix();
+                    return ParseBinary() as IStatement;
                 }
                 if (Require(1, TokenType.LeftPar))
                 {
@@ -747,14 +747,18 @@ namespace Paganism.PParser
 
         private EvaluableExpression ParseBinary(bool isIgnoreOrAndAnd = false)
         {
-            if (Require(0, TokenType.Word) && Require(1, TokenType.Plus, TokenType.Minus) && Require(2, TokenType.Plus, TokenType.Minus))
+            Expression result = null;
+
+            if (Require(0, TokenType.Word) && Require(1, TokenType.Plus, TokenType.Minus))
             {
-                return ParseUnaryPostfix();
+                result = ParseUnaryPostfix();
+            }
+            else
+            {
+                result = ParseMultiplicative();
             }
 
-            var result = ParseMultiplicative();
-
-            if (Require(0, TokenType.Plus, TokenType.Minus) && Require(1, TokenType.Plus, TokenType.Minus))
+            if (Require(0, TokenType.Plus, TokenType.Minus) && Require(1, TokenType.Plus, TokenType.Minus) && Require(2, TokenType.Word))
             {
                 return result as EvaluableExpression;
             }
@@ -890,22 +894,17 @@ namespace Paganism.PParser
 
                 return ParsePrimary();
             }
-            else
+            else if (Match(TokenType.Minus))
             {
                 if (Match(TokenType.Minus))
                 {
-                    if (Match(TokenType.Minus))
-                    {
-                        return new UnaryExpression(CreateExpressionInfo(), (EvaluableExpression)ParsePrimary(), OperatorType.DicrementPrefix);
-                    }
+                    return new UnaryExpression(CreateExpressionInfo(), (EvaluableExpression)ParsePrimary(), OperatorType.DicrementPrefix);
+                }
 
-                    return new UnaryExpression(CreateExpressionInfo(), (EvaluableExpression)ParsePrimary(), OperatorType.Minus);
-                }
-                else
-                {
-                    return ParsePrimary();
-                }
+                return ParsePrimary();
             }
+
+            return ParsePrimary();
         }
 
         private Expression ParseValues()
