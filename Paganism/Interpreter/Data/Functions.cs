@@ -164,6 +164,39 @@ namespace Paganism.Interpreter.Data
 
                         return new VoidValue(arguments[0].Value.ExpressionInfo);
                     }
+                    else if (name.Contains(".dll"))
+                    {
+                        var path = Directory.GetFileSystemEntries(baseDir, name)[0];
+                        var assembly = Assembly.LoadFrom(path);
+                        var types = new List<object>();
+
+                        foreach (var type in assembly.GetTypes())
+                        {
+                            var value = PaganismFromCSharp.Create(type, ref types);
+
+                            types.Add(value);
+
+                            foreach (var paganismType in types)
+                            {
+                                var instance = Instances.Instance.ToInstance(value);
+
+                                if (paganismType is FunctionValue functionValue)
+                                {
+                                    Instance.Set(ExpressionInfo.EmptyInfo, null, functionValue.Value.Name, instance as FunctionInstance);
+                                }
+                                else if (paganismType is StructureValue structureValue)
+                                {
+                                    Structures.Instance.Set(ExpressionInfo.EmptyInfo, null, structureValue.Structure.Name, instance as StructureInstance);
+                                }
+                                else if (paganismType is EnumInstance enumInstance)
+                                {
+                                    Enums.Instance.Set(ExpressionInfo.EmptyInfo, null, enumInstance.Name, enumInstance);
+                                }
+                            }
+                        }
+
+                        return new VoidValue(arguments[0].Value.ExpressionInfo);
+                    }
 
                     string[] result;
                     string[] files;

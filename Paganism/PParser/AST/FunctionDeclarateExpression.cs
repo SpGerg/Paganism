@@ -56,10 +56,7 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            var functionInstance = new FunctionInstance(Info, this);
-
-            Functions.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, functionInstance);
-            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new VariableInstance(Info, functionInstance.FunctionDeclarateExpression.GetTypeValue()));
+            Declarate(Name);
         }
 
         public void Declarate(string name)
@@ -67,7 +64,7 @@ namespace Paganism.PParser.AST
             var functionInstance = new FunctionInstance(Info, this);
 
             Functions.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new FunctionInstance(Info, this));
-            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new VariableInstance(Info, functionInstance.FunctionDeclarateExpression.GetTypeValue()));
+            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new VariableInstance(new InstanceInfo(true, false, string.Empty), functionInstance.FunctionDeclarateExpression.GetTypeValue()));
         }
 
         public void Remove()
