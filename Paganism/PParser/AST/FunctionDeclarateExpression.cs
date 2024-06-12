@@ -144,6 +144,11 @@ namespace Paganism.PParser.AST
                 {
                     declaratable.Declarate(argument.Name);
                 }
+                else
+                {
+                    Variables.Instance.Set(ExpressionInfo, Statement, argument.Name,
+                        new VariableInstance(new InstanceInfo(false, false, ExpressionInfo.Filepath), argument.Value.Evaluate()));
+                }
             }
         }
 

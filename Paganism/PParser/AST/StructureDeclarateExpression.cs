@@ -30,7 +30,10 @@ namespace Paganism.PParser.AST
             var structureInstance = new StructureInstance(this);
 
             Interpreter.Data.Structures.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, structureInstance);
-            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new VariableInstance(new InstanceInfo(true, true, string.Empty), structureInstance.StructureDeclarateExpression.GetTypeValue()));
+            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name,
+                new VariableInstance(new InstanceInfo(true, true, string.Empty),
+                new StructureValue(ExpressionInfo, this),
+                structureInstance.StructureDeclarateExpression.GetTypeValue()));
         }
 
         public void Remove()

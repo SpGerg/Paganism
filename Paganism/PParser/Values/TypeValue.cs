@@ -36,7 +36,7 @@ namespace Paganism.PParser.Values
 
         public override bool Is(TypeValue typeValue)
         {
-            return typeValue.Value is TypesType.Any ||
+            return (typeValue.Value is TypesType.Any || Value is TypesType.Any) ||
                     (typeValue.Value is TypesType.Object && Value is TypesType.Structure) ||
                     (typeValue.Value == Value && typeValue.TypeName == TypeName);
         }

@@ -307,7 +307,7 @@ namespace Paganism.PParser.AST
             {
                 if (left is StructureValue structureValue)
                 {
-                    return new BooleanValue(ExpressionInfo, typeValue.TypeName == structureValue.Structure.Name);
+                    return new BooleanValue(ExpressionInfo, structureValue.Is(typeValue));
                 }
 
                 return new BooleanValue(ExpressionInfo, typeValue.Value == left.Type);

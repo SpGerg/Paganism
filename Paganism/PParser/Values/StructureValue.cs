@@ -20,13 +20,35 @@ namespace Paganism.PParser.Values
 
             foreach (var member in members)
             {
-                if (member.Value.Type is FunctionTypeValue)
+                if (member.Value.Type is FunctionTypeValue functionTypeValue)
                 {
-                    Values.Add(member.Key, new FunctionValue(info, null));
+                    Values.Add(member.Key, new FunctionValue(info, new FunctionDeclarateExpression(info, member.Key, null, functionTypeValue.Arguments, true,
+                        new InstanceInfo(member.Value.Info.IsShow, member.Value.Info.IsShow, member.Value.ExpressionInfo.Filepath), functionTypeValue.ReturnType)));
                 }
                 else
                 {
                     Values.Add(member.Key, new NoneValue(ExpressionInfo.EmptyInfo));
+                }
+            }
+
+            AddStandartFunctions();
+        }
+
+        public StructureValue(ExpressionInfo info, StructureDeclarateExpression structureDeclarateExpression) : base(info)
+        {
+            Values = new Dictionary<string, Value>();
+            Structure = new StructureInstance(structureDeclarateExpression);
+
+            foreach (var member in structureDeclarateExpression.Members)
+            {
+                if (member.Type is FunctionTypeValue functionTypeValue)
+                {
+                    Values.Add(member.Name, new FunctionValue(info, new FunctionDeclarateExpression(info, member.Name, null, functionTypeValue.Arguments, true,
+                        new InstanceInfo(member.Info.IsShow, member.Info.IsShow, member.ExpressionInfo.Filepath), functionTypeValue.ReturnType)));
+                }
+                else
+                {
+                    Values.Add(member.Name, new NoneValue(ExpressionInfo.EmptyInfo));
                 }
             }
 
@@ -99,9 +121,10 @@ namespace Paganism.PParser.Values
 
             foreach (var member in Structure.Members)
             {
-                if (member.Value.Type is FunctionTypeValue)
+                if (member.Value.Type is FunctionTypeValue functionTypeValue)
                 {
-                    Values.Add(member.Key, new FunctionValue(info, null));
+                    Values.Add(member.Key, new FunctionValue(info, new FunctionDeclarateExpression(info, member.Key, null, functionTypeValue.Arguments, true,
+                        new InstanceInfo(member.Value.Info.IsShow, member.Value.Info.IsShow, member.Value.ExpressionInfo.Filepath), functionTypeValue.ReturnType)));
                 }
                 else
                 {
