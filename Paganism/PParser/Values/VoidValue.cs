@@ -12,9 +12,14 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.Void;
 
-        public override bool Equals(object obj)
+        public override bool Is(TypeValue typeValue)
         {
-            return obj is null;
+            return Type == typeValue.Value;
+        }
+
+        public override bool Is(Value value)
+        {
+            return value is VoidValue;
         }
     }
 }

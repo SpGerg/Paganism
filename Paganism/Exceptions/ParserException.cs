@@ -8,7 +8,7 @@ namespace Paganism.Exceptions
         {
         }
 
-        public ParserException(string message)
+        protected ParserException(string message)
             : base(message, "Parser")
         {
         }

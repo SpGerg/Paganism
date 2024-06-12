@@ -27,27 +27,17 @@ namespace Paganism.PParser.AST
                 return BlockStatement.Evaluate();
             }
 
-            if (ElseBlockStatement != null)
+            if (ElseBlockStatement is not null)
             {
                 return ElseBlockStatement.Evaluate();
             }
 
-            return null;
+            return new VoidValue(ExpressionInfo);
         }
 
         public void Execute(params Argument[] arguments)
         {
-            var result = Expression.Evaluate().AsBoolean();
-
-            if (result)
-            {
-                BlockStatement.Execute();
-            }
-
-            if (ElseBlockStatement != null)
-            {
-                ElseBlockStatement.Execute();
-            }
+            Evaluate(arguments);
         }
     }
 }

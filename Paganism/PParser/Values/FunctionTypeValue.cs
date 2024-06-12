@@ -28,28 +28,18 @@ namespace Paganism.PParser.Values
 
         public Argument[] Arguments { get; }
 
-        public bool IsArguments(Argument[] arguments)
+        public bool CheckArguments(Argument[] arguments)
         {
-            for (int i = 0; i < Arguments.Length; i++)
+            for (var i = 0; i < arguments.Length; i++)
             {
                 var argument = Arguments[i];
 
-                if (arguments.Length - 1 < i)
+                if (i > Arguments.Length - 1)
                 {
                     return false;
                 }
 
-                if (!argument.Type.Is(arguments[i].Type))
-                {
-                    return false;
-                }
-
-                if (argument.IsRequired != argument.IsRequired)
-                {
-                    return false;
-                }
-
-                if (argument.IsArray != argument.IsArray)
+                if (!argument.Is(arguments[i]))
                 {
                     return false;
                 }
@@ -71,5 +61,15 @@ namespace Paganism.PParser.Values
         }
 
         public new string ToString() => AsString();
+
+        public new bool Is(TypeValue typeValue)
+        {
+            if (typeValue is not FunctionTypeValue functionTypeValue)
+            {
+                return false;
+            }
+
+            return ReturnType.Is(functionTypeValue.ReturnType) && CheckArguments(functionTypeValue.Arguments) && IsAsync == functionTypeValue.IsAsync;
+        }
     }
 }

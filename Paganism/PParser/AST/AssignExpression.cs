@@ -20,6 +20,11 @@ namespace Paganism.PParser.AST
             Assign();
         }
 
+        public void Declarate(string name)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Remove()
         {
             throw new System.NotImplementedException();

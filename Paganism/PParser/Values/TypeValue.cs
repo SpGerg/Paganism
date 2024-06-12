@@ -34,19 +34,26 @@ namespace Paganism.PParser.Values
             return TypeName == string.Empty || TypeName is null ? Value.ToString() : $"{TypeName} ({Value})";
         }
 
-        public override string ToString()
+        public override bool Is(TypeValue typeValue)
         {
-            return AsString();
+            return typeValue.Value is TypesType.Any ||
+                    (typeValue.Value is TypesType.Object && Value is TypesType.Structure) ||
+                    (typeValue.Value == Value && typeValue.TypeName == TypeName);
         }
 
-        public override bool Equals(object obj)
+        public override bool Is(Value value)
         {
-            if (obj is not TypeValue typeValue)
+            if (value is not TypeValue typeValue)
             {
                 return false;
             }
 
             return Is(typeValue);
+        }
+
+        public override string ToString()
+        {
+            return AsString();
         }
     }
 }

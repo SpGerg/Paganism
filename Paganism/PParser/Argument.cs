@@ -45,19 +45,9 @@ namespace Paganism.PParser
 
         public bool IsRequired { get; }
 
-        public override bool Equals(object obj)
+        public bool Is(Argument argument)
         {
-            if (Type.Value is TypesType.Any)
-            {
-                return true;
-            }
-
-            if (obj is Argument argument)
-            {
-                return Type.Is(argument.Type) && IsArray == argument.IsArray;
-            }
-
-            return base.Equals(obj);
+            return argument.Type.Is(Type) && argument.IsArray == IsArray && argument.IsRequired == IsRequired;
         }
     }
 }

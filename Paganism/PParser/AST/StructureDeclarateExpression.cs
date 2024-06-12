@@ -1,4 +1,5 @@
-﻿using Paganism.Interpreter.Data.Instances;
+﻿using Paganism.Interpreter.Data;
+using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
 
@@ -21,7 +22,15 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
-            Interpreter.Data.Structures.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new StructureInstance(this));
+            Declarate(Name);
+        }
+
+        public void Declarate(string name)
+        {
+            var structureInstance = new StructureInstance(this);
+
+            Interpreter.Data.Structures.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, structureInstance);
+            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new VariableInstance(new InstanceInfo(true, true, string.Empty), structureInstance.StructureDeclarateExpression.GetTypeValue()));
         }
 
         public void Remove()

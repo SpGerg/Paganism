@@ -28,23 +28,21 @@ namespace Paganism.PParser.AST
 
         public override Value Evaluate(params Argument[] arguments)
         {
-            if (Statements == null)
+            if (Statements is null)
             {
-                return null;
+                return new VoidValue(ExpressionInfo);
             }
 
             IsBreaked = false;
 
-            Value result = null;
+            Value result = new VoidValue(ExpressionInfo);
 
-            for (int i = 0; i < Statements.Length; i++)
+            foreach (var statement in Statements)
             {
                 if (IsBreaked)
                 {
                     break;
                 }
-
-                var statement = Statements[i];
 
                 switch (statement)
                 {
@@ -55,16 +53,12 @@ namespace Paganism.PParser.AST
                     case UnaryExpression unaryExpression:
                         unaryExpression.Evaluate();
                         break;
-                    case WhileExpression whileExpression:
-                        whileExpression.Execute();
-                        break;
-                    case BreakExpression breakExpression:
-                        breakExpression.IsLoop = IsLoop;
-                        breakExpression.Execute();
+                    case BreakExpression:
+                        IsBreaked = IsLoop;
 
-                        if (breakExpression.IsBreaked)
+                        if (IsLoop)
                         {
-                            i = Statements.Length;
+                            return new VoidValue(ExpressionInfo);
                         }
 
                         break;
@@ -80,13 +74,13 @@ namespace Paganism.PParser.AST
                     case TryCatchExpression tryCatchExpression:
                         var value2 = tryCatchExpression.Evaluate();
 
-                        if (IsLoop && (tryCatchExpression.TryExpression.IsBreaked || tryCatchExpression.CatchExpression.IsBreaked))
+                        if (IsLoop)
                         {
-                            IsBreaked = true;
+                            IsBreaked = tryCatchExpression.TryExpression.IsBreaked || tryCatchExpression.CatchExpression.IsBreaked;
                             break;
                         }
 
-                        if (value2 != null)
+                        if (value2 is not null)
                         {
                             IsBreaked = true;
                             return value2;
@@ -96,13 +90,13 @@ namespace Paganism.PParser.AST
                     case IfExpression ifExpression:
                         var value = ifExpression.Evaluate();
 
-                        if (IsLoop && (ifExpression.BlockStatement.IsBreaked || ifExpression.ElseBlockStatement.IsBreaked))
+                        if (IsLoop)
                         {
-                            IsBreaked = true;
+                            IsBreaked = ifExpression.BlockStatement.IsBreaked || ifExpression.ElseBlockStatement.IsBreaked;
                             break;
                         }
 
-                        if (value != null)
+                        if (value is not null)
                         {
                             IsBreaked = true;
                             return value;
@@ -112,19 +106,10 @@ namespace Paganism.PParser.AST
                     case FunctionCallExpression functionCallExpression:
                         functionCallExpression.Execute();
                         break;
-                    case ForExpression forExpression:
-                        var variable = forExpression.Variable as AssignExpression;
+                    case LoopExpression loopExpression:          
+                        var result2 = loopExpression.Evaluate();
 
-                        if (variable != null)
-                        {
-                            (variable.Left as VariableExpression).Set(ExpressionInfo, variable.Right.Evaluate());
-                        }
-
-                        var result2 = forExpression.Evaluate();
-
-                        Variables.Instance.Remove(forExpression.ExpressionInfo.Parent, (variable.Left as VariableExpression).Name);
-
-                        if (result2 is not NoneValue)
+                        if (result2 is not VoidValue)
                         {
                             IsBreaked = true;
                             return result2;

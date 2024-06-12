@@ -93,6 +93,11 @@ namespace Paganism.PParser.AST
                 name = functionCallExpression.FunctionName;
             }
 
+            if (structure is null)
+            {
+                throw new InterpreterException("Structure is null", binaryOperatorExpression.ExpressionInfo);
+            }
+
             if (!structure.Values.ContainsKey(name))
             {
                 return new();
@@ -200,29 +205,14 @@ namespace Paganism.PParser.AST
                 throw new InterpreterException($"Cannot cast {left.Type} to Structure", ExpressionInfo);
             }
 
-            foreach (var member in structureValue.Structure.Members)
+            var member = structureValue.GetCastableMember(right);
+
+            if (member is null)
             {
-                if (!member.Value.Info.IsCastable)
-                {
-                    continue;
-                }
-
-                var value = structureValue.Values[member.Key];
-
-                if (value is not StructureValue structureValue1)
-                {
-                    continue;
-                }
-
-                if (structureValue1.Structure.Name != right.TypeName)
-                {
-                    continue;
-                }
-
-                return structureValue1;
+                throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", ExpressionInfo);
             }
 
-            throw new InterpreterException($"Structure with '{structureValue.Structure.Name}' name havent castable member with '{right.TypeName}' type", ExpressionInfo);
+            return member;
         }
 
         private Value AsChar(Value left, Value right)
@@ -249,7 +239,7 @@ namespace Paganism.PParser.AST
 
                 return new EnumValue(ExpressionInfo, value.Members[variableExpression1.Name]);
             }
-
+            
             if (Left is VariableExpression leftVariableExpression && Right is FunctionCallExpression functionCallExpression)
             {
                 //thats part of foxworn code, this is code broken.
@@ -285,7 +275,7 @@ namespace Paganism.PParser.AST
                 }
                 */
             }
-
+            
             var member = GetMemberWithKeyOfStructure(this);
 
             return member.Value;
@@ -315,30 +305,23 @@ namespace Paganism.PParser.AST
         {
             if (right is TypeValue typeValue)
             {
-                return left is StructureValue structureValue
-                    ? new BooleanValue(ExpressionInfo, typeValue.TypeName == structureValue.Structure.Name)
-                    : (Value)new BooleanValue(ExpressionInfo, typeValue.Value == left.Type);
+                if (left is StructureValue structureValue)
+                {
+                    return new BooleanValue(ExpressionInfo, typeValue.TypeName == structureValue.Structure.Name);
+                }
+
+                return new BooleanValue(ExpressionInfo, typeValue.Value == left.Type);
             }
 
-            return right is NoneValue noneValue
-                ? new BooleanValue(ExpressionInfo, noneValue.Type == left.Type)
-                : left.GetType() != right.GetType()
-                ? new BooleanValue(ExpressionInfo, false)
-                : (Value)(left.Type switch
-                {
-                    TypesType.Any => new BooleanValue(ExpressionInfo, left.AsString() == right.AsString()),
-                    TypesType.Number => new BooleanValue(ExpressionInfo, left.AsNumber() == right.AsNumber()),
-                    TypesType.String => new BooleanValue(ExpressionInfo, left.AsString() == right.AsString()),
-                    TypesType.Boolean => new BooleanValue(ExpressionInfo, left.AsBoolean() == right.AsBoolean()),
-                    TypesType.Char => new BooleanValue(ExpressionInfo, left.AsString() == right.AsString()),
-                    TypesType.Enum => new BooleanValue(ExpressionInfo, (left as EnumValue).Member == (right as EnumValue).Member),
-                    TypesType.None => new BooleanValue(ExpressionInfo, left.Name == right.Name),
-                    TypesType.Structure => new BooleanValue(ExpressionInfo, left == right),
-                    _ => throw new InterpreterException($"You cant check type {left.Type} and {right.Type}", ExpressionInfo),
-                });
+            if (right is NoneValue noneValue)
+            {
+                return new BooleanValue(ExpressionInfo, noneValue.Type == left.Type);
+            }
+
+            return new BooleanValue(ExpressionInfo, left.Is(right));
         }
 
-        public Value Minus(Value left, Value right)
+        private Value Minus(Value left, Value right)
         {
             return left.Type switch
             {
@@ -348,7 +331,7 @@ namespace Paganism.PParser.AST
             };
         }
 
-        public Value Addition(Value left, Value right)
+        private Value Addition(Value left, Value right)
         {
             return left.Type switch
             {
@@ -361,7 +344,7 @@ namespace Paganism.PParser.AST
             };
         }
 
-        public Value Multiplicative(Value left, Value right)
+        private Value Multiplicative(Value left, Value right)
         {
             return left.Type switch
             {
@@ -371,7 +354,7 @@ namespace Paganism.PParser.AST
             };
         }
 
-        public Value Division(Value left, Value right)
+        private Value Division(Value left, Value right)
         {
             return left.Type switch
             {
@@ -382,10 +365,9 @@ namespace Paganism.PParser.AST
             };
         }
 
-        public Value Assign()
+        protected Value Assign()
         {
-            Value value = null;
-
+            Value value;
             if (Right is FunctionDeclarateExpression function)
             {
                 value = Value.Create(function);
@@ -399,13 +381,10 @@ namespace Paganism.PParser.AST
             {
                 var result = variableExpression.GetVariableType();
 
-                if (result is not VoidValue)
+                if (result is not VoidValue && !result.Is(value.GetTypeValue()))
                 {
-                    if (!result.Is(value.GetTypeValue()))
-                    {
-                        throw new InterpreterException($"Except {result} type",
+                    throw new InterpreterException($"Except {result} type",
                             variableExpression.ExpressionInfo);
-                    }
                 }
                 else
                 {

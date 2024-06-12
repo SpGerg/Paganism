@@ -3,49 +3,41 @@ using Paganism.PParser.Values;
 
 namespace Paganism.PParser.AST
 {
-    public class ForExpression : EvaluableExpression, IStatement, IExecutable
+    public class ForExpression : LoopExpression, IStatement
     {
-        public ForExpression(ExpressionInfo info, BlockStatementExpression statement, EvaluableExpression expression, BlockStatementExpression action, IStatement variable) : base(info)
+        public ForExpression(ExpressionInfo info, BlockStatementExpression blockStatementExpression, BlockStatementExpression elseExpression, BlockStatementExpression action, EvaluableExpression expression, IStatement variable) : base(info, blockStatementExpression, elseExpression)
         {
-            Expression = expression;
-            Action = action;
             Variable = variable;
-            Statement = statement;
+            Expression = expression;
+            Executable = action;
         }
-
-        public EvaluableExpression Expression { get; }
-
-        public BlockStatementExpression Action { get; }
 
         public IStatement Variable { get; }
 
-        public BlockStatementExpression Statement { get; }
+        public override IExecutable Executable { get; }
 
-        public override Value Evaluate(params Argument[] arguments)
+        public EvaluableExpression Expression { get; }
+
+        public override bool IsContinue() => Expression is null || Expression.Evaluate().AsBoolean();
+
+        public override Value Execute(params Argument[] arguments)
         {
-            while (Expression is null || Expression.Evaluate().AsBoolean())
+            var variable = Variable as AssignExpression;
+
+            VariableExpression variableExpression = null;
+
+            if (variable is not null)
             {
-                var result = Statement.Evaluate();
+                variableExpression = variable.Left as VariableExpression;
 
-                if (result != null)
-                {
-                    return result;
-                }
-
-                if (Statement.IsBreaked)
-                {
-                    break;
-                }
-
-                Action.Execute();
+                variableExpression.Set(ExpressionInfo, variable.Right.Evaluate());
             }
 
-            return new VoidValue(ExpressionInfo);
-        }
+            base.Execute(arguments);
 
-        public void Execute(params Argument[] arguments)
-        {
-            Evaluate();
+            variableExpression?.Remove();
+
+            return new VoidValue(ExpressionInfo);
         }
     }
 }

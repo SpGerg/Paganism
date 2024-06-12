@@ -63,5 +63,35 @@ namespace Paganism.PParser.Values
 
             return result;
         }
+
+        public override bool Is(TypeValue typeValue)
+        {
+            return Type == typeValue.Value;
+        }
+
+        public override bool Is(Value value)
+        {
+            if (value is not ArrayValue arrayValue)
+            {
+                return false;
+            }
+
+            if (arrayValue.Elements.Length != Elements.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < Elements.Length; i++)
+            {
+                var element = Elements[i];
+
+                if (!element.Is(arrayValue.Elements[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

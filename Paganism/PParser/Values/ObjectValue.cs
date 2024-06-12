@@ -22,5 +22,15 @@ namespace Paganism.PParser.Values
         };
 
         public override string AsString() => Value.AsString();
+
+        public override bool Is(TypeValue typeValue)
+        {
+            return typeValue.Type is TypesType.Structure or TypesType.Object;
+        }
+
+        public override bool Is(Value value)
+        {
+            return value is StructureValue;
+        }
     }
 }

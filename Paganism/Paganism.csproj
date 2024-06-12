@@ -98,6 +98,7 @@
     <Compile Include="PParser\AST\UnaryExpression.cs" />
     <Compile Include="PParser\AST\WhileExpression.cs" />
     <Compile Include="PParser\ExpressionInfo.cs" />
+    <Compile Include="PParser\AST\LoopExpression.cs" />
     <Compile Include="PParser\Parser.cs" />
     <Compile Include="PParser\Values\ArrayValue.cs" />
     <Compile Include="PParser\Values\BooleanValue.cs" />

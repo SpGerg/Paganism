@@ -3,7 +3,6 @@ using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
 using System;
 
-#pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
     public class FunctionValue : Value
@@ -12,12 +11,18 @@ namespace Paganism.PParser.Values
         {
             Value = value;
             Func = func;
+
+            _functionTypeValue = new FunctionTypeValue(ExpressionInfo, Value, Value.IsAsync);
         }
 
-        public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> func) : base(info)
+        public FunctionValue(ExpressionInfo info, string name, Argument[] arguments, TypeValue returnType, Func<Argument[], Value> func)
+            : this(info,
+                  new FunctionDeclarateExpression(
+                      ExpressionInfo.EmptyInfo, name, null, arguments, false,
+                      new InstanceInfo(true, false, info.Filepath),
+                      returnType),
+                  func)
         {
-            Value = new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, name, null, arguments, false, new InstanceInfo(true, false, info.Filepath), returnType);
-            Func = func;
         }
 
         public override string Name => "Function";
@@ -33,6 +38,8 @@ namespace Paganism.PParser.Values
 
         public Func<Argument[], Value> Func { get; }
 
+        private FunctionTypeValue _functionTypeValue;
+
         public override void Set(object value)
         {
             if (value is FunctionValue functionValue)
@@ -40,6 +47,26 @@ namespace Paganism.PParser.Values
                 Value = functionValue.Value;
                 return;
             }
+        }
+
+        public bool CheckArguments(Argument[] arguments)
+        {
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                var argument = Value.Arguments[i];
+
+                if (i > Value.Arguments.Length - 1)
+                {
+                    return false;
+                }
+
+                if (!argument.Is(arguments[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public override string AsString()
@@ -62,60 +89,29 @@ namespace Paganism.PParser.Values
             return result;
         }
 
-        public override bool Equals(object obj)
+        public override bool Is(TypeValue typeValue)
         {
-            if (obj is not FunctionValue functionValue)
+            if (typeValue is FunctionTypeValue functionType)
             {
-                return false;
+                return Value.ReturnType.Is(typeValue) && CheckArguments(functionType.Arguments);
             }
 
-            if (Value.Name != functionValue.Value.Name)
+            return Value.ReturnType.Is(typeValue);
+        }
+
+        public override bool Is(Value value)
+        {
+            if (value is FunctionValue functionValue)
             {
-                return false;
+                return Is(functionValue._functionTypeValue);
             }
 
-            if (Value.ReturnType.Is(functionValue.Value.ReturnType))
+            if (value is FunctionTypeValue functionType)
             {
-                return false;
+                return functionType.Is(_functionTypeValue);
             }
 
-            if (Value.Info.IsShow != functionValue.Value.Info.IsShow)
-            {
-                return false;
-            }
-
-            if (Value.IsAsync != functionValue.Value.IsAsync)
-            {
-                return false;
-            }
-
-            if (Value.Arguments.Length != functionValue.Value.Arguments.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < Value.Arguments.Length; i++)
-            {
-                var argument = Value.Arguments[i];
-                var functionArgument = functionValue.Value.Arguments[i];
-
-                if (argument.Type.Is(functionArgument.Type))
-                {
-                    return false;
-                }
-
-                if (argument.IsArray != functionValue.Value.Arguments[i].IsArray)
-                {
-                    return false;
-                }
-
-                if (argument.IsRequired != functionValue.Value.Arguments[i].IsRequired)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return false;
         }
     }
 }

@@ -19,35 +19,31 @@ namespace Paganism.Interpreter.Data
         public void Set(ExpressionInfo expressionInfo, BlockStatementExpression expression, string name, T value)
         {
             Dictionary<string, T> dictionary = null;
-            T instance = null;
+            T instance;
 
             if (expression is null)
             {
                 dictionary = GlobalDeclarated;
-
-                if (!dictionary.TryGetValue(name, out instance))
-                {
-                    instance = value;
-
-                    dictionary.Add(name, value);
-                }
             }
 
             if (expression is not null && !Declarated.TryGetValue(expression, out dictionary))
             {
-                dictionary = new Dictionary<string, T>();
+                if (TryGet(expression, name, expressionInfo, out instance))
+                {
+                    dictionary = GlobalDeclarated;
+                }
+                else
+                {
+                    dictionary = new Dictionary<string, T>();
 
-                Declarated.Add(expression, dictionary);
+                    Declarated.Add(expression, dictionary);
+                }
             }
 
             if (!dictionary.TryGetValue(name, out instance))
             {
                 dictionary.Add(name, value);
-            }
-
-            if (instance is null)
-            {
-                dictionary[name] = value;
+                instance = value;
                 return;
             }
 
@@ -125,73 +121,37 @@ namespace Paganism.Interpreter.Data
 
         public T Get(BlockStatementExpression expression, string name, ExpressionInfo expressionInfo)
         {
-            if (Language.ContainsKey(name))
+            if (Language.TryGetValue(name, out var result))
             {
-                return Language[name];
+                return result;
             }
-
-            Instance finallyResult = null;
 
             if (expression is null)
             {
-                if (!GlobalDeclarated.ContainsKey(name))
+                if (GlobalDeclarated.TryGetValue(name, out var result1))
                 {
-                    throw new InterpreterException($"Unknown {Name} with '{name}' name", expressionInfo);
+                    return result1;
                 }
 
-                finallyResult = GlobalDeclarated[name];
-            }
-            else if (!Declarated.TryGetValue(expression, out _))
-            {
-                Declarated.Add(expression, new Dictionary<string, T>());
-            }
-            else if (Declarated[expression].TryGetValue(name, out var result3))
-            {
-                finallyResult = result3;
+                throw new InterpreterException($"Unknown {Name} with {name} name", expressionInfo);
             }
 
-            if (finallyResult is not null)
+            if (Declarated.TryGetValue(expression, out var dictionary))
             {
-                if (!finallyResult.Info.IsShow && finallyResult.Info.FilePath != expressionInfo.Filepath)
+                if (dictionary.TryGetValue(name, out var result2))
                 {
-                    throw new InterpreterException($"You cant access to {finallyResult.InstanceName} with '{name}' name", expressionInfo);
-                }
-
-                return (T)finallyResult;
-            }
-
-            if (!Language.TryGetValue(name, out var result) && !Declarated[expression].TryGetValue(name, out var result1))
-            {
-                var value = Get(expression.ExpressionInfo.Parent, name, expressionInfo);
-
-                if (value != null)
-                {
-                    finallyResult = value;
-                }
-                else
-                {
-                    throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
+                    return result2;
                 }
             }
 
-            if (finallyResult is null)
+            var result3 = Get(expression.ExpressionInfo.Parent, name, expressionInfo);
+
+            if (result3 is not null)
             {
-                var result2 = Declarated[expression].TryGetValue(name, out result1);
-
-                if (result is null && !result2)
-                {
-                    throw new InterpreterException($"Unknown {Name} with '{name}' name", expression.ExpressionInfo);
-                }
-
-                finallyResult = result2 ? result1 : result;
+                return result3;
             }
 
-            if (!finallyResult.Info.IsShow && finallyResult.Info.FilePath != expressionInfo.Filepath)
-            {
-                throw new InterpreterException($"You cant access to {finallyResult.InstanceName} with '{name}' name", expressionInfo);
-            }
-
-            return (T)finallyResult;
+            throw new InterpreterException($"Unknown {Name} with {name} name", expressionInfo);
         }
     }
 }

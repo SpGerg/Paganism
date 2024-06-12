@@ -8,7 +8,7 @@ namespace Paganism.Exceptions
         {
         }
 
-        public LexerException(string message)
+        protected LexerException(string message)
             : base(message, "Lexer")
         {
         }

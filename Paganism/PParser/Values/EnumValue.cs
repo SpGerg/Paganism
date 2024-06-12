@@ -47,5 +47,25 @@ namespace Paganism.PParser.Values
 
             return true;
         }
+
+        public override bool Is(TypeValue typeValue)
+        {
+            return Member.Enum == typeValue.TypeName;
+        }
+
+        public override bool Is(Value value)
+        {
+            if (value is NumberValue numberValue)
+            {
+                return Member.Value.AsNumber() == numberValue.AsNumber();
+            }
+
+            if (value is not EnumValue enumValue)
+            {
+                return false;
+            }
+
+            return enumValue.Member == Member;
+        }
     }
 }

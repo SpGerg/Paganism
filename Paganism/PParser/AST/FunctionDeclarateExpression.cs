@@ -25,7 +25,7 @@ namespace Paganism.PParser.AST
 
             ReturnType ??= new TypeValue(ExpressionInfo.EmptyInfo, TypesType.Void, string.Empty);
 
-            if (name.StartsWith("__"))
+            if (name != string.Empty && name.StartsWith("__"))
             {
                 throw new InterpreterException($"Function can't start with '__'",
                     ExpressionInfo);
@@ -64,7 +64,7 @@ namespace Paganism.PParser.AST
             var functionInstance = new FunctionInstance(Info, this);
 
             Functions.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new FunctionInstance(Info, this));
-            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new VariableInstance(new InstanceInfo(true, false, string.Empty), functionInstance.FunctionDeclarateExpression.GetTypeValue()));
+            Variables.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, name, new VariableInstance(new InstanceInfo(true, true, string.Empty), functionInstance.FunctionDeclarateExpression.GetTypeValue()));
         }
 
         public void Remove()
@@ -140,15 +140,9 @@ namespace Paganism.PParser.AST
 
             foreach (var argument in totalArguments)
             {
-                if (argument.Value is FunctionDeclarateExpression functionDeclarateExpression)
+                if (argument.Value is IDeclaratable declaratable)
                 {
-                    Variables.Instance.Set(ExpressionInfo, Statement, argument.Name, new VariableInstance(functionDeclarateExpression.Info, new FunctionValue(ExpressionInfo, functionDeclarateExpression)));
-
-                    functionDeclarateExpression.Declarate(argument.Name);
-                }
-                else
-                {
-                    Variables.Instance.Set(Statement.ExpressionInfo, Statement, argument.Name, new VariableInstance(Info, argument.Value.Evaluate()));
+                    declaratable.Declarate(argument.Name);
                 }
             }
         }

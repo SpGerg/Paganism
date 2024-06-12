@@ -21,5 +21,15 @@ namespace Paganism.PParser.Values
         {
             return "None";
         }
+
+        public override bool Is(TypeValue typeValue)
+        {
+            return Type == typeValue.Value;
+        }
+
+        public override bool Is(Value value)
+        {
+            return value is NoneValue;
+        }
     }
 }

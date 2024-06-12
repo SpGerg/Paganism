@@ -42,7 +42,6 @@ namespace Paganism.PParser.AST
             return variable;
         }
 
-
         public Value GetVariableType()
         {
             if (!Variables.Instance.TryGet(ExpressionInfo.Parent, Name, ExpressionInfo, out var variableInstance))

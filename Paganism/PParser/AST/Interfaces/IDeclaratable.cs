@@ -4,6 +4,8 @@
     {
         void Declarate();
 
+        void Declarate(string name);
+
         void Remove();
     }
 }

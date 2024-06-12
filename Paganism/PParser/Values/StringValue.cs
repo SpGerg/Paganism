@@ -32,5 +32,20 @@ namespace Paganism.PParser.Values
         {
             return Value;
         }
+
+        public override bool Is(TypeValue typeValue)
+        {
+            return Type == typeValue.Value;
+        }
+
+        public override bool Is(Value value)
+        {
+            if (value is not StringValue stringValue)
+            {
+                return false;
+            }
+
+            return Value == stringValue.Value;
+        }
     }
 }

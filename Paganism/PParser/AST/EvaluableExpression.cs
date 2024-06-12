@@ -20,6 +20,8 @@ namespace Paganism.PParser.AST
                     return new TypeValue(ExpressionInfo, value.Type, value.GetTypeName());
                 case ArrayExpression:
                     return new TypeValue(ExpressionInfo, Enums.TypesType.Array, string.Empty);
+                case StructureValue structureValue:
+                    return new TypeValue(ExpressionInfo, Enums.TypesType.Structure, structureValue.Structure.Name);
                 case BinaryOperatorExpression binaryOperatorExpression:
                     return binaryOperatorExpression.GetBinaryValueType();
                 case FunctionDeclarateExpression functionDeclarateExpression:

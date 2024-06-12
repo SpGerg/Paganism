@@ -20,6 +20,11 @@ namespace Paganism.PParser.AST
 
         public void Declarate()
         {
+            Declarate(Name);
+        }
+
+        public void Declarate(string name)
+        {
             Interpreter.Data.Enums.Instance.Set(ExpressionInfo, ExpressionInfo.Parent, Name, new EnumInstance(Info, this));
         }
 

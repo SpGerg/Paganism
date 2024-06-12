@@ -22,6 +22,10 @@ namespace Paganism.PParser.Values
 
         public virtual TypesType[] CanCastTypes { get; } = new TypesType[0];
 
+        public abstract bool Is(TypeValue typeValue);
+
+        public abstract bool Is(Value value);
+
         public static Value Create(Expression expression)
         {
             return expression switch
@@ -103,58 +107,6 @@ namespace Paganism.PParser.Values
             }
 
             return new VoidValue(ExpressionInfo.EmptyInfo);
-        }
-
-        public bool Is(TypeValue type)
-        {
-            if (this is FunctionTypeValue functionType)
-            {
-                if (type is not FunctionTypeValue functionTypeValue)
-                {
-                    return false;
-                }
-
-                return functionType.ReturnType.Is(functionTypeValue.ReturnType) && functionType.IsArguments(functionTypeValue.Arguments) && functionType.IsAsync == functionTypeValue.IsAsync;
-            }
-
-            if (this is FunctionValue functionValue)
-            {
-                return functionValue.Value.ReturnType.Is(type);
-            }
-
-            if (this is ArrayValue)
-            {
-                return type.Value is TypesType.Array;
-            }
-
-            if (this is ObjectValue)
-            {
-                return type.Value is TypesType.Structure;
-            }
-
-            if (this is StructureValue structureValue)
-            {
-                return type.Value is TypesType.Object || structureValue.Structure.Name == type.TypeName;
-            }
-
-            if (this is EnumValue enumValue)
-            {
-                return enumValue.Member.Enum == type.TypeName;
-            }
-
-            if (this is NoneValue or VoidValue || type.Value is TypesType.Any)
-            {
-                return true;
-            }
-
-            if (this is TypeValue typeValue)
-            {
-                return typeValue.Value is TypesType.Any ||
-                    (typeValue.Value is TypesType.Object && type.Value is TypesType.Structure) ||
-                    (typeValue.Value == type.Value && typeValue.TypeName == type.TypeName);
-            }
-
-            return Type == type.Value;
         }
 
         public string GetTypeName()

@@ -160,6 +160,33 @@ namespace Paganism.PParser.Values
             Values[key] = result;
         }
 
+        public StructureValue GetCastableMember(TypeValue typeValue)
+        {
+            foreach (var member in Structure.Members)
+            {
+                if (!member.Value.Info.IsCastable)
+                {
+                    continue;
+                }
+
+                var value = Values[member.Key];
+
+                if (value is not StructureValue structureValue1)
+                {
+                    continue;
+                }
+
+                if (!structureValue1.Is(typeValue))
+                {
+                    continue;
+                }
+
+                return structureValue1;
+            }
+
+            return null;
+        }
+
         public override string AsString()
         {
             var result = string.Empty;
@@ -183,21 +210,6 @@ namespace Paganism.PParser.Values
             result += "}";
 
             return result;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is not StructureValue structureValue)
-            {
-                return false;
-            }
-
-            if (structureValue.Structure.Name != Structure.Name)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         private void GetFunction(FunctionTypeValue functionTypeValue, ExpressionInfo expressionInfo, string name, List<StructureMemberExpression> structureMembers)
@@ -254,6 +266,44 @@ namespace Paganism.PParser.Values
                 {
                     return new BooleanValue(ExpressionInfo, Is(arguments[0].Value.GetTypeValue()));
                 }));
+        }
+
+        public override bool Is(TypeValue typeValue)
+        {
+            return typeValue.Value is TypesType.Object ||
+                    Structure.Name == typeValue.TypeName ||
+                    GetCastableMember(typeValue) is not null;
+        }
+
+        public override bool Is(Value value)
+        {
+            if (value is not StructureValue structureValue)
+            {
+                return false;
+            }
+
+            for (var i = 0;i < structureValue.Values.Count;i++)
+            {
+                if (i > Values.Count - 1)
+                {
+                    return false;
+                }
+
+                var member = structureValue.Values.ElementAt(i);
+                var member1 = Values.ElementAt(i);
+
+                if (member.Key != member1.Key)
+                {
+                    return false;
+                }
+
+                if (!member.Value.Is(member1.Value))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

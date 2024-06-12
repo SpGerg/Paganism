@@ -171,10 +171,14 @@ namespace Paganism.PParser
             var statements = new List<IStatement>();
             IStatement[] elseStatements = null;
 
+            InLoop = true;
+
             while (!Match(TokenType.End, TokenType.Else))
             {
                 statements.Add(ParseStatement());
             }
+
+            InLoop = false;
 
             if (Require(-1, TokenType.Else))
             {
@@ -421,9 +425,6 @@ namespace Paganism.PParser
                 throw new ParserException("Except '('.", Current.Line, Current.Position, Filepath);
             }
 
-            var statement = new BlockStatementExpression(CreateExpressionInfo(), new IStatement[0]);
-            _parent = statement;
-
             IStatement variable = null;
             EvaluableExpression expression = null;
             IStatement action = null;
@@ -460,13 +461,26 @@ namespace Paganism.PParser
 
             InLoop = true;
 
-            var statements = ParseExpressions(statement);
+            var statements = new List<IStatement>();
+
+            IStatement[] elseStatements = null;
+
+            while (!Match(TokenType.End, TokenType.Else))
+            {
+                statements.Add(ParseStatement());
+            }
 
             InLoop = false;
 
+            if (Require(-1, TokenType.Else))
+            {
+                elseStatements = ParseExpressions();
+            }
+
             return new ForExpression(CreateExpressionInfo(),
-                new BlockStatementExpression(CreateExpressionInfo(), statements.ToArray(), true), expression,
-                new BlockStatementExpression(CreateExpressionInfo(), new IStatement[] { action }), variable);
+                new BlockStatementExpression(CreateExpressionInfo(), statements.ToArray(), true),
+                new BlockStatementExpression(CreateExpressionInfo(), elseStatements.ToArray()),
+                new BlockStatementExpression(CreateExpressionInfo(), new IStatement[] { action }), expression, variable);
         }
 
         private IStatement ParseBreak()
@@ -673,7 +687,7 @@ namespace Paganism.PParser
 
             if (!Extension.AllowedExtensions.Contains(ExtensionFunction))
             {
-                throw new ParserException($"The Extension type {ExtensionFunction} does not exist!");
+                throw new ParserException($"The Extension type {ExtensionFunction} does not exist!", CreateExpressionInfo());
             }
 
             var original_name = $"..stringFunc_{name}";
@@ -689,7 +703,7 @@ namespace Paganism.PParser
                     }
                     break;
                 default:
-                    throw new ParserException($"The Extension type {ExtensionFunction} does not exist!");
+                    throw new ParserException($"The Extension type {ExtensionFunction} does not exist!", CreateExpressionInfo());
             }
 
             return DeclarationExpression;
@@ -789,7 +803,7 @@ namespace Paganism.PParser
         {
             Expression result;
 
-            if (Require(0, TokenType.Word) && Require(1, TokenType.Plus, TokenType.Minus))
+            if (Require(0, TokenType.Word) && Require(1, TokenType.Plus, TokenType.Minus) && Require(2, TokenType.Plus, TokenType.Minus))
             {
                 result = ParseUnaryPostfix();
             }
