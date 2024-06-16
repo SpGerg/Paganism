@@ -160,7 +160,7 @@ namespace Paganism.API
                 case BooleanValue booleanValue:
                     return booleanValue.Value;
                 case ArrayValue arrayValue:
-                    var array = new object[arrayValue.Elements.Length];
+                    var array = new object[arrayValue.Value.Length];
 
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -169,7 +169,7 @@ namespace Paganism.API
 
                     return array;
                 case EnumValue enumValue:
-                    return enumValue.Member.Enum;
+                    return enumValue.Value.Enum;
             }
 
             return null;

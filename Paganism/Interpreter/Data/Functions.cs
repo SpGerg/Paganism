@@ -61,7 +61,7 @@ namespace Paganism.Interpreter.Data
 
                             MethodInfo method = null;
 
-                            if (paramater is ArrayValue arrayValue && arrayValue.Elements.Length == 0)
+                            if (paramater is ArrayValue arrayValue && arrayValue.Value.Length == 0)
                             {
                                 method = findedClass.GetMethod(arguments[1].Value.Evaluate().AsString());
                             }
@@ -237,13 +237,13 @@ namespace Paganism.Interpreter.Data
 
                         for (int i = 0; i < newElements.Length; i++)
                         {
-                            if (i > array.Elements.Length - 1)
+                            if (i > array.Value.Length - 1)
                             {
                                 newElements[i] = new NoneValue(arguments[0].Value.ExpressionInfo);
                                 continue;
                             }
 
-                            newElements[i] = array.Elements[i];
+                            newElements[i] = array.Value[i];
                         }
 
                         var argument = arguments[0].Value;
@@ -264,14 +264,14 @@ namespace Paganism.Interpreter.Data
                     {
                         var argument = arguments[0].Value;
 
-                        return new NumberValue(argument.ExpressionInfo, (arguments[0].Value.Evaluate() as ArrayValue).Elements.Length);
+                        return new NumberValue(argument.ExpressionInfo, (arguments[0].Value.Evaluate() as ArrayValue).Value.Length);
                     }
                 )
             },
             { "print", new FunctionInstance(InstanceInfo.Empty,
                 new FunctionDeclarateExpression(ExpressionInfo.EmptyInfo, "print", _emptyBlock, new Argument[]
                 {
-                    new("content", TypesType.String, null, true)
+                    new("content", TypesType.Any, null, true)
                 }, false, _languageFunctionInfo), (Argument[] arguments) =>
                     {
                         Console.Write(arguments[0].Value.Evaluate().AsString());

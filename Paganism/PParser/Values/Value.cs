@@ -37,36 +37,36 @@ namespace Paganism.PParser.Values
             };
         }
 
-        public static Value Create(object value)
+        public static Value Create(object value, ExpressionInfo? expressionInfo = null)
         {
-            var type = value as Type;
+            var expressionInfo1 = expressionInfo is null ? ExpressionInfo.EmptyInfo : (ExpressionInfo) expressionInfo;
 
             if (value is string)
             {
-                return new StringValue(ExpressionInfo.EmptyInfo, Convert.ToString(value));
+                return new StringValue(expressionInfo1, Convert.ToString(value));
             }
 
             if (value is double or int or float)
             {
-                return new NumberValue(ExpressionInfo.EmptyInfo, Convert.ToDouble(value));
+                return new NumberValue(expressionInfo1, Convert.ToDouble(value));
             }
 
             if (value is bool)
             {
-                return new BooleanValue(ExpressionInfo.EmptyInfo, Convert.ToBoolean(value));
+                return new BooleanValue(expressionInfo1, Convert.ToBoolean(value));
             }
 
-            if (type is null || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum || PaganismFromCSharp.IsStructure(type))
+            if (value is not Type type || (!type.IsValueType && type != typeof(string)) || (type.IsClass && type != typeof(string)) || type.IsEnum || PaganismFromCSharp.IsStructure(type))
             {
-                return new NoneValue(ExpressionInfo.EmptyInfo);
+                return new NoneValue(expressionInfo1);
             }
 
-            if (Interpreter.Data.Structures.Instance.TryGet(null, type.Name, ExpressionInfo.EmptyInfo, out var structure))
+            if (Interpreter.Data.Structures.Instance.TryGet(null, type.Name, expressionInfo1, out var structure))
             {
                 return new StructureValue(structure.StructureDeclarateExpression.ExpressionInfo, structure);
             }
 
-            return new NoneValue(ExpressionInfo.EmptyInfo);
+            return new NoneValue(expressionInfo1);
         }
 
         public static Value Create(StructureValue structure, VariableExpression variable)
@@ -78,35 +78,22 @@ namespace Paganism.PParser.Values
 
         public static Value Create(Value copy)
         {
-            switch (copy)
+            return copy switch
             {
-                case StringValue stringValue:
-                    return new StringValue(copy.ExpressionInfo, stringValue.Value);
-                case NumberValue numberValue:
-                    return new NumberValue(copy.ExpressionInfo, numberValue.Value);
-                case BooleanValue booleanValue:
-                    return new BooleanValue(copy.ExpressionInfo, booleanValue.Value);
-                case FunctionValue functionValue:
-                    return new FunctionValue(copy.ExpressionInfo, functionValue.Value, functionValue.Func);
-                case ArrayValue arrayValue:
-                    return new ArrayValue(copy.ExpressionInfo, arrayValue.Elements);
-                case NoneValue noneValue:
-                    return new NoneValue(noneValue.ExpressionInfo);
-                case EnumValue enumValue:
-                    return new EnumValue(copy.ExpressionInfo, enumValue.Member);
-                case StructureValue structureValue:
-                    return new StructureValue(copy.ExpressionInfo, structureValue.Structure);
-                case CharValue charValue:
-                    return new CharValue(copy.ExpressionInfo, charValue.Value);
-                case FunctionTypeValue functionTypeValue:
-                    return new FunctionTypeValue(copy.ExpressionInfo, functionTypeValue.Value, functionTypeValue.TypeName, functionTypeValue.Arguments, functionTypeValue.IsAsync);
-                case TypeValue typeValue:
-                    return new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName);
-                case ObjectValue objectValue:
-                    return new ObjectValue(copy.ExpressionInfo, objectValue.Value);
-            }
-
-            return new VoidValue(ExpressionInfo.EmptyInfo);
+                StringValue stringValue => new StringValue(copy.ExpressionInfo, stringValue.Value),
+                NumberValue numberValue => new NumberValue(copy.ExpressionInfo, numberValue.Value),
+                BooleanValue booleanValue => new BooleanValue(copy.ExpressionInfo, booleanValue.Value),
+                FunctionValue functionValue => new FunctionValue(copy.ExpressionInfo, functionValue.Value, functionValue.Func),
+                ArrayValue arrayValue => new ArrayValue(copy.ExpressionInfo, arrayValue.Value),
+                NoneValue noneValue => new NoneValue(noneValue.ExpressionInfo),
+                EnumValue enumValue => new EnumValue(copy.ExpressionInfo, enumValue.Value),
+                StructureValue structureValue => new StructureValue(copy.ExpressionInfo, structureValue.Structure),
+                CharValue charValue => new CharValue(copy.ExpressionInfo, charValue.Value),
+                FunctionTypeValue functionTypeValue => new FunctionTypeValue(copy.ExpressionInfo, functionTypeValue.Value, functionTypeValue.TypeName, functionTypeValue.Arguments, functionTypeValue.IsAsync),
+                TypeValue typeValue => new TypeValue(copy.ExpressionInfo, typeValue.Value, typeValue.TypeName),
+                ObjectValue objectValue => new ObjectValue(copy.ExpressionInfo, objectValue.Value),
+                _ => new VoidValue(copy.ExpressionInfo),
+            };
         }
 
         public string GetTypeName()
@@ -118,7 +105,7 @@ namespace Paganism.PParser.Values
 
             if (this is EnumValue enumValue)
             {
-                return enumValue.Member.Enum;
+                return enumValue.Value.Enum;
             }
 
             return string.Empty;
@@ -153,8 +140,6 @@ namespace Paganism.PParser.Values
 
             return this as T;
         }
-
-        public virtual void Set(object value) { }
 
         public virtual double AsNumber()
         {

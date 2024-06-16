@@ -9,11 +9,11 @@ namespace Paganism.Lexer
         public static IReadOnlyDictionary<string, TokenType> KeywordsType { get; } = new Dictionary<string, TokenType>()
         {
             { "function", TokenType.Function },
+            { "fun", TokenType.Function },
             { "end", TokenType.End },
             { "string", TokenType.StringType },
             { "str", TokenType.StringType },
             { "number", TokenType.NumberType },
-            { "nbr", TokenType.NumberType },
             { "nmr", TokenType.NumberType },
             { "boolean", TokenType.BooleanType },
             { "bool", TokenType.BooleanType },
@@ -48,19 +48,20 @@ namespace Paganism.Lexer
             { "required", TokenType.Required },
             { "rqr", TokenType.Required },
             { "structure_type", TokenType.StructureType },
+            { "stt", TokenType.StructureType },
             { "as", TokenType.As },
-            { "delegate", TokenType.Delegate },
             { "try", TokenType.Try },
             { "catch", TokenType.Catch },
             { "enum", TokenType.Enum },
             { "new", TokenType.New },
-            { "array", TokenType.ArrayType },
+            { "array_type", TokenType.ArrayType },
             { "enum_type", TokenType.EnumType },
+            { "ent", TokenType.EnumType },
             { "readonly", TokenType.Readonly },
             { "extension", TokenType.Extension },
             { "function_type", TokenType.FunctionType },
             { "fnt", TokenType.FunctionType },
-            { "while", TokenType.While },
+            { "while", TokenType.While }
         };
 
         public static IReadOnlyDictionary<string, TokenType> OperatorsType { get; } = new Dictionary<string, TokenType>()
@@ -83,7 +84,7 @@ namespace Paganism.Lexer
             { "#", TokenType.Sharp }
         };
 
-        public static IReadOnlyDictionary<TokenType, TypesType> TokenTypeToValueType { get; } = new Dictionary<TokenType, TypesType>()
+        public static IReadOnlyDictionary<TokenType, TypesType> TokenTypeToTypesType { get; } = new Dictionary<TokenType, TypesType>()
         {
             { TokenType.NoneType, TypesType.None },
             { TokenType.StringType, TypesType.String },
@@ -103,7 +104,7 @@ namespace Paganism.Lexer
             { TokenType.Word, TypesType.Structure },
             { TokenType.ObjectType, TypesType.Object },
             { TokenType.FunctionType, TypesType.Function },
-            { TokenType.ArrayType, TypesType.Array }
+            { TokenType.ArrayType, TypesType.Array },
         };
     }
 }

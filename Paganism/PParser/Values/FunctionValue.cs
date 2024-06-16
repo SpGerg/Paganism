@@ -1,11 +1,12 @@
 ﻿using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 using System;
 
 namespace Paganism.PParser.Values
 {
-    public class FunctionValue : Value
+    public class FunctionValue : Value, ISettable
     {
         public FunctionValue(ExpressionInfo info, FunctionDeclarateExpression value, Func<Argument[], Value> func = null) : base(info)
         {
@@ -34,20 +35,11 @@ namespace Paganism.PParser.Values
             TypesType.String
         };
 
-        public FunctionDeclarateExpression Value { get; set; }
+        public FunctionDeclarateExpression Value { get; private set; }
 
-        public Func<Argument[], Value> Func { get; }
+        public Func<Argument[], Value> Func { get; private set; }
 
         private FunctionTypeValue _functionTypeValue;
-
-        public override void Set(object value)
-        {
-            if (value is FunctionValue functionValue)
-            {
-                Value = functionValue.Value;
-                return;
-            }
-        }
 
         public bool CheckArguments(Argument[] arguments)
         {
@@ -112,6 +104,17 @@ namespace Paganism.PParser.Values
             }
 
             return false;
+        }
+
+        public void Set(Value value)
+        {
+            if (value is not FunctionValue functionValue)
+            {
+                return;
+            }
+
+            Value = functionValue.Value;
+            Func = functionValue.Func;
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 
 namespace Paganism.PParser.Values
 {
-    public class CharValue : Value
+    public class CharValue : Value, ISettable
     {
         public CharValue(ExpressionInfo info, char value) : base(info)
         {
@@ -18,7 +19,7 @@ namespace Paganism.PParser.Values
             TypesType.Char
         };
 
-        public char Value { get; }
+        public char Value { get; private set; }
 
         public override string AsString()
         {
@@ -38,6 +39,16 @@ namespace Paganism.PParser.Values
             }
 
             return charValue.Value == Value;
+        }
+
+        public void Set(Value value)
+        {
+            if (value is not CharValue charValue)
+            {
+                return;
+            }
+
+            Value = charValue.Value;
         }
     }
 }

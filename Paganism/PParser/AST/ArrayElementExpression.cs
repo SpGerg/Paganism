@@ -38,7 +38,7 @@ namespace Paganism.PParser.AST
                     throw new InterpreterException($"Index must be a non-negative, in array variable: {Name}.", ExpressionInfo);
                 }
 
-                if (arrayValue.Elements.Length - 1 < value && Left is not null && Left.Evaluate() is ArrayValue)
+                if (arrayValue.Value.Length - 1 < value && Left is not null && Left.Evaluate() is ArrayValue)
                 {
                     throw new InterpreterException($"Index out of bounds, in array: {Name}", ExpressionInfo);
                 }
@@ -50,7 +50,7 @@ namespace Paganism.PParser.AST
 
                     if (left is ArrayValue arrayValue1)
                     {
-                        return new KeyValuePair<int, Value>((int)value, arrayValue1.Elements[(int)value]);
+                        return new KeyValuePair<int, Value>((int)value, arrayValue1.Value[(int)value]);
                     }
 
                     if (left is not StringValue stringValue)
@@ -66,7 +66,7 @@ namespace Paganism.PParser.AST
                     return new KeyValuePair<int, Value>((int)value, new CharValue(stringValue.ExpressionInfo, stringValue.Value[(int)value]));
                 }
 
-                return new KeyValuePair<int, Value>((int)value, arrayValue.Elements[(int)value]);
+                return new KeyValuePair<int, Value>((int)value, arrayValue.Value[(int)value]);
             }
 
             throw new InterpreterException($"Variable must be array, in array variable with name: {Name}", ExpressionInfo);

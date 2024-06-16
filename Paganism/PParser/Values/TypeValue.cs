@@ -1,9 +1,9 @@
 ﻿using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 
-#pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
-    public class TypeValue : Value
+    public class TypeValue : Value, ISettable
     {
         public TypeValue(ExpressionInfo info, TypesType value, string typeName) : base(info)
         {
@@ -20,9 +20,9 @@ namespace Paganism.PParser.Values
             TypesType.String
         };
 
-        public string TypeName { get; }
+        public string TypeName { get; protected set; }
 
-        public TypesType Value { get; }
+        public TypesType Value { get; protected set; }
 
         public override string AsString()
         {
@@ -54,6 +54,17 @@ namespace Paganism.PParser.Values
         public override string ToString()
         {
             return AsString();
+        }
+
+        public void Set(Value value)
+        {
+            if (value is not TypeValue typeValue)
+            {
+                return;
+            }
+
+            Value = typeValue.Value;
+            TypeName = typeValue.TypeName;
         }
     }
 }

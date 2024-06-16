@@ -387,7 +387,7 @@ namespace Paganism.PParser
                 }
                 else
                 {
-                    type = new TypeValue(CreateExpressionInfo(), Lexer.Tokens.TokenTypeToValueType[Current.Type], string.Empty);
+                    type = new TypeValue(CreateExpressionInfo(), Lexer.Tokens.TokenTypeToTypesType[Current.Type], string.Empty);
                 }
 
                 Position++;

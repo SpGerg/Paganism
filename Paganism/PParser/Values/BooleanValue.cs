@@ -1,8 +1,9 @@
 ﻿using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 
 namespace Paganism.PParser.Values
 {
-    public class BooleanValue : Value
+    public class BooleanValue : Value, ISettable
     {
         public BooleanValue(ExpressionInfo info, bool value) : base(info)
         {
@@ -13,19 +14,13 @@ namespace Paganism.PParser.Values
 
         public override TypesType Type => TypesType.Boolean;
 
-        public bool Value { get; set; }
+        public bool Value { get; private set; }
 
         public override TypesType[] CanCastTypes { get; } = new[] { TypesType.Number };
 
-        public override void Set(object value)
+        public void Set(Value value)
         {
-            if (value is Value objectValue)
-            {
-                Value = objectValue.AsBoolean();
-                return;
-            }
-
-            Value = (bool)value;
+            Value = value.AsBoolean();
         }
 
         public override double AsNumber()

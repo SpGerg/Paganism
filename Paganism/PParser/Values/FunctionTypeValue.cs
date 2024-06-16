@@ -1,5 +1,6 @@
 ﻿using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Paganism.PParser.Values
 {
-    public class FunctionTypeValue : TypeValue
+    public class FunctionTypeValue : TypeValue, ISettable
     {
         public FunctionTypeValue(ExpressionInfo info, TypesType value, string typeName, Argument[] arguments, bool isAsync) : base(info, value, typeName)
         {
@@ -22,11 +23,11 @@ namespace Paganism.PParser.Values
 
         public FunctionTypeValue(ExpressionInfo info, FunctionDeclarateExpression functionDeclarateExpression, bool isAsync) : this(info, functionDeclarateExpression.ReturnType, functionDeclarateExpression.Arguments, isAsync) { }
 
-        public bool IsAsync { get; }
+        public bool IsAsync { get; private set; }
 
-        public TypeValue ReturnType { get; }
+        public TypeValue ReturnType { get; private set; }
 
-        public Argument[] Arguments { get; }
+        public Argument[] Arguments { get; private set; }
 
         public bool CheckArguments(Argument[] arguments)
         {
@@ -70,6 +71,20 @@ namespace Paganism.PParser.Values
             }
 
             return ReturnType.Is(functionTypeValue.ReturnType) && CheckArguments(functionTypeValue.Arguments) && IsAsync == functionTypeValue.IsAsync;
+        }
+
+        public void Set(Value value)
+        {
+            if (value is not FunctionTypeValue functionTypeValue)
+            {
+                return;
+            }
+
+            IsAsync = functionTypeValue.IsAsync;
+            ReturnType = functionTypeValue.ReturnType;
+            Arguments = functionTypeValue.Arguments;
+            Value = functionTypeValue.Value;
+            TypeName = functionTypeValue.TypeName;
         }
     }
 }

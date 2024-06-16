@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Paganism</RootNamespace>
     <AssemblyName>Paganism</AssemblyName>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -57,8 +57,8 @@
     <Compile Include="Lexer\Tokenizers\CharTokenizer.cs" />
     <Compile Include="Lexer\Utilities.cs" />
     <Compile Include="PParser\Argument.cs" />
-    <Compile Include="PParser\AST\ArrayExpression.cs" />
     <Compile Include="PParser\AST\ArrayElementExpression.cs" />
+    <Compile Include="PParser\AST\ArrayExpression.cs" />
     <Compile Include="PParser\AST\AssignExpression.cs" />
     <Compile Include="PParser\AST\AwaitExpression.cs" />
     <Compile Include="PParser\AST\BinaryOperatorExpression.cs" />
@@ -106,6 +106,7 @@
     <Compile Include="PParser\Values\EnumValue.cs" />
     <Compile Include="PParser\Values\FunctionTypeValue.cs" />
     <Compile Include="PParser\Values\FunctionValue.cs" />
+    <Compile Include="PParser\Values\Interfaces\ISettable.cs" />
     <Compile Include="PParser\Values\NoneValue.cs" />
     <Compile Include="PParser\Values\ObjectValue.cs" />
     <Compile Include="PParser\Values\StringValue.cs" />

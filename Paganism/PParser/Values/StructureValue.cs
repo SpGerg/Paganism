@@ -2,15 +2,15 @@
 using Paganism.Interpreter.Data.Instances;
 using Paganism.PParser.AST;
 using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 using Paganism.Structures;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#pragma warning disable CS0659
 namespace Paganism.PParser.Values
 {
-    public class StructureValue : Value
+    public class StructureValue : Value, ISettable
     {
         public StructureValue(ExpressionInfo info, string name, Dictionary<string, StructureMemberExpression> members, InstanceInfo instanceInfo) : base(info)
         {
@@ -144,9 +144,9 @@ namespace Paganism.PParser.Values
             TypesType.String
         };
 
-        public Dictionary<string, Value> Values { get; }
+        public Dictionary<string, Value> Values { get; private set; }
 
-        public StructureInstance Structure { get; }
+        public StructureInstance Structure { get; private set; }
 
         public void Set(string key, Value value, string filePath)
         {
@@ -167,20 +167,16 @@ namespace Paganism.PParser.Values
                 throw new InterpreterException($"Except '{member.Type}' type", value.ExpressionInfo);
             }
 
-            if (Values.TryGetValue(key, out var result))
+            if (Values.TryGetValue(key, out _))
             {
-                if (result is NoneValue || (result is FunctionValue functionValue && functionValue.Value is null))
-                {
-                    Values.Remove(key);
+                Values.Remove(key);
 
-                    Values[key] = value;
-                    return;
-                }
-
-                result.Set(value);
+                Values[key] = value;
             }
-
-            Values[key] = result;
+            else
+            {
+                Values.Add(key, value);
+            }
         }
 
         public StructureValue GetCastableMember(TypeValue typeValue)
@@ -327,6 +323,20 @@ namespace Paganism.PParser.Values
             }
 
             return true;
+        }
+
+        public void Set(Value value)
+        {
+            if (value is StructureValue structureValue)
+            {
+                Values = structureValue.Values;
+                Structure = structureValue.Structure;
+            }
+            else if (value is ObjectValue objectValue)
+            {
+                Values = objectValue.Value.Values;
+                Structure = objectValue.Value.Structure;
+            }
         }
     }
 }

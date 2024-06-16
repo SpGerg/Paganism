@@ -1,8 +1,9 @@
 ﻿using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 
 namespace Paganism.PParser.Values
 {
-    public class NumberValue : Value
+    public class NumberValue : Value, ISettable
     {
         public NumberValue(ExpressionInfo info, double value) : base(info)
         {
@@ -19,18 +20,7 @@ namespace Paganism.PParser.Values
             TypesType.Boolean
         };
 
-        public double Value { get; set; }
-
-        public override void Set(object value)
-        {
-            if (value is Value objectValue)
-            {
-                Value = objectValue.AsNumber();
-                return;
-            }
-
-            Value = (double)value;
-        }
+        public double Value { get; private set; }
 
         public override double AsNumber()
         {
@@ -60,6 +50,11 @@ namespace Paganism.PParser.Values
             }
 
             return numberValue.Value == Value;
+        }
+
+        public void Set(Value value)
+        {
+            Value = value.AsNumber();
         }
     }
 }

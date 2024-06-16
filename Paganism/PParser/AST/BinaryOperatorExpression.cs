@@ -3,6 +3,7 @@ using Paganism.Interpreter.Data;
 using Paganism.PParser.AST.Enums;
 using Paganism.PParser.AST.Interfaces;
 using Paganism.PParser.Values;
+using Paganism.PParser.Values.Interfaces;
 using System.Collections.Generic;
 
 namespace Paganism.PParser.AST
@@ -423,9 +424,9 @@ namespace Paganism.PParser.AST
                     {
                         array.Set(eval.Key, value);
                     }
-                    else
+                    else if (eval.Value is ISettable settable)
                     {
-                        eval.Value.Set(value);
+                        settable.Set(value);
                     }
                 }
 

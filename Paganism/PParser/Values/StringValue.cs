@@ -1,8 +1,9 @@
 ﻿using Paganism.PParser.AST.Enums;
+using Paganism.PParser.Values.Interfaces;
 
 namespace Paganism.PParser.Values
 {
-    public class StringValue : Value
+    public class StringValue : Value, ISettable
     {
         public StringValue(ExpressionInfo info, string value) : base(info)
         {
@@ -15,18 +16,7 @@ namespace Paganism.PParser.Values
 
         public override TypesType[] CanCastTypes { get; } = new TypesType[0];
 
-        public string Value { get; set; }
-
-        public override void Set(object value)
-        {
-            if (value is Value objectValue)
-            {
-                Value = objectValue.AsString();
-                return;
-            }
-
-            Value = (string)value;
-        }
+        public string Value { get; private set; }
 
         public override string AsString()
         {
@@ -46,6 +36,11 @@ namespace Paganism.PParser.Values
             }
 
             return Value == stringValue.Value;
+        }
+
+        public void Set(Value value)
+        {
+            Value = value.AsString();
         }
     }
 }
